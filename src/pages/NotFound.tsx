@@ -18,12 +18,12 @@ const NotFound = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="text-center">
-        <h1 className="text-6xl font-bold mb-4">404</h1>
+        <h1 className="text-8xl font-bold mb-4 text-primary">404</h1>
         <p className="text-xl text-muted-foreground mb-6">
           Sorry, the page you're looking for doesn't exist.
         </p>
         <Link to="/">
-          <Button>
+          <Button className="saas-button-primary">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Home
           </Button>

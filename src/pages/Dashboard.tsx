@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Plus, RefreshCw, Search } from "lucide-react";
+import { Card } from "@/components/ui/card";
 
 const Dashboard = () => {
   const { collections, fetchCollections, loading, createCollection } = useCollection();
@@ -70,10 +71,10 @@ const Dashboard = () => {
     <div className="flex h-screen overflow-hidden bg-background">
       <Sidebar />
       <div className="flex-1 overflow-auto">
-        <div className="container max-w-7xl mx-auto py-8 px-4 sm:px-6">
+        <div className="p-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
             <div>
-              <h1 className="text-3xl font-bold tracking-tight">Collections Dashboard</h1>
+              <h1 className="text-2xl font-bold tracking-tight">Collections</h1>
               <p className="text-muted-foreground mt-1">
                 Manage your data collections and schemas
               </p>
@@ -83,7 +84,7 @@ const Dashboard = () => {
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Search collections..."
-                  className="pl-9 w-full sm:w-[250px]"
+                  className="pl-9 w-full sm:w-[250px] bg-secondary border-0"
                   value={searchTerm}
                   onChange={handleSearch}
                 />
@@ -91,12 +92,12 @@ const Dashboard = () => {
 
               <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button>
+                  <Button className="saas-button-primary">
                     <Plus className="mr-2 h-4 w-4" />
                     New Collection
                   </Button>
                 </DialogTrigger>
-                <DialogContent>
+                <DialogContent className="bg-card border-border">
                   <DialogHeader>
                     <DialogTitle>Create New Collection</DialogTitle>
                   </DialogHeader>
@@ -108,6 +109,7 @@ const Dashboard = () => {
                         value={newCollection.name}
                         onChange={(e) => handleNameChange(e.target.value)}
                         required
+                        className="saas-input"
                       />
                     </div>
                     <div>
@@ -117,6 +119,7 @@ const Dashboard = () => {
                         value={newCollection.slug}
                         onChange={(e) => setNewCollection({...newCollection, slug: e.target.value})}
                         required
+                        className="saas-input"
                       />
                     </div>
                     <div>
@@ -125,10 +128,11 @@ const Dashboard = () => {
                         id="description" 
                         value={newCollection.description}
                         onChange={(e) => setNewCollection({...newCollection, description: e.target.value})}
+                        className="saas-input"
                       />
                     </div>
                     <div className="flex justify-end pt-4">
-                      <Button type="submit">Create Collection</Button>
+                      <Button type="submit" className="saas-button-primary">Create Collection</Button>
                     </div>
                   </form>
                 </DialogContent>
@@ -138,6 +142,7 @@ const Dashboard = () => {
                 variant="outline" 
                 onClick={() => fetchCollections()}
                 disabled={loading}
+                className="bg-secondary border-0 hover:bg-secondary/80"
               >
                 {loading ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -155,11 +160,13 @@ const Dashboard = () => {
           ) : filteredCollections.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredCollections.map((collection) => (
-                <CollectionCard key={collection.id} collection={collection} />
+                <Card key={collection.id} className="bg-card border-border overflow-hidden shadow-md">
+                  <CollectionCard collection={collection} />
+                </Card>
               ))}
             </div>
           ) : (
-            <div className="bg-muted/30 rounded-lg p-8 text-center">
+            <Card className="bg-card border-border p-8 text-center">
               {searchTerm ? (
                 <div>
                   <p className="text-lg font-medium">No collections match your search</p>
@@ -169,13 +176,13 @@ const Dashboard = () => {
                 <div>
                   <p className="text-lg font-medium">No collections yet</p>
                   <p className="text-muted-foreground mt-1">Create your first collection to get started</p>
-                  <Button className="mt-4" onClick={() => setIsCreateDialogOpen(true)}>
+                  <Button className="saas-button-primary mt-4" onClick={() => setIsCreateDialogOpen(true)}>
                     <Plus className="mr-2 h-4 w-4" />
                     Create Collection
                   </Button>
                 </div>
               )}
-            </div>
+            </Card>
           )}
         </div>
       </div>
