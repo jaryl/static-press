@@ -30,7 +30,7 @@ const Login = () => {
           <div className="inline-flex items-center justify-center p-3 rounded-full bg-primary/10 mb-3">
             <Database className="h-8 w-8 text-primary" />
           </div>
-          <h1 className="text-3xl font-bold">DataScribe</h1>
+          <h1 className="text-3xl font-bold">StaticPress</h1>
           <p className="text-muted-foreground mt-1">Admin panel for your data collections</p>
         </div>
 
@@ -67,9 +67,9 @@ const Login = () => {
               </div>
             </CardContent>
             <CardFooter>
-              <Button 
-                className="w-full" 
-                type="submit" 
+              <Button
+                className="w-full"
+                type="submit"
                 disabled={loading}
               >
                 {loading ? (

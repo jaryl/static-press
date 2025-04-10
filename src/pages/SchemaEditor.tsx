@@ -1,8 +1,7 @@
-
 import { useEffect } from "react";
 import { useParams, Link, Navigate } from "react-router-dom";
 import { useCollection } from "@/contexts/CollectionContext";
-import { Sidebar } from "@/components/Sidebar";
+import { Sidebar } from "@/components/layout/Sidebar";
 import { SchemaForm } from "@/components/SchemaForm";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";

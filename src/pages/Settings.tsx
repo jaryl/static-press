@@ -1,6 +1,5 @@
-
 import { useAuth } from "@/contexts/AuthContext";
-import { Sidebar } from "@/components/Sidebar";
+import { Sidebar } from "@/components/layout/Sidebar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
@@ -16,7 +15,7 @@ const Settings = () => {
       <Sidebar />
       <div className="flex-1 overflow-auto">
         <div className="page-header">
-          <h1 className="text-md font-medium">Settings</h1>
+          <h1 className="text-base font-medium">Settings</h1>
           <div className="flex items-center gap-2">
             <Link to="/dashboard">
               <Button variant="ghost" size="sm" className="h-7 text-xs">
@@ -26,7 +25,7 @@ const Settings = () => {
             </Link>
           </div>
         </div>
-        
+
         <div className="secondary-header">
           <div className="text-xs text-muted-foreground">
             Manage your account and application settings
@@ -38,15 +37,15 @@ const Settings = () => {
             <div className="md:col-span-2 space-y-4">
               <Card>
                 <CardHeader className="py-3 px-4">
-                  <CardTitle className="text-md">Application Settings</CardTitle>
-                  <CardDescription className="text-xs">Configure your DataScribe application</CardDescription>
+                  <CardTitle className="text-base">Application Settings</CardTitle>
+                  <CardDescription className="text-xs">Configure your StaticPress application</CardDescription>
                 </CardHeader>
                 <CardContent className="px-4 py-3 text-sm">
                   <Alert>
                     <InfoIcon className="h-3 w-3" />
                     <AlertTitle className="text-xs font-medium">Demo Mode</AlertTitle>
                     <AlertDescription className="text-xs">
-                      This is a demo application with simulated functionality. 
+                      This is a demo application with simulated functionality.
                       In a real implementation, these settings would be configurable.
                     </AlertDescription>
                   </Alert>
@@ -55,7 +54,7 @@ const Settings = () => {
 
               <Card>
                 <CardHeader className="py-3 px-4">
-                  <CardTitle className="text-md">API Configuration</CardTitle>
+                  <CardTitle className="text-base">API Configuration</CardTitle>
                   <CardDescription className="text-xs">Manage API access and credentials</CardDescription>
                 </CardHeader>
                 <CardContent className="px-4 py-3 text-sm">
@@ -63,7 +62,7 @@ const Settings = () => {
                     <InfoIcon className="h-3 w-3" />
                     <AlertTitle className="text-xs font-medium">Demo Mode</AlertTitle>
                     <AlertDescription className="text-xs">
-                      In a production environment, this section would allow configuration of 
+                      In a production environment, this section would allow configuration of
                       API endpoints, authentication tokens, and other backend settings.
                     </AlertDescription>
                   </Alert>
@@ -74,7 +73,7 @@ const Settings = () => {
             <div className="space-y-4">
               <Card>
                 <CardHeader className="py-3 px-4">
-                  <CardTitle className="text-md">Account</CardTitle>
+                  <CardTitle className="text-base">Account</CardTitle>
                   <CardDescription className="text-xs">Manage your account settings</CardDescription>
                 </CardHeader>
                 <CardContent className="px-4 py-3 space-y-3">
@@ -91,9 +90,9 @@ const Settings = () => {
                     <p className="text-xs text-muted-foreground">{user?.role || 'Administrator'}</p>
                   </div>
                   <div className="pt-1">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
+                    <Button
+                      variant="outline"
+                      size="sm"
                       className="w-full text-destructive hover:bg-destructive/10 hover:text-destructive text-xs h-7"
                       onClick={() => logout()}
                     >
@@ -105,14 +104,14 @@ const Settings = () => {
 
               <Card>
                 <CardHeader className="py-3 px-4">
-                  <CardTitle className="text-md">About</CardTitle>
+                  <CardTitle className="text-base">About</CardTitle>
                   <CardDescription className="text-xs">Application information</CardDescription>
                 </CardHeader>
                 <CardContent className="px-4 py-3">
                   <div className="space-y-2">
                     <div>
                       <p className="text-xs font-medium text-foreground">Application</p>
-                      <p className="text-xs text-muted-foreground">DataScribe Admin</p>
+                      <p className="text-xs text-muted-foreground">StaticPress Admin</p>
                     </div>
                     <div>
                       <p className="text-xs font-medium text-foreground">Version</p>

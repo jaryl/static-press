@@ -1,20 +1,17 @@
-
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useCollection } from "@/contexts/CollectionContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Sidebar } from "@/components/Sidebar";
+import { Sidebar } from "@/components/layout/Sidebar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { RecordForm } from "@/components/RecordForm";
-import { 
-  ArrowLeft, 
-  Edit, 
-  Loader2, 
-  Plus, 
-  RefreshCw, 
+import {
+  ArrowLeft,
+  Edit,
+  Plus,
   Search,
-  Trash2 
+  Trash2
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -32,11 +29,11 @@ import {
 
 const Collection = () => {
   const { id } = useParams<{ id: string }>();
-  const { 
-    fetchCollection, 
-    fetchRecords, 
-    currentCollection, 
-    records, 
+  const {
+    fetchCollection,
+    fetchRecords,
+    currentCollection,
+    records,
     loading,
     deleteRecord
   } = useCollection();
@@ -55,18 +52,12 @@ const Collection = () => {
     setSearchTerm(e.target.value);
   };
 
-  const handleRefresh = () => {
-    if (id) {
-      fetchRecords(id);
-    }
-  };
-
   // Filter records based on search term
   const filteredRecords = records.filter(record => {
     if (!searchTerm) return true;
-    
+
     const searchLower = searchTerm.toLowerCase();
-    
+
     // Search through all field values
     return Object.entries(record.data).some(([_, value]) => {
       if (value === null || value === undefined) return false;
@@ -87,15 +78,15 @@ const Collection = () => {
   // Format special field types
   const formatFieldValue = (fieldName: string, value: any) => {
     if (!currentCollection) return String(value);
-    
+
     const field = currentCollection.fields.find(f => f.name === fieldName);
-    
+
     if (!field) return String(value);
-    
+
     if (value === undefined || value === null) {
       return <span className="text-gray-400">—</span>;
     }
-    
+
     switch (field.type) {
       case 'boolean':
         return value ? 'Yes' : 'No';
@@ -116,7 +107,7 @@ const Collection = () => {
         <Sidebar />
         <div className="flex-1 flex items-center justify-center">
           {loading ? (
-            <Loader2 className="h-8 w-8 animate-spin text-primary/70" />
+            <div className="h-8 w-8 animate-spin text-primary/70" />
           ) : (
             <div className="text-center">
               <p className="text-sm font-medium">Collection not found</p>
@@ -138,53 +129,39 @@ const Collection = () => {
       <div className="flex-1 overflow-auto">
         <div className="page-header">
           <div className="flex items-center gap-4">
-            <h1 className="text-md font-medium">{currentCollection.name}</h1>
-            <Badge variant="outline" className="text-xs h-5">
+            <h1 className="text-base font-medium">{currentCollection.name}</h1>
+            <Badge variant="outline" className="text-[10px] h-6">
               {records.length} {records.length === 1 ? 'record' : 'records'}
             </Badge>
           </div>
-          
+
           <div className="flex items-center gap-2">
             <Link to={`/schema/${id}`}>
-              <Button variant="outline" size="sm" className="h-7 text-xs">
+              <Button variant="outline" size="sm" className="h-8 text-xs">
                 <Edit className="mr-1 h-3.5 w-3.5" />
                 Schema
               </Button>
             </Link>
-            
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={handleRefresh}
-              disabled={loading}
-              className="h-7 w-7 p-0"
-            >
-              {loading ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              ) : (
-                <RefreshCw className="h-3.5 w-3.5" />
-              )}
-            </Button>
-            
-            <Button size="sm" onClick={() => setIsCreateDialogOpen(true)} className="h-7 text-xs">
+
+            <Button size="sm" onClick={() => setIsCreateDialogOpen(true)} className="h-8 text-xs">
               <Plus className="mr-1 h-3.5 w-3.5" />
               New Record
             </Button>
           </div>
         </div>
-        
+
         <div className="secondary-header">
           <div className="text-xs text-muted-foreground">
             {currentCollection.description && currentCollection.description}
           </div>
-          
+
           <div className="relative">
-            <Search className="absolute left-2 top-1.5 h-3.5 w-3.5 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder={`Search ${currentCollection.name.toLowerCase()}...`}
-              className="pl-7 h-7 w-[200px] bg-secondary border-0 text-xs"
+              placeholder="Search records..."
               value={searchTerm}
               onChange={handleSearch}
+              className="w-full pl-9 py-1.5 h-8 bg-background/10 border border-border/50 rounded-lg text-xs"
             />
           </div>
         </div>
@@ -192,7 +169,7 @@ const Collection = () => {
         <div className="p-0">
           {loading && records.length === 0 ? (
             <div className="flex items-center justify-center h-64">
-              <Loader2 className="h-8 w-8 animate-spin text-primary/70" />
+              <div className="h-8 w-8 animate-spin text-primary/70" />
             </div>
           ) : filteredRecords.length > 0 ? (
             <Table>
@@ -223,7 +200,7 @@ const Collection = () => {
                       >
                         <Edit size={14} />
                       </Button>
-                      
+
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
                           <Button size="sm" variant="ghost" className="h-6 w-6 p-0 text-destructive">
@@ -232,15 +209,15 @@ const Collection = () => {
                         </AlertDialogTrigger>
                         <AlertDialogContent>
                           <AlertDialogHeader>
-                            <AlertDialogTitle className="text-md">Delete Record</AlertDialogTitle>
+                            <AlertDialogTitle className="text-base">Delete Record</AlertDialogTitle>
                             <AlertDialogDescription className="text-xs">
                               This action cannot be undone. This will permanently delete this record.
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
                             <AlertDialogCancel className="text-xs h-7">Cancel</AlertDialogCancel>
-                            <AlertDialogAction 
-                              onClick={() => handleDelete(record.id)} 
+                            <AlertDialogAction
+                              onClick={() => handleDelete(record.id)}
                               className="bg-destructive hover:bg-destructive/90 text-xs h-7"
                             >
                               Delete
@@ -278,9 +255,9 @@ const Collection = () => {
       <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="text-md">Create New Record</DialogTitle>
+            <DialogTitle className="text-base">Create New Record</DialogTitle>
           </DialogHeader>
-          <RecordForm 
+          <RecordForm
             collection={currentCollection}
             onComplete={() => setIsCreateDialogOpen(false)}
           />
@@ -290,13 +267,13 @@ const Collection = () => {
       <Dialog open={!!editingRecord} onOpenChange={(open) => !open && setEditingRecord(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="text-md">Edit Record</DialogTitle>
+            <DialogTitle className="text-base">Edit Record</DialogTitle>
           </DialogHeader>
           {editingRecord && (
-            <RecordForm 
-              collection={currentCollection} 
-              initialData={editingRecord.data} 
-              recordId={editingRecord.id} 
+            <RecordForm
+              collection={currentCollection}
+              initialData={editingRecord.data}
+              recordId={editingRecord.id}
               onComplete={() => setEditingRecord(null)}
             />
           )}

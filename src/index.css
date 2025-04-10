@@ -1,4 +1,3 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 @import url('https://rsms.me/inter/inter.css');
 
@@ -54,29 +53,33 @@
     @apply border-border;
   }
 
-  html {
-    font-size: 13px;
-  }
-
   body {
-    @apply bg-background text-foreground font-sans;
+    @apply bg-background text-foreground font-sans antialiased text-sm;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
-  
-  h1, h2, h3, h4, h5, h6 {
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply font-medium;
   }
-  
+
   h1 {
     @apply text-xl;
   }
-  
+
   h2 {
     @apply text-lg;
   }
-  
-  h3, h4, h5, h6 {
-    @apply text-md;
+
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply text-base;
   }
 }
 
@@ -85,11 +88,11 @@
   .page-header {
     @apply h-header flex items-center justify-between px-6 border-b border-border;
   }
-  
+
   .secondary-header {
     @apply px-6 py-3 border-b border-border flex items-center justify-between;
   }
-  
+
   .saas-card {
     @apply rounded-md bg-card border border-border overflow-hidden;
   }
@@ -97,27 +100,27 @@
   .saas-button-primary {
     @apply bg-primary text-primary-foreground hover:bg-primary/90;
   }
-  
+
   .saas-input {
     @apply bg-secondary text-foreground border-0 rounded-md;
   }
-  
+
   .saas-badge {
     @apply px-2 py-0.5 text-xs rounded-full;
   }
-  
+
   .saas-badge-blue {
     @apply bg-blue-500/20 text-blue-400;
   }
-  
+
   .saas-badge-green {
     @apply bg-green-500/20 text-green-400;
   }
-  
+
   .saas-badge-amber {
     @apply bg-amber-500/20 text-amber-400;
   }
-  
+
   .saas-badge-purple {
     @apply bg-primary/20 text-primary;
   }

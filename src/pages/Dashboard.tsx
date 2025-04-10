@@ -1,14 +1,13 @@
-
 import { useEffect, useState } from "react";
 import { useCollection } from "@/contexts/CollectionContext";
 import { CollectionCard } from "@/components/CollectionCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Sidebar } from "@/components/Sidebar";
+import { Sidebar } from "@/components/layout/Sidebar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Plus, RefreshCw, Search } from "lucide-react";
+import { Loader2, Plus, Search } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
 const Dashboard = () => {
@@ -62,7 +61,7 @@ const Dashboard = () => {
     });
   };
 
-  const filteredCollections = collections.filter(collection => 
+  const filteredCollections = collections.filter(collection =>
     collection.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     collection.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -72,48 +71,34 @@ const Dashboard = () => {
       <Sidebar />
       <div className="flex-1 overflow-auto">
         <div className="page-header">
-          <h1 className="text-md font-medium">Collections</h1>
+          <h1 className="text-base font-medium">Collections</h1>
           <div className="flex items-center gap-2">
             <div className="relative">
-              <Search className="absolute left-2 top-1.5 h-3.5 w-3.5 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search collections..."
-                className="pl-7 h-7 w-[200px] bg-secondary border-0 text-xs"
+                placeholder="Search by name or email..."
+                className="w-[280px] pl-9 py-0 h-8 bg-background/10 text-sidebar-foreground border border-border/50 rounded-lg text-xs"
                 value={searchTerm}
                 onChange={handleSearch}
               />
             </div>
 
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => fetchCollections()}
-              disabled={loading}
-              className="h-7 w-7 p-0 bg-secondary border-0"
-            >
-              {loading ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              ) : (
-                <RefreshCw className="h-3.5 w-3.5" />
-              )}
-            </Button>
-
             <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
               <DialogTrigger asChild>
-                <Button size="sm" className="h-7 text-xs">
+                <Button size="sm" className="h-8 text-sm">
                   <Plus className="mr-1 h-3.5 w-3.5" />
                   New Collection
                 </Button>
               </DialogTrigger>
               <DialogContent className="bg-card border-border">
                 <DialogHeader>
-                  <DialogTitle className="text-md">Create New Collection</DialogTitle>
+                  <DialogTitle className="text-base">Create New Collection</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleCreateCollection} className="space-y-4">
                   <div>
                     <Label htmlFor="name" className="text-xs">Name</Label>
-                    <Input 
-                      id="name" 
+                    <Input
+                      id="name"
                       value={newCollection.name}
                       onChange={(e) => handleNameChange(e.target.value)}
                       required
@@ -122,20 +107,20 @@ const Dashboard = () => {
                   </div>
                   <div>
                     <Label htmlFor="slug" className="text-xs">Slug (URL identifier)</Label>
-                    <Input 
-                      id="slug" 
+                    <Input
+                      id="slug"
                       value={newCollection.slug}
-                      onChange={(e) => setNewCollection({...newCollection, slug: e.target.value})}
+                      onChange={(e) => setNewCollection({ ...newCollection, slug: e.target.value })}
                       required
                       className="saas-input text-xs h-8"
                     />
                   </div>
                   <div>
                     <Label htmlFor="description" className="text-xs">Description</Label>
-                    <Textarea 
-                      id="description" 
+                    <Textarea
+                      id="description"
                       value={newCollection.description}
-                      onChange={(e) => setNewCollection({...newCollection, description: e.target.value})}
+                      onChange={(e) => setNewCollection({ ...newCollection, description: e.target.value })}
                       className="saas-input text-xs"
                       rows={3}
                     />
@@ -148,7 +133,7 @@ const Dashboard = () => {
             </Dialog>
           </div>
         </div>
-        
+
         <div className="secondary-header">
           <div className="text-xs text-muted-foreground">
             Manage your data collections and schemas
