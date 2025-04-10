@@ -1,4 +1,7 @@
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://rsms.me/inter/inter.css');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -33,13 +36,13 @@
     --input: 225 14% 18%;
     --ring: 266 100% 64%;
 
-    --radius: 0.5rem;
+    --radius: 0.375rem;
 
-    --sidebar-background: 225 14% 8%;
+    --sidebar-background: 225 14% 9%;
     --sidebar-foreground: 210 40% 98%;
     --sidebar-primary: 266 100% 64%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 225 14% 14%;
+    --sidebar-accent: 225 14% 12%;
     --sidebar-accent-foreground: 210 40% 98%;
     --sidebar-border: 225 14% 14%;
     --sidebar-ring: 266 100% 64%;
@@ -51,16 +54,44 @@
     @apply border-border;
   }
 
+  html {
+    font-size: 13px;
+  }
+
   body {
-    @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    @apply bg-background text-foreground font-sans;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-medium;
+  }
+  
+  h1 {
+    @apply text-xl;
+  }
+  
+  h2 {
+    @apply text-lg;
+  }
+  
+  h3, h4, h5, h6 {
+    @apply text-md;
   }
 }
 
 /* SaaS UI-inspired global styles */
 @layer components {
+  .page-header {
+    @apply h-header flex items-center justify-between px-6 border-b border-border;
+  }
+  
+  .secondary-header {
+    @apply px-6 py-3 border-b border-border flex items-center justify-between;
+  }
+  
   .saas-card {
-    @apply rounded-lg bg-card border border-border overflow-hidden;
+    @apply rounded-md bg-card border border-border overflow-hidden;
   }
 
   .saas-button-primary {

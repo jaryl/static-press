@@ -18,7 +18,20 @@ export default {
 				'2xl': '1400px'
 			}
 		},
+		fontSize: {
+			xs: '0.75rem',      // 12px
+			sm: '0.8125rem',    // 13px (base)
+			base: '0.8125rem',  // 13px
+			md: '0.875rem',     // 14px
+			lg: '1rem',         // 16px
+			xl: '1.125rem',     // 18px
+			'2xl': '1.25rem',   // 20px
+			'3xl': '1.5rem',    // 24px
+		},
 		extend: {
+			fontFamily: {
+				sans: ['Inter var', 'sans-serif'],
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -90,6 +103,9 @@ export default {
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out'
+			},
+			height: {
+				'header': '56px',
 			}
 		}
 	},

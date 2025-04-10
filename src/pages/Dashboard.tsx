@@ -71,113 +71,116 @@ const Dashboard = () => {
     <div className="flex h-screen overflow-hidden bg-background">
       <Sidebar />
       <div className="flex-1 overflow-auto">
-        <div className="p-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
-            <div>
-              <h1 className="text-2xl font-bold tracking-tight">Collections</h1>
-              <p className="text-muted-foreground mt-1">
-                Manage your data collections and schemas
-              </p>
+        <div className="page-header">
+          <h1 className="text-md font-medium">Collections</h1>
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <Search className="absolute left-2 top-1.5 h-3.5 w-3.5 text-muted-foreground" />
+              <Input
+                placeholder="Search collections..."
+                className="pl-7 h-7 w-[200px] bg-secondary border-0 text-xs"
+                value={searchTerm}
+                onChange={handleSearch}
+              />
             </div>
-            <div className="mt-4 md:mt-0 flex flex-col sm:flex-row gap-3">
-              <div className="relative">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search collections..."
-                  className="pl-9 w-full sm:w-[250px] bg-secondary border-0"
-                  value={searchTerm}
-                  onChange={handleSearch}
-                />
-              </div>
 
-              <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button className="saas-button-primary">
-                    <Plus className="mr-2 h-4 w-4" />
-                    New Collection
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="bg-card border-border">
-                  <DialogHeader>
-                    <DialogTitle>Create New Collection</DialogTitle>
-                  </DialogHeader>
-                  <form onSubmit={handleCreateCollection} className="space-y-4">
-                    <div>
-                      <Label htmlFor="name">Name</Label>
-                      <Input 
-                        id="name" 
-                        value={newCollection.name}
-                        onChange={(e) => handleNameChange(e.target.value)}
-                        required
-                        className="saas-input"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="slug">Slug (URL identifier)</Label>
-                      <Input 
-                        id="slug" 
-                        value={newCollection.slug}
-                        onChange={(e) => setNewCollection({...newCollection, slug: e.target.value})}
-                        required
-                        className="saas-input"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="description">Description</Label>
-                      <Textarea 
-                        id="description" 
-                        value={newCollection.description}
-                        onChange={(e) => setNewCollection({...newCollection, description: e.target.value})}
-                        className="saas-input"
-                      />
-                    </div>
-                    <div className="flex justify-end pt-4">
-                      <Button type="submit" className="saas-button-primary">Create Collection</Button>
-                    </div>
-                  </form>
-                </DialogContent>
-              </Dialog>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => fetchCollections()}
+              disabled={loading}
+              className="h-7 w-7 p-0 bg-secondary border-0"
+            >
+              {loading ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <RefreshCw className="h-3.5 w-3.5" />
+              )}
+            </Button>
 
-              <Button 
-                variant="outline" 
-                onClick={() => fetchCollections()}
-                disabled={loading}
-                className="bg-secondary border-0 hover:bg-secondary/80"
-              >
-                {loading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <RefreshCw className="h-4 w-4" />
-                )}
-              </Button>
-            </div>
+            <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+              <DialogTrigger asChild>
+                <Button size="sm" className="h-7 text-xs">
+                  <Plus className="mr-1 h-3.5 w-3.5" />
+                  New Collection
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="bg-card border-border">
+                <DialogHeader>
+                  <DialogTitle className="text-md">Create New Collection</DialogTitle>
+                </DialogHeader>
+                <form onSubmit={handleCreateCollection} className="space-y-4">
+                  <div>
+                    <Label htmlFor="name" className="text-xs">Name</Label>
+                    <Input 
+                      id="name" 
+                      value={newCollection.name}
+                      onChange={(e) => handleNameChange(e.target.value)}
+                      required
+                      className="saas-input text-xs h-8"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="slug" className="text-xs">Slug (URL identifier)</Label>
+                    <Input 
+                      id="slug" 
+                      value={newCollection.slug}
+                      onChange={(e) => setNewCollection({...newCollection, slug: e.target.value})}
+                      required
+                      className="saas-input text-xs h-8"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="description" className="text-xs">Description</Label>
+                    <Textarea 
+                      id="description" 
+                      value={newCollection.description}
+                      onChange={(e) => setNewCollection({...newCollection, description: e.target.value})}
+                      className="saas-input text-xs"
+                      rows={3}
+                    />
+                  </div>
+                  <div className="flex justify-end pt-2">
+                    <Button type="submit" className="text-xs h-7">Create Collection</Button>
+                  </div>
+                </form>
+              </DialogContent>
+            </Dialog>
           </div>
+        </div>
+        
+        <div className="secondary-header">
+          <div className="text-xs text-muted-foreground">
+            Manage your data collections and schemas
+          </div>
+        </div>
 
+        <div className="p-6">
           {loading && collections.length === 0 ? (
             <div className="flex items-center justify-center h-64">
-              <Loader2 className="h-10 w-10 animate-spin text-primary/70" />
+              <Loader2 className="h-8 w-8 animate-spin text-primary/70" />
             </div>
           ) : filteredCollections.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredCollections.map((collection) => (
-                <Card key={collection.id} className="bg-card border-border overflow-hidden shadow-md">
+                <Card key={collection.id} className="bg-card border-border overflow-hidden shadow-sm">
                   <CollectionCard collection={collection} />
                 </Card>
               ))}
             </div>
           ) : (
-            <Card className="bg-card border-border p-8 text-center">
+            <Card className="bg-card border-border p-6 text-center">
               {searchTerm ? (
                 <div>
-                  <p className="text-lg font-medium">No collections match your search</p>
-                  <p className="text-muted-foreground mt-1">Try a different search term</p>
+                  <p className="text-sm font-medium">No collections match your search</p>
+                  <p className="text-xs text-muted-foreground mt-1">Try a different search term</p>
                 </div>
               ) : (
                 <div>
-                  <p className="text-lg font-medium">No collections yet</p>
-                  <p className="text-muted-foreground mt-1">Create your first collection to get started</p>
-                  <Button className="saas-button-primary mt-4" onClick={() => setIsCreateDialogOpen(true)}>
-                    <Plus className="mr-2 h-4 w-4" />
+                  <p className="text-sm font-medium">No collections yet</p>
+                  <p className="text-xs text-muted-foreground mt-1">Create your first collection to get started</p>
+                  <Button className="mt-4 text-xs h-7" onClick={() => setIsCreateDialogOpen(true)}>
+                    <Plus className="mr-1 h-3.5 w-3.5" />
                     Create Collection
                   </Button>
                 </div>
