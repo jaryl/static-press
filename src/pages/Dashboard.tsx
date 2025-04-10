@@ -1,14 +1,22 @@
+
 import { useEffect, useState } from "react";
 import { useCollection } from "@/contexts/CollectionContext";
-import { CollectionCard } from "@/components/CollectionCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Plus, Search } from "lucide-react";
+import { Loader2, Plus, Search, ExternalLink } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { 
+  Table, 
+  TableHeader, 
+  TableBody, 
+  TableHead, 
+  TableRow, 
+  TableCell 
+} from "@/components/ui/table";
 
 const Dashboard = () => {
   const { collections, fetchCollections, loading, createCollection } = useCollection();
@@ -146,13 +154,46 @@ const Dashboard = () => {
               <Loader2 className="h-8 w-8 animate-spin text-primary/70" />
             </div>
           ) : filteredCollections.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredCollections.map((collection) => (
-                <Card key={collection.id} className="bg-card border-border overflow-hidden shadow-sm">
-                  <CollectionCard collection={collection} />
-                </Card>
-              ))}
-            </div>
+            <Card className="bg-card border-border overflow-hidden shadow-sm">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="text-xs font-medium">Name</TableHead>
+                    <TableHead className="text-xs font-medium">Slug</TableHead>
+                    <TableHead className="text-xs font-medium">Description</TableHead>
+                    <TableHead className="text-xs font-medium">Fields</TableHead>
+                    <TableHead className="text-xs font-medium w-[100px]">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredCollections.map((collection) => (
+                    <TableRow key={collection.id} className="hover:bg-muted/30">
+                      <TableCell className="text-xs font-medium">{collection.name}</TableCell>
+                      <TableCell className="text-xs text-muted-foreground">{collection.slug}</TableCell>
+                      <TableCell className="text-xs max-w-[300px] truncate">
+                        {collection.description || "-"}
+                      </TableCell>
+                      <TableCell className="text-xs text-muted-foreground">
+                        {collection.fields?.length || 0} fields
+                      </TableCell>
+                      <TableCell>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-7 w-7 p-0" 
+                          asChild
+                        >
+                          <a href={`/collections/${collection.id}`}>
+                            <ExternalLink className="h-3.5 w-3.5" />
+                            <span className="sr-only">View collection</span>
+                          </a>
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Card>
           ) : (
             <Card className="bg-card border-border p-6 text-center">
               {searchTerm ? (
