@@ -13,6 +13,7 @@ import SchemaEditor from "@/pages/SchemaEditor";
 import Settings from "@/pages/Settings";
 import NotFound from "@/pages/NotFound";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import Index from "@/pages/Index";
 
 const queryClient = new QueryClient();
 
@@ -25,7 +26,7 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <Routes>
-              <Route path="/" element={<Navigate to="/login" replace />} />
+              <Route path="/" element={<Index />} />
               <Route path="/login" element={<Login />} />
               
               <Route path="/dashboard" element={
