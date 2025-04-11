@@ -1,4 +1,3 @@
-
 // This service manages collections and their records
 // Loading data from JSON files
 
@@ -32,189 +31,146 @@ export interface CollectionRecord {
   updatedAt: string;
 }
 
-// Import collection schema and data
-import schemaData from '../data/schema.json';
-import productsData from '../data/products.json';
-import customersData from '../data/customers.json';
-import blogPostsData from '../data/blog-posts.json';
-import eventsData from '../data/events.json';
-import tasksData from '../data/tasks.json';
-import feedbackData from '../data/feedback.json';
-
-// Initialize collections from JSON data
-let collections: CollectionSchema[] = [...schemaData] as CollectionSchema[];
-
-// Initialize records from JSON data
-let records: { [collectionId: string]: CollectionRecord[] } = {
-  "1": productsData,
-  "2": customersData,
-  "3": blogPostsData,
-  "4": eventsData,
-  "5": tasksData,
-  "6": feedbackData
-};
-
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+import { createDataAdapter } from './adapters';
+const dataAdapter = createDataAdapter();
+let collectionsCache: CollectionSchema[] = [];
+let recordsCache: Record<string, CollectionRecord[]> = {};
+const delay = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms));
 
 export const collectionService = {
-  // Collection schema operations
-  getCollections: async (): Promise<CollectionSchema[]> => {
-    await delay(300); // Simulate API delay
-    return [...collections];
+  async initialize(): Promise<void> {
+    collectionsCache = await dataAdapter.getSchema();
   },
 
-  getCollection: async (idOrSlug: string): Promise<CollectionSchema | null> => {
+  async getCollections(): Promise<CollectionSchema[]> {
+    await delay(300);
+    if (collectionsCache.length === 0) {
+      await this.initialize();
+    }
+    return [...collectionsCache];
+  },
+
+  async getCollection(idOrSlug: string): Promise<CollectionSchema | null> {
     await delay(200);
-    const collection = collections.find(c => 
+    const collections = await this.getCollections();
+    const collection = collections.find(c =>
       c.id === idOrSlug || c.slug === idOrSlug
     );
     return collection ? { ...collection } : null;
   },
 
-  getCollectionBySlug: async (slug: string): Promise<CollectionSchema | null> => {
+  async getCollectionBySlug(slug: string): Promise<CollectionSchema | null> {
     await delay(200);
+    const collections = await this.getCollections();
     const collection = collections.find(c => c.slug === slug);
     return collection ? { ...collection } : null;
   },
 
-  createCollection: async (collection: Omit<CollectionSchema, 'id' | 'createdAt' | 'updatedAt'>): Promise<CollectionSchema> => {
+  async createCollection(data: Omit<CollectionSchema, 'id' | 'createdAt' | 'updatedAt'>): Promise<CollectionSchema> {
     await delay(500);
     const newCollection: CollectionSchema = {
-      ...collection,
-      id: Date.now().toString(),
+      ...data,
+      id: `col-${Date.now()}`,
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     };
-    collections = [...collections, newCollection];
-    records[newCollection.id] = [];
+    collectionsCache = [...collectionsCache, newCollection];
+    recordsCache[newCollection.id] = [];
     return newCollection;
   },
 
-  updateCollection: async (idOrSlug: string, updates: Partial<Omit<CollectionSchema, 'id' | 'createdAt' | 'updatedAt'>>): Promise<CollectionSchema> => {
+  async updateCollection(idOrSlug: string, updates: Partial<CollectionSchema>): Promise<CollectionSchema> {
     await delay(500);
-    const collection = collections.find(c => c.id === idOrSlug || c.slug === idOrSlug);
-    
+    const collection = await this.getCollection(idOrSlug);
     if (!collection) throw new Error("Collection not found");
-    
-    collections = collections.map(c => 
+
+    collectionsCache = collectionsCache.map(c =>
       (c.id === idOrSlug || c.slug === idOrSlug)
-        ? { 
-            ...c, 
-            ...updates, 
-            updatedAt: new Date().toISOString() 
-          } 
+        ? { ...c, ...updates, updatedAt: new Date().toISOString() }
         : c
     );
-    
-    const updated = collections.find(c => c.id === collection.id);
+
+    const updated = await this.getCollection(idOrSlug);
     if (!updated) throw new Error("Collection not found after update");
     return updated;
   },
 
-  deleteCollection: async (idOrSlug: string): Promise<void> => {
+  async deleteCollection(idOrSlug: string): Promise<void> {
     await delay(500);
-    const collection = collections.find(c => c.id === idOrSlug || c.slug === idOrSlug);
+    const collection = await this.getCollection(idOrSlug);
     if (!collection) throw new Error("Collection not found");
-    
-    collections = collections.filter(c => c.id !== collection.id);
-    delete records[collection.id];
+
+    collectionsCache = collectionsCache.filter(c => c.id !== collection.id);
+    delete recordsCache[collection.id];
   },
 
-  // Records operations
-  getRecords: async (collectionIdOrSlug: string): Promise<CollectionRecord[]> => {
+  async getCollectionRecords(collectionId: string): Promise<CollectionRecord[]> {
+    if (!recordsCache[collectionId]) {
+      recordsCache[collectionId] = await dataAdapter.getCollectionData(collectionId);
+    }
+    return [...(recordsCache[collectionId] || [])];
+  },
+
+  async getRecords(collectionIdOrSlug: string): Promise<CollectionRecord[]> {
     await delay(300);
-    
-    // First find the collection by ID or slug
-    const collection = collections.find(c => 
-      c.id === collectionIdOrSlug || c.slug === collectionIdOrSlug
-    );
-    
+    const collection = await this.getCollection(collectionIdOrSlug);
     if (!collection) return [];
-    
-    return records[collection.id] ? [...records[collection.id]] : [];
+    return this.getCollectionRecords(collection.id);
   },
 
-  getRecord: async (collectionIdOrSlug: string, recordId: string): Promise<CollectionRecord | null> => {
+  async getRecord(collectionIdOrSlug: string, recordId: string): Promise<CollectionRecord | null> {
     await delay(200);
-    
-    // First find the collection by ID or slug
-    const collection = collections.find(c => 
-      c.id === collectionIdOrSlug || c.slug === collectionIdOrSlug
-    );
-    
+    const collection = await this.getCollection(collectionIdOrSlug);
     if (!collection) return null;
-    
-    const record = records[collection.id]?.find(r => r.id === recordId);
+    const records = await this.getCollectionRecords(collection.id);
+    const record = records.find(r => r.id === recordId);
     return record ? { ...record } : null;
   },
 
-  createRecord: async (collectionIdOrSlug: string, data: RecordData): Promise<CollectionRecord> => {
+  async createRecord(collectionIdOrSlug: string, data: RecordData): Promise<CollectionRecord> {
     await delay(500);
-    
-    // First find the collection by ID or slug
-    const collection = collections.find(c => 
-      c.id === collectionIdOrSlug || c.slug === collectionIdOrSlug
-    );
-    
+    const collection = await this.getCollection(collectionIdOrSlug);
     if (!collection) throw new Error("Collection not found");
-    
+
     const newRecord: CollectionRecord = {
       id: `${collection.id}-${Date.now()}`,
       collectionId: collection.id,
       data,
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     };
-    
-    if (!records[collection.id]) {
-      records[collection.id] = [];
-    }
-    
-    records[collection.id] = [...records[collection.id], newRecord];
+
+    recordsCache[collection.id] = [...(recordsCache[collection.id] || []), newRecord];
     return newRecord;
   },
 
-  updateRecord: async (collectionIdOrSlug: string, recordId: string, data: RecordData): Promise<CollectionRecord> => {
+  async updateRecord(collectionIdOrSlug: string, recordId: string, data: RecordData): Promise<CollectionRecord> {
     await delay(500);
-    
-    // First find the collection by ID or slug
-    const collection = collections.find(c => 
-      c.id === collectionIdOrSlug || c.slug === collectionIdOrSlug
-    );
-    
+    const collection = await this.getCollection(collectionIdOrSlug);
     if (!collection) throw new Error("Collection not found");
-    
-    const collectionRecords = records[collection.id];
-    if (!collectionRecords) throw new Error("Collection records not found");
-    
-    records[collection.id] = collectionRecords.map(r => 
-      r.id === recordId 
-        ? { 
-            ...r, 
-            data: { ...data }, 
-            updatedAt: new Date().toISOString() 
-          } 
+
+    const records = await this.getCollectionRecords(collection.id);
+    if (!records) throw new Error("Collection records not found");
+
+    recordsCache[collection.id] = records.map(r =>
+      r.id === recordId
+        ? { ...r, data: { ...data }, updatedAt: new Date().toISOString() }
         : r
     );
-    
-    const updated = records[collection.id].find(r => r.id === recordId);
+
+    const updated = recordsCache[collection.id].find(r => r.id === recordId);
     if (!updated) throw new Error("Record not found");
     return updated;
   },
 
-  deleteRecord: async (collectionIdOrSlug: string, recordId: string): Promise<void> => {
+  async deleteRecord(collectionIdOrSlug: string, recordId: string): Promise<void> {
     await delay(500);
-    
-    // First find the collection by ID or slug
-    const collection = collections.find(c => 
-      c.id === collectionIdOrSlug || c.slug === collectionIdOrSlug
-    );
-    
+    const collection = await this.getCollection(collectionIdOrSlug);
     if (!collection) return;
-    
-    const collectionRecords = records[collection.id];
-    if (!collectionRecords) return;
-    
-    records[collection.id] = collectionRecords.filter(r => r.id !== recordId);
+
+    const records = await this.getCollectionRecords(collection.id);
+    if (!records) return;
+
+    recordsCache[collection.id] = records.filter(r => r.id !== recordId);
   }
 };

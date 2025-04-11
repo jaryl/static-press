@@ -1,9 +1,8 @@
-
 import { createContext, ReactNode, useContext, useState } from 'react';
-import { 
-  collectionService, 
-  CollectionSchema, 
-  CollectionRecord, 
+import {
+  collectionService,
+  CollectionSchema,
+  CollectionRecord,
   RecordData,
   FieldDefinition
 } from '../services/collectionService';
@@ -78,18 +77,39 @@ export const CollectionProvider = ({ children }: { children: ReactNode }) => {
   const fetchRecords = async (collectionId: string): Promise<CollectionRecord[]> => {
     setLoading(true);
     try {
+      // First ensure we have the collection data
+      const collection = await collectionService.getCollection(collectionId);
+      if (!collection) {
+        throw new Error('Collection not found');
+      }
+
+      // Then fetch the records - this will trigger lazy loading if needed
       const data = await collectionService.getRecords(collectionId);
       setRecords(data);
       setError(null);
       return data;
     } catch (err) {
-      setError('Failed to fetch records');
-      toast({
-        title: "Error",
-        description: "Failed to fetch collection records",
-        variant: "destructive",
-      });
-      return [];
+      // Determine if this is a data format error that should be propagated
+      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch records';
+      const isDataFormatError = errorMessage.includes('Malformed data') ||
+        errorMessage.includes('Invalid data format') ||
+        errorMessage.includes('missing required fields');
+
+      // Set error state regardless
+      setError(errorMessage);
+
+      // Show toast for network/general errors, but let data format errors propagate
+      if (!isDataFormatError) {
+        toast({
+          title: "Error",
+          description: "Failed to fetch collection records",
+          variant: "destructive",
+        });
+        return []; // Return empty array for non-data format errors
+      }
+
+      // Re-throw data format errors so they can be caught by the error boundary
+      throw err;
     } finally {
       setLoading(false);
     }
@@ -119,7 +139,7 @@ export const CollectionProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const updateCollection = async (
-    id: string, 
+    id: string,
     updates: Partial<Omit<CollectionSchema, 'id' | 'createdAt' | 'updatedAt'>>
   ): Promise<CollectionSchema> => {
     setLoading(true);
