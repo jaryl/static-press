@@ -12,7 +12,7 @@ interface EmptyStateProps {
  */
 const EmptyState = memo(({ collectionName, onCreateRecord }: EmptyStateProps) => {
   return (
-    <div className="flex flex-col items-center justify-center bg-muted/20 p-12 m-6 rounded-lg border border-dashed border-muted">
+    <div className="flex flex-col flex-1 items-center justify-center bg-muted/20 m-6 p-12 rounded-lg border border-dashed border-muted">
       <div className="bg-primary/5 p-4 rounded-full mb-5">
         <FileJson className="h-10 w-10 text-primary/60" />
       </div>

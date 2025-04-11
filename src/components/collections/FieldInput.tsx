@@ -15,6 +15,8 @@ const FieldInput = memo(({
   value: any;
   onChange: (field: FieldDefinition, value: any) => void;
 }) => {
+  const safeValue = value !== undefined && value !== null ? value : '';
+
   switch (field.type) {
     case 'text':
     case 'email':
@@ -22,7 +24,7 @@ const FieldInput = memo(({
       return (
         <Input
           type={field.type}
-          value={value !== undefined ? value : ''}
+          value={safeValue}
           onChange={(e) => onChange(field, e.target.value)}
           className="h-8 text-xs py-0 w-full"
         />
@@ -31,8 +33,8 @@ const FieldInput = memo(({
       return (
         <Input
           type="number"
-          value={value !== undefined ? value : ''}
-          onChange={(e) => onChange(field, e.target.value ? Number(e.target.value) : null)}
+          value={safeValue}
+          onChange={(e) => onChange(field, e.target.value ? Number(e.target.value) : '')}
           className="h-8 text-xs py-0 w-full"
         />
       );
@@ -40,7 +42,7 @@ const FieldInput = memo(({
       return (
         <Input
           type="date"
-          value={value !== undefined ? value : ''}
+          value={safeValue}
           onChange={(e) => onChange(field, e.target.value)}
           className="h-8 text-xs py-0 w-full"
         />
@@ -55,7 +57,7 @@ const FieldInput = memo(({
     case 'select':
       return (
         <Select
-          value={value ? String(value) : undefined}
+          value={safeValue}
           onValueChange={(value) => onChange(field, value)}
         >
           <SelectTrigger className="h-8 text-xs w-full">
@@ -73,7 +75,7 @@ const FieldInput = memo(({
     default:
       return (
         <Textarea
-          value={value !== undefined ? value : ''}
+          value={safeValue}
           onChange={(e) => onChange(field, e.target.value)}
           className="text-xs min-h-0 h-8 py-1.5 resize-none w-full"
         />

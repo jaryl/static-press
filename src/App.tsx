@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -12,7 +11,7 @@ import Collection from "@/pages/Collection";
 import SchemaEditor from "@/pages/SchemaEditor";
 import Settings from "@/pages/Settings";
 import NotFound from "@/pages/NotFound";
-import ProtectedRoute from "@/components/ProtectedRoute";
+import ProtectedRoute from "@/components/layout/ProtectedRoute";
 import Index from "@/pages/Index";
 
 const queryClient = new QueryClient();
@@ -28,31 +27,31 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/login" element={<Login />} />
-              
+
               <Route path="/dashboard" element={
                 <ProtectedRoute>
                   <Dashboard />
                 </ProtectedRoute>
               } />
-              
+
               <Route path="/collections/:id" element={
                 <ProtectedRoute>
                   <Collection />
                 </ProtectedRoute>
               } />
-              
+
               <Route path="/schema/:id" element={
                 <ProtectedRoute>
                   <SchemaEditor />
                 </ProtectedRoute>
               } />
-              
+
               <Route path="/settings" element={
                 <ProtectedRoute>
                   <Settings />
                 </ProtectedRoute>
               } />
-              
+
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

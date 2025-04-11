@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,7 +5,8 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
-import { Database, Loader2 } from "lucide-react";
+import { Database } from "lucide-react";
+import { Loader } from "@/components/ui/loader";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -74,7 +74,7 @@ const Login = () => {
               >
                 {loading ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader />
                     Signing in...
                   </>
                 ) : (

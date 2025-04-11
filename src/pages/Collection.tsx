@@ -4,6 +4,7 @@ import { useCollection } from "@/contexts/CollectionContext";
 import { Button } from "@/components/ui/button";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import Container from "@/components/common/Container";
 
 // Import custom hooks
 import { useRecordForm } from "@/hooks/useRecordForm";
@@ -13,13 +14,15 @@ import { useRecordFilter } from "@/hooks/useRecordFilter";
 import RecordRow from "@/components/collections/RecordRow";
 import NewRecordRow from "@/components/collections/NewRecordRow";
 import EmptyState from "@/components/collections/EmptyState";
-import CollectionHeader from "@/components/collections/CollectionHeader";
+import { PrimaryHeader } from "@/components/common/PrimaryHeader";
 import CollectionSecondaryHeader from "@/components/collections/CollectionSecondaryHeader";
 import NoResults from "@/components/collections/NoResults";
 
 // Import UI components
-import Loader from "@/components/ui/Loader";
+import { Loader } from "@/components/ui/loader";
 import ErrorDisplay from "@/components/ui/ErrorDisplay";
+import { Edit, Plus } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 const Collection = () => {
   const { id } = useParams<{ id: string }>();
@@ -90,18 +93,37 @@ const Collection = () => {
   const hasFilteredRecords = filter.hasFilteredRecords(hasNewRecord ? 1 : 0);
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
+    <Container>
       <Sidebar />
-      <div className="flex-1 overflow-auto">
-        {/* Collection Header */}
-        <CollectionHeader
-          id={id}
-          name={currentCollection.name}
-          recordCount={records.length}
-          hasRecords={hasAnyRecords}
-          isCreating={hasNewRecord}
-          onCreateRecord={() => form.createNewRecord(currentCollection)}
-        />
+      <div className="flex flex-col flex-1 overflow-auto">
+        {/* Primary Header */}
+        <PrimaryHeader
+          title={currentCollection.name}
+          subtitle={
+            <Badge variant="outline" className="text-[10px] h-6">
+              {records.length} {records.length === 1 ? 'record' : 'records'}
+            </Badge>
+          }
+        >
+          <Link to={`/schema/${id}`}>
+            <Button variant="outline" size="sm" className="h-8 text-xs">
+              <Edit className="mr-1 h-3.5 w-3.5" />
+              Schema
+            </Button>
+          </Link>
+
+          {hasAnyRecords && (
+            <Button
+              size="sm"
+              onClick={() => form.createNewRecord(currentCollection)}
+              className="h-8 text-xs"
+              disabled={hasNewRecord}
+            >
+              <Plus className="mr-1 h-3.5 w-3.5" />
+              New Record
+            </Button>
+          )}
+        </PrimaryHeader>
 
         {/* Secondary Header with Search */}
         <CollectionSecondaryHeader
@@ -112,16 +134,18 @@ const Collection = () => {
         />
 
         {/* Main Content Area */}
-        <div className="p-0">
+        <div className="p-0 flex flex-1">
           {isLoading ? (
-            <Loader />
+            <div className="flex flex-col flex-1 items-center justify-center">
+              <Loader />
+            </div>
           ) : !hasAnyRecords ? (
             <EmptyState
               collectionName={currentCollection.name}
               onCreateRecord={() => form.createNewRecord(currentCollection)}
             />
           ) : hasFilteredRecords ? (
-            <div>
+            <div className="flex-1">
               {/* Error Display */}
               <ErrorDisplay errors={form.errors} />
 
@@ -174,7 +198,7 @@ const Collection = () => {
           )}
         </div>
       </div>
-    </div>
+    </Container>
   );
 };
 

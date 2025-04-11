@@ -1,11 +1,13 @@
-
 import { useEffect } from "react";
 import { useParams, Link, Navigate } from "react-router-dom";
 import { useCollection } from "@/contexts/CollectionContext";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { SchemaForm } from "@/components/SchemaForm";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Loader } from "@/components/ui/loader";
+import Container from "@/components/common/Container";
+import { PrimaryHeader } from "@/components/common/PrimaryHeader";
 
 const SchemaEditor = () => {
   const { id } = useParams<{ id: string }>();
@@ -16,25 +18,20 @@ const SchemaEditor = () => {
   } = useCollection();
 
   useEffect(() => {
-    if (id) {
-      fetchCollection(id);
-    }
-  }, [id, fetchCollection]);
+    fetchCollection(id);
+  }, [id]);
 
   if (loading && !currentCollection) {
     return (
-      <div className="flex h-screen overflow-hidden bg-background">
-        <Sidebar />
-        <div className="flex-1 flex items-center justify-center">
-          <Loader2 className="h-10 w-10 animate-spin text-primary/70" />
-        </div>
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader />
       </div>
     );
   }
 
   if (!currentCollection) {
     return (
-      <div className="flex h-screen overflow-hidden bg-background">
+      <Container>
         <Sidebar />
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
@@ -46,28 +43,19 @@ const SchemaEditor = () => {
             </Link>
           </div>
         </div>
-      </div>
+      </Container>
     );
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
+    <Container>
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="page-header border-b border-border">
-          <div className="flex items-center justify-between w-full">
-            <h1 className="text-base font-medium">
-              Schema Editor <span className="text-sm text-muted-foreground ml-2">{currentCollection.name}</span>
-            </h1>
-
-            <Button variant="ghost" size="sm" className="h-7 text-xs text-muted-foreground hover:text-foreground" asChild>
-              <Link to={`/collections/${currentCollection.slug}`}>
-                <ArrowLeft className="mr-1 h-4 w-4" />
-                Back
-              </Link>
-            </Button>
-          </div>
-        </header>
+        <PrimaryHeader
+          title="Schema Editor"
+          subtitle={currentCollection.name}
+          backLink={`/collections/${currentCollection.slug}`}
+        />
 
         <div className="secondary-header">
           <div className="text-xs text-muted-foreground">
@@ -81,7 +69,7 @@ const SchemaEditor = () => {
           </div>
         </div>
       </div>
-    </div>
+    </Container>
   );
 };
 
