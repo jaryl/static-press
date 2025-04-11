@@ -1,0 +1,91 @@
+import { useState } from "react";
+import { RecordData, FieldDefinition, CollectionSchema } from "@/services/collectionService";
+
+type RecordFormProps = {
+  validateRecord: (data: RecordData, fields: FieldDefinition[]) => string[];
+  createRecord: (collectionId: string, data: RecordData) => Promise<any>;
+  updateRecord: (collectionId: string, recordId: string, data: RecordData) => Promise<any>;
+};
+
+export function useRecordForm({ validateRecord, createRecord, updateRecord }: RecordFormProps) {
+  const [editingRecordId, setEditingRecordId] = useState<string | null>(null);
+  const [newRecordId, setNewRecordId] = useState<string | null>(null);
+  const [formData, setFormData] = useState<RecordData>({});
+  const [errors, setErrors] = useState<string[]>([]);
+
+  const startEditing = (recordId: string, initialData: RecordData = {}) => {
+    setEditingRecordId(recordId);
+    setFormData({ ...initialData });
+    setErrors([]);
+  };
+
+  const cancelEditing = () => {
+    setEditingRecordId(null);
+    setNewRecordId(null);
+    setErrors([]);
+  };
+
+  const createNewRecord = (collection: CollectionSchema) => {
+    if (!collection) return;
+
+    const tempId = `new-${Date.now()}`;
+    setNewRecordId(tempId);
+
+    // Initialize with empty values
+    const initialData: RecordData = {};
+    collection.fields.forEach(field => {
+      if (field.type === 'boolean') {
+        initialData[field.name] = false;
+      } else {
+        initialData[field.name] = '';
+      }
+    });
+
+    setFormData(initialData);
+  };
+
+  const handleFieldChange = (field: FieldDefinition, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      [field.name]: value
+    }));
+    setErrors([]);
+  };
+
+  const saveRecord = async (collectionId: string, collection: CollectionSchema) => {
+    if (!collection) return;
+
+    const validationErrors = validateRecord(formData, collection.fields);
+    if (validationErrors.length > 0) {
+      setErrors(validationErrors);
+      return false;
+    }
+
+    try {
+      if (newRecordId) {
+        await createRecord(collectionId, formData);
+        setNewRecordId(null);
+      } else if (editingRecordId) {
+        await updateRecord(collectionId, editingRecordId, formData);
+        setEditingRecordId(null);
+      }
+      return true;
+    } catch (error) {
+      console.error("Error saving record:", error);
+      return false;
+    }
+  };
+
+  return {
+    editingRecordId,
+    newRecordId,
+    formData,
+    errors,
+    isEditing: !!editingRecordId || !!newRecordId,
+    startEditing,
+    cancelEditing,
+    createNewRecord,
+    handleFieldChange,
+    saveRecord
+  };
+}
