@@ -28,6 +28,7 @@ import { Loader } from "@/components/ui/loader";
 import { PrimaryHeader } from "@/components/common/PrimaryHeader";
 import { SecondaryHeader } from "@/components/common/SecondaryHeader";
 import NoResults from "@/components/collections/NoResults";
+import { getDataUrl } from "@/lib/utils";
 
 const Dashboard = () => {
   const { collections, fetchCollections, loading, createCollection } = useCollection();
@@ -216,7 +217,7 @@ const Dashboard = () => {
                                 className="h-7 w-7 p-0"
                                 asChild
                               >
-                                <a href={`/api/collections/${collection.id}/json`} target="_blank" rel="noopener noreferrer">
+                                <a href={getDataUrl(collection.slug)} target="_blank" rel="noopener noreferrer">
                                   <FileJson className="h-3.5 w-3.5" />
                                 </a>
                               </Button>
