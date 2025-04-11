@@ -7,8 +7,14 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Plus, Search, ExternalLink } from "lucide-react";
+import { Loader2, Plus, Search, Eye, FileJson, Pencil } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { 
   Table, 
   TableHeader, 
@@ -158,36 +164,85 @@ const Dashboard = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="text-xs font-medium">Name</TableHead>
+                    <TableHead className="text-xs font-medium">Collection</TableHead>
                     <TableHead className="text-xs font-medium">Slug</TableHead>
-                    <TableHead className="text-xs font-medium">Description</TableHead>
                     <TableHead className="text-xs font-medium">Fields</TableHead>
-                    <TableHead className="text-xs font-medium w-[100px]">Actions</TableHead>
+                    <TableHead className="text-xs font-medium w-[120px] text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredCollections.map((collection) => (
                     <TableRow key={collection.id} className="hover:bg-muted/30">
-                      <TableCell className="text-xs font-medium">{collection.name}</TableCell>
-                      <TableCell className="text-xs text-muted-foreground">{collection.slug}</TableCell>
-                      <TableCell className="text-xs max-w-[300px] truncate">
-                        {collection.description || "-"}
+                      <TableCell className="py-3">
+                        <div className="flex flex-col">
+                          <span className="text-xs font-medium">{collection.name}</span>
+                          <span className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
+                            {collection.description || "No description"}
+                          </span>
+                        </div>
                       </TableCell>
+                      <TableCell className="text-xs text-muted-foreground">{collection.slug}</TableCell>
                       <TableCell className="text-xs text-muted-foreground">
                         {collection.fields?.length || 0} fields
                       </TableCell>
-                      <TableCell>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          className="h-7 w-7 p-0" 
-                          asChild
-                        >
-                          <a href={`/collections/${collection.id}`}>
-                            <ExternalLink className="h-3.5 w-3.5" />
-                            <span className="sr-only">View collection</span>
-                          </a>
-                        </Button>
+                      <TableCell className="text-right">
+                        <TooltipProvider>
+                          <div className="flex items-center justify-end gap-1">
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="h-7 w-7 p-0" 
+                                  asChild
+                                >
+                                  <a href={`/collections/${collection.id}`}>
+                                    <Eye className="h-3.5 w-3.5" />
+                                  </a>
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent side="bottom">
+                                <p className="text-xs">View records</p>
+                              </TooltipContent>
+                            </Tooltip>
+
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="h-7 w-7 p-0" 
+                                  asChild
+                                >
+                                  <a href={`/api/collections/${collection.id}/json`} target="_blank" rel="noopener noreferrer">
+                                    <FileJson className="h-3.5 w-3.5" />
+                                  </a>
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent side="bottom">
+                                <p className="text-xs">View JSON</p>
+                              </TooltipContent>
+                            </Tooltip>
+
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="h-7 w-7 p-0" 
+                                  asChild
+                                >
+                                  <a href={`/schema/${collection.id}`}>
+                                    <Pencil className="h-3.5 w-3.5" />
+                                  </a>
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent side="bottom">
+                                <p className="text-xs">Edit schema</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </div>
+                        </TooltipProvider>
                       </TableCell>
                     </TableRow>
                   ))}
