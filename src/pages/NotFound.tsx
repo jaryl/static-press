@@ -16,14 +16,14 @@ const NotFound = () => {
   }, [location.pathname]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
+    <div className="h-screen flex items-center justify-center bg-background">
       <div className="text-center">
         <h1 className="text-5xl font-medium mb-3 text-primary">404</h1>
         <p className="text-sm text-muted-foreground mb-4">
           Sorry, the page you're looking for doesn't exist.
         </p>
         <Link to="/">
-          <Button size="sm" className="h-7 text-xs">
+          <Button size="sm">
             <ArrowLeft className="mr-1 h-3.5 w-3.5" />
             Back to Home
           </Button>

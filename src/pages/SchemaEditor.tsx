@@ -15,14 +15,8 @@ const SchemaEditor = () => {
   } = useCollection();
 
   useEffect(() => {
-    if (id) {
-      fetchCollection(id);
-    }
+    fetchCollection(id);
   }, [id, fetchCollection]);
-
-  if (!id) {
-    return <Navigate to="/dashboard" replace />;
-  }
 
   if (loading && !currentCollection) {
     return (
@@ -63,13 +57,12 @@ const SchemaEditor = () => {
               Schema Editor <span className="text-sm text-muted-foreground ml-2">{currentCollection.name}</span>
             </h1>
 
-            <Link
-              to={`/collections/${id}`}
-              className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground"
-            >
-              <ArrowLeft className="mr-1 h-4 w-4" />
-              Back
-            </Link>
+            <Button variant="ghost" size="sm" className="h-7 text-xs text-muted-foreground hover:text-foreground" asChild>
+              <Link to={`/collections/${id}`}>
+                <ArrowLeft className="mr-1 h-4 w-4" />
+                Back
+              </Link>
+            </Button>
           </div>
         </header>
 

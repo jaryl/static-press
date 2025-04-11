@@ -42,10 +42,8 @@ const Collection = () => {
   const [editingRecord, setEditingRecord] = useState<{ id: string, data: Record<string, any> } | null>(null);
 
   useEffect(() => {
-    if (id) {
-      fetchCollection(id);
-      fetchRecords(id);
-    }
+    fetchCollection(id);
+    fetchRecords(id);
   }, [id, fetchCollection, fetchRecords]);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -70,9 +68,7 @@ const Collection = () => {
   };
 
   const handleDelete = async (recordId: string) => {
-    if (id) {
-      await deleteRecord(id, recordId);
-    }
+    await deleteRecord(id, recordId);
   };
 
   // Format special field types

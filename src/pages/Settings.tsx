@@ -6,6 +6,8 @@ import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { InfoIcon } from "lucide-react";
+import { ExternalLink } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 
 const Settings = () => {
   const { user, logout } = useAuth();
@@ -17,12 +19,12 @@ const Settings = () => {
         <div className="page-header">
           <h1 className="text-base font-medium">Settings</h1>
           <div className="flex items-center gap-2">
-            <Link to="/dashboard">
-              <Button variant="ghost" size="sm" className="h-7 text-xs">
+            <Button variant="ghost" size="sm" className="h-7 text-xs text-muted-foreground hover:text-foreground" asChild>
+              <Link to="/dashboard">
                 <ArrowLeft className="mr-1 h-3 w-3" />
                 Back
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </div>
         </div>
 
@@ -77,25 +79,24 @@ const Settings = () => {
                   <CardDescription className="text-xs">Manage your account settings</CardDescription>
                 </CardHeader>
                 <CardContent className="px-4 py-3 space-y-3">
-                  <div>
-                    <p className="text-xs font-medium text-foreground">Name</p>
-                    <p className="text-xs text-muted-foreground">{user?.name || 'Admin User'}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-medium text-foreground">Username</p>
-                    <p className="text-xs text-muted-foreground">{user?.username || 'admin'}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-medium text-foreground">Role</p>
-                    <p className="text-xs text-muted-foreground">{user?.role || 'Administrator'}</p>
-                  </div>
+                  <dl className="space-y-3">
+                    <div className="space-y-1">
+                      <dt className="text-xs font-medium text-foreground">Name</dt>
+                      <dd className="text-xs text-muted-foreground">{user?.name || 'Admin User'}</dd>
+                    </div>
+                    <div className="space-y-1">
+                      <dt className="text-xs font-medium text-foreground">Username</dt>
+                      <dd className="text-xs text-muted-foreground">{user?.username || 'admin'}</dd>
+                    </div>
+                  </dl>
                   <div className="pt-1">
                     <Button
-                      variant="outline"
+                      variant="default"
                       size="sm"
-                      className="w-full text-destructive hover:bg-destructive/10 hover:text-destructive text-xs h-7"
+                      className="w-full gap-2 text-sm"
                       onClick={() => logout()}
                     >
+                      <LogOut className="h-3.5 w-3.5" />
                       Sign Out
                     </Button>
                   </div>
@@ -105,19 +106,29 @@ const Settings = () => {
               <Card>
                 <CardHeader className="py-3 px-4">
                   <CardTitle className="text-base">About</CardTitle>
-                  <CardDescription className="text-xs">Application information</CardDescription>
+                  <CardDescription className="text-xs">StaticPress is a modern, lightweight content management system (CMS) designed for developers who need a simple yet powerful way to manage structured content.</CardDescription>
                 </CardHeader>
                 <CardContent className="px-4 py-3">
-                  <div className="space-y-2">
-                    <div>
-                      <p className="text-xs font-medium text-foreground">Application</p>
-                      <p className="text-xs text-muted-foreground">StaticPress Admin</p>
+                  <dl className="space-y-4">
+                    <div className="space-y-1">
+                      <dt className="text-xs font-medium text-foreground">Application</dt>
+                      <dd className="text-xs text-muted-foreground">
+                        {import.meta.env.VITE_APP_REPOSITORY_URL ? (
+                          <a href={import.meta.env.VITE_APP_REPOSITORY_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 hover:underline">
+                            static-press <ExternalLink className="h-3 w-3" />
+                          </a>
+                        ) : (
+                          'No build information'
+                        )}
+                      </dd>
                     </div>
-                    <div>
-                      <p className="text-xs font-medium text-foreground">Version</p>
-                      <p className="text-xs text-muted-foreground">1.0.0</p>
+                    <div className="space-y-1">
+                      <dt className="text-xs font-medium text-foreground">Version</dt>
+                      <dd className="text-xs text-muted-foreground">
+                        {import.meta.env.VITE_APP_VERSION || 'No version information'}
+                      </dd>
                     </div>
-                  </div>
+                  </dl>
                 </CardContent>
               </Card>
             </div>
