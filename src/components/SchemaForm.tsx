@@ -6,23 +6,176 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CollectionSchema, FieldDefinition } from "@/services/collectionService";
+import { Collection, Field } from "@/types";
 import { useCollection } from "@/contexts/CollectionContext";
 import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { Grip, Plus, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { restrictToParentElement } from '@dnd-kit/modifiers';
 
 interface SchemaFormProps {
-  collection: CollectionSchema;
+  collection: Collection;
 }
 
 const FIELD_TYPES = ['text', 'number', 'boolean', 'date', 'email', 'url', 'select'];
 
+interface SortableFieldProps {
+  field: Field;
+  index: number;
+  onFieldChange: (index: number, field: Partial<Field>) => void;
+  onRemoveField: (index: number) => void;
+}
+
+const SortableField = ({ field, index, onFieldChange, onRemoveField }: SortableFieldProps) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({ id: field.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  const renderFieldOptions = () => {
+    if (field.type === 'select') {
+      return (
+        <div className="mt-4">
+          <Label htmlFor={`field-options-${index}`} className="cursor-pointer">Options (comma separated)</Label>
+          <Input 
+            id={`field-options-${index}`}
+            value={field.options?.join(", ") || ""}
+            onChange={(e) => {
+              const options = e.target.value.split(",").map(opt => opt.trim()).filter(Boolean);
+              onFieldChange(index, { options });
+            }}
+            placeholder="Option1, Option2, Option3"
+            className="mt-1"
+          />
+        </div>
+      );
+    }
+    return null;
+  };
+
+  return (
+    <Card ref={setNodeRef} style={style} className="relative mb-4">
+      <CardContent className="p-4">
+        <div className="grid grid-cols-[30px_1fr] gap-4">
+          <div className="flex items-center">
+            <div 
+              {...attributes} 
+              {...listeners} 
+              className="cursor-grab active:cursor-grabbing touch-none"
+            >
+              <Grip size={18} className="text-muted-foreground" />
+            </div>
+          </div>
+          <div className="space-y-4">
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor={`field-name-${index}`} className="cursor-pointer mb-2 block">Field Name</Label>
+                <Input
+                  id={`field-name-${index}`}
+                  value={field.name}
+                  onChange={(e) => onFieldChange(index, { name: e.target.value })}
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor={`field-type-${index}`} className="cursor-pointer mb-2 block">Field Type</Label>
+                <Select
+                  value={field.type}
+                  onValueChange={(value) => onFieldChange(
+                    index, 
+                    { 
+                      type: value as Field['type'],
+                      ...(field.type === 'select' && value !== 'select' ? { options: undefined } : {})
+                    }
+                  )}
+                >
+                  <SelectTrigger id={`field-type-${index}`}>
+                    <SelectValue placeholder="Select a type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {FIELD_TYPES.map((type) => (
+                      <SelectItem key={type} value={type}>
+                        {type.charAt(0).toUpperCase() + type.slice(1)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id={`required-${index}`}
+                  checked={field.required}
+                  onCheckedChange={(checked) => 
+                    onFieldChange(index, { required: checked === true })
+                  }
+                />
+                <Label htmlFor={`required-${index}`} className="cursor-pointer">Required field</Label>
+              </div>
+              
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="text-destructive hover:bg-destructive/10"
+                onClick={() => onRemoveField(index)}
+              >
+                <Trash2 size={18} />
+              </Button>
+            </div>
+
+            {renderFieldOptions()}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
 export function SchemaForm({ collection }: SchemaFormProps) {
-  const [schema, setSchema] = useState<CollectionSchema>({ ...collection });
+  const [schema, setSchema] = useState<Collection>({ ...collection });
   const { updateCollection } = useCollection();
   const navigate = useNavigate();
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = (event: any) => {
+    const { active, over } = event;
+    
+    if (active.id !== over.id) {
+      setSchema((schema) => {
+        const oldIndex = schema.fields.findIndex((field) => field.id === active.id);
+        const newIndex = schema.fields.findIndex((field) => field.id === over.id);
+        
+        return {
+          ...schema,
+          fields: arrayMove(schema.fields, oldIndex, newIndex),
+        };
+      });
+    }
+  };
 
   const handleNameChange = (value: string) => {
     setSchema({
@@ -45,7 +198,7 @@ export function SchemaForm({ collection }: SchemaFormProps) {
     });
   };
 
-  const handleFieldChange = (index: number, field: Partial<FieldDefinition>) => {
+  const handleFieldChange = (index: number, field: Partial<Field>) => {
     const updatedFields = [...schema.fields];
     updatedFields[index] = { ...updatedFields[index], ...field };
     
@@ -56,8 +209,8 @@ export function SchemaForm({ collection }: SchemaFormProps) {
   };
 
   const handleAddField = () => {
-    const newField: FieldDefinition = {
-      id: `${schema.id}-${Date.now()}`,
+    const newField: Field = {
+      id: `${schema.id}-field-${Date.now()}`,
       name: "",
       type: "text",
       required: false
@@ -95,33 +248,14 @@ export function SchemaForm({ collection }: SchemaFormProps) {
     }
   };
 
-  const renderFieldOptions = (index: number, field: FieldDefinition) => {
-    if (field.type === 'select') {
-      return (
-        <div className="mt-2">
-          <Label>Options (comma separated)</Label>
-          <Input 
-            value={field.options?.join(", ") || ""}
-            onChange={(e) => {
-              const options = e.target.value.split(",").map(opt => opt.trim()).filter(Boolean);
-              handleFieldChange(index, { options });
-            }}
-            placeholder="Option1, Option2, Option3"
-          />
-        </div>
-      );
-    }
-    return null;
-  };
-
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-8">
       {/* Collection Details */}
-      <div className="space-y-4">
-        <h2 className="text-xl font-semibold">Collection Details</h2>
-        <div className="space-y-4">
+      <div className="space-y-6">
+        <h2 className="text-base font-medium">Collection Details</h2>
+        <div className="space-y-5">
           <div>
-            <Label htmlFor="name">Name</Label>
+            <Label htmlFor="name" className="cursor-pointer mb-2 block">Name</Label>
             <Input
               id="name"
               value={schema.name}
@@ -130,7 +264,7 @@ export function SchemaForm({ collection }: SchemaFormProps) {
             />
           </div>
           <div>
-            <Label htmlFor="slug">Slug (URL identifier)</Label>
+            <Label htmlFor="slug" className="cursor-pointer mb-2 block">Slug (URL identifier)</Label>
             <Input
               id="slug"
               value={schema.slug}
@@ -139,7 +273,7 @@ export function SchemaForm({ collection }: SchemaFormProps) {
             />
           </div>
           <div>
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description" className="cursor-pointer mb-2 block">Description</Label>
             <Textarea
               id="description"
               value={schema.description}
@@ -150,12 +284,10 @@ export function SchemaForm({ collection }: SchemaFormProps) {
         </div>
       </div>
 
-      <Separator />
-
       {/* Fields */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">Fields</h2>
+          <h2 className="text-base font-medium">Fields</h2>
           <Button type="button" variant="outline" size="sm" onClick={handleAddField}>
             <Plus size={16} className="mr-1" />
             Add Field
@@ -163,85 +295,32 @@ export function SchemaForm({ collection }: SchemaFormProps) {
         </div>
 
         {schema.fields.length === 0 ? (
-          <div className="text-center py-6 bg-muted/30 rounded-md">
+          <div className="text-center py-8 bg-muted/30 rounded-md">
             <p className="text-muted-foreground">No fields defined yet</p>
-            <p className="text-sm text-muted-foreground">Click "Add Field" to define data structure</p>
+            <p className="text-sm text-muted-foreground mt-1">Click "Add Field" to define data structure</p>
           </div>
         ) : (
-          <div className="space-y-4">
-            {schema.fields.map((field, index) => (
-              <Card key={field.id} className="relative">
-                <CardContent className="p-4">
-                  <div className="grid grid-cols-[20px_1fr] gap-3">
-                    <div className="flex items-center">
-                      <Grip size={16} className="text-muted-foreground/50" />
-                    </div>
-                    <div className="space-y-4">
-                      <div className="grid sm:grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor={`field-name-${index}`}>Field Name</Label>
-                          <Input
-                            id={`field-name-${index}`}
-                            value={field.name}
-                            onChange={(e) => handleFieldChange(index, { name: e.target.value })}
-                            required
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor={`field-type-${index}`}>Field Type</Label>
-                          <Select
-                            value={field.type}
-                            onValueChange={(value) => handleFieldChange(
-                              index, 
-                              { 
-                                type: value as FieldDefinition['type'],
-                                // Reset options if changing from select type
-                                ...(field.type === 'select' && value !== 'select' ? { options: undefined } : {})
-                              }
-                            )}
-                          >
-                            <SelectTrigger id={`field-type-${index}`}>
-                              <SelectValue placeholder="Select a type" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {FIELD_TYPES.map((type) => (
-                                <SelectItem key={type} value={type}>
-                                  {type.charAt(0).toUpperCase() + type.slice(1)}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`required-${index}`}
-                          checked={field.required}
-                          onCheckedChange={(checked) => 
-                            handleFieldChange(index, { required: checked === true })
-                          }
-                        />
-                        <Label htmlFor={`required-${index}`}>Required field</Label>
-                      </div>
-
-                      {renderFieldOptions(index, field)}
-                    </div>
-                  </div>
-                  
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="absolute top-2 right-2 text-destructive hover:text-destructive hover:bg-destructive/10"
-                    onClick={() => handleRemoveField(index)}
-                  >
-                    <Trash2 size={16} />
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+            modifiers={[restrictToParentElement]}
+          >
+            <SortableContext 
+              items={schema.fields.map(field => field.id)} 
+              strategy={verticalListSortingStrategy}
+            >
+              {schema.fields.map((field, index) => (
+                <SortableField
+                  key={field.id}
+                  field={field}
+                  index={index}
+                  onFieldChange={handleFieldChange}
+                  onRemoveField={handleRemoveField}
+                />
+              ))}
+            </SortableContext>
+          </DndContext>
         )}
       </div>
 
