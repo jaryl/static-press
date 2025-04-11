@@ -1,9 +1,8 @@
-
 export interface Field {
   id: string;
   name: string;
   type: 'text' | 'number' | 'boolean' | 'date' | 'email' | 'url' | 'select';
-  required?: boolean;
+  required: boolean;
   options?: string[];
 }
 

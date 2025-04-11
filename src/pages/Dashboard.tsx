@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useCollection } from "@/contexts/CollectionContext";
 import { Button } from "@/components/ui/button";
@@ -9,19 +8,20 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Plus, Search, Eye, FileJson, Pencil } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { Link } from "react-router-dom";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { 
-  Table, 
-  TableHeader, 
-  TableBody, 
-  TableHead, 
-  TableRow, 
-  TableCell 
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableHead,
+  TableRow,
+  TableCell
 } from "@/components/ui/table";
 
 const Dashboard = () => {
@@ -190,15 +190,15 @@ const Dashboard = () => {
                           <div className="flex items-center justify-end gap-1">
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm" 
-                                  className="h-7 w-7 p-0" 
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-7 w-7 p-0"
                                   asChild
                                 >
-                                  <a href={`/collections/${collection.id}`}>
+                                  <Link to={`/collections/${collection.id}`}>
                                     <Eye className="h-3.5 w-3.5" />
-                                  </a>
+                                  </Link>
                                 </Button>
                               </TooltipTrigger>
                               <TooltipContent side="bottom">
@@ -208,10 +208,10 @@ const Dashboard = () => {
 
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm" 
-                                  className="h-7 w-7 p-0" 
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-7 w-7 p-0"
                                   asChild
                                 >
                                   <a href={`/api/collections/${collection.id}/json`} target="_blank" rel="noopener noreferrer">
@@ -226,15 +226,15 @@ const Dashboard = () => {
 
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm" 
-                                  className="h-7 w-7 p-0" 
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-7 w-7 p-0"
                                   asChild
                                 >
-                                  <a href={`/schema/${collection.id}`}>
+                                  <Link to={`/schema/${collection.id}`}>
                                     <Pencil className="h-3.5 w-3.5" />
-                                  </a>
+                                  </Link>
                                 </Button>
                               </TooltipTrigger>
                               <TooltipContent side="bottom">

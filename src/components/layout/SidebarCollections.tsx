@@ -86,7 +86,7 @@ export function SidebarCollections({ isOpen, collections, createCollection }: Si
           />
         </div>
         <div className="flex justify-end">
-          <Button type="submit" className="saas-button-primary text-xs h-8">
+          <Button type="submit" className="saas-button-primary">
             Create Collection
           </Button>
         </div>

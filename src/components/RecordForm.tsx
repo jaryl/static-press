@@ -25,7 +25,7 @@ export function RecordForm({ collection, initialData = {}, recordId, onComplete 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validate the record
     const validationErrors = validateRecord(formData, collection.fields);
     if (validationErrors.length > 0) {
@@ -50,14 +50,14 @@ export function RecordForm({ collection, initialData = {}, recordId, onComplete 
       ...prev,
       [field.name]: value
     }));
-    
+
     // Clear errors when user inputs new data
     setErrors([]);
   };
-  
+
   const renderFieldInput = (field: FieldDefinition) => {
     const value = formData[field.name] !== undefined ? formData[field.name] : '';
-    
+
     switch (field.type) {
       case 'text':
       case 'email':

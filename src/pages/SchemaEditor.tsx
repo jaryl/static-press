@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import { useParams, Link, Navigate } from "react-router-dom";
 import { useCollection } from "@/contexts/CollectionContext";
@@ -9,10 +8,10 @@ import { Button } from "@/components/ui/button";
 
 const SchemaEditor = () => {
   const { id } = useParams<{ id: string }>();
-  const { 
-    fetchCollection, 
-    currentCollection, 
-    loading 
+  const {
+    fetchCollection,
+    currentCollection,
+    loading
   } = useCollection();
 
   useEffect(() => {
@@ -59,23 +58,27 @@ const SchemaEditor = () => {
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <header className="page-header border-b border-border">
-          <div className="flex items-center gap-4">
-            <Link 
-              to={`/collections/${id}`} 
+          <div className="flex items-center justify-between w-full">
+            <h1 className="text-base font-medium">
+              Schema Editor <span className="text-sm text-muted-foreground ml-2">{currentCollection.name}</span>
+            </h1>
+
+            <Link
+              to={`/collections/${id}`}
               className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground"
             >
               <ArrowLeft className="mr-1 h-4 w-4" />
               Back
             </Link>
-            <h1 className="text-base font-medium">
-              Edit Schema: {currentCollection.name}
-            </h1>
-          </div>
-          <div className="text-sm text-muted-foreground">
-            Define the structure and fields for this collection
           </div>
         </header>
-        
+
+        <div className="secondary-header">
+          <div className="text-xs text-muted-foreground">
+            Define the structure and fields for this collection
+          </div>
+        </div>
+
         <div className="flex-1 overflow-auto">
           <div className="container max-w-7xl mx-auto py-6">
             <SchemaForm collection={currentCollection} />

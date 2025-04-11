@@ -47,7 +47,7 @@ const SortableField = ({ field, index, onFieldChange, onRemoveField }: SortableF
       return (
         <div className="mt-4">
           <Label htmlFor={`field-options-${index}`} className="cursor-pointer">Options (comma separated)</Label>
-          <Input 
+          <Input
             id={`field-options-${index}`}
             value={field.options?.join(", ") || ""}
             onChange={(e) => {
@@ -68,9 +68,9 @@ const SortableField = ({ field, index, onFieldChange, onRemoveField }: SortableF
       <CardContent className="p-4">
         <div className="grid grid-cols-[30px_1fr] gap-4">
           <div className="flex items-center">
-            <div 
-              {...attributes} 
-              {...listeners} 
+            <div
+              {...attributes}
+              {...listeners}
               className="cursor-grab active:cursor-grabbing touch-none"
             >
               <Grip size={18} className="text-muted-foreground" />
@@ -92,8 +92,8 @@ const SortableField = ({ field, index, onFieldChange, onRemoveField }: SortableF
                 <Select
                   value={field.type}
                   onValueChange={(value) => onFieldChange(
-                    index, 
-                    { 
+                    index,
+                    {
                       type: value as Field['type'],
                       ...(field.type === 'select' && value !== 'select' ? { options: undefined } : {})
                     }
@@ -118,13 +118,13 @@ const SortableField = ({ field, index, onFieldChange, onRemoveField }: SortableF
                 <Checkbox
                   id={`required-${index}`}
                   checked={field.required}
-                  onCheckedChange={(checked) => 
+                  onCheckedChange={(checked) =>
                     onFieldChange(index, { required: checked === true })
                   }
                 />
                 <Label htmlFor={`required-${index}`} className="cursor-pointer">Required field</Label>
               </div>
-              
+
               <Button
                 type="button"
                 variant="ghost"
@@ -162,12 +162,12 @@ export function SchemaForm({ collection }: SchemaFormProps) {
 
   const handleDragEnd = (event: any) => {
     const { active, over } = event;
-    
+
     if (active.id !== over.id) {
       setSchema((schema) => {
         const oldIndex = schema.fields.findIndex((field) => field.id === active.id);
         const newIndex = schema.fields.findIndex((field) => field.id === over.id);
-        
+
         return {
           ...schema,
           fields: arrayMove(schema.fields, oldIndex, newIndex),
@@ -200,7 +200,7 @@ export function SchemaForm({ collection }: SchemaFormProps) {
   const handleFieldChange = (index: number, field: Partial<Field>) => {
     const updatedFields = [...schema.fields];
     updatedFields[index] = { ...updatedFields[index], ...field };
-    
+
     setSchema({
       ...schema,
       fields: updatedFields
@@ -214,7 +214,7 @@ export function SchemaForm({ collection }: SchemaFormProps) {
       type: "text",
       required: false
     };
-    
+
     setSchema({
       ...schema,
       fields: [...schema.fields, newField]
@@ -223,7 +223,7 @@ export function SchemaForm({ collection }: SchemaFormProps) {
 
   const handleRemoveField = (index: number) => {
     const updatedFields = schema.fields.filter((_, i) => i !== index);
-    
+
     setSchema({
       ...schema,
       fields: updatedFields
@@ -232,15 +232,18 @@ export function SchemaForm({ collection }: SchemaFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     try {
       await updateCollection(schema.id, {
         name: schema.name,
         slug: schema.slug,
         description: schema.description,
-        fields: schema.fields
+        fields: schema.fields.map(field => ({
+          ...field,
+          required: field.required === true // Ensure required is always a boolean
+        }))
       });
-      
+
       navigate(`/collections/${schema.id}`);
     } catch (error) {
       console.error("Error updating schema:", error);
@@ -305,8 +308,8 @@ export function SchemaForm({ collection }: SchemaFormProps) {
             onDragEnd={handleDragEnd}
             modifiers={[restrictToParentElement]}
           >
-            <SortableContext 
-              items={schema.fields.map(field => field.id)} 
+            <SortableContext
+              items={schema.fields.map(field => field.id)}
               strategy={verticalListSortingStrategy}
             >
               {schema.fields.map((field, index) => (
@@ -324,7 +327,7 @@ export function SchemaForm({ collection }: SchemaFormProps) {
       </div>
 
       <div className="flex justify-end pt-4">
-        <Button 
+        <Button
           type="button"
           variant="outline"
           className="mr-2"
