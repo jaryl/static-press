@@ -42,7 +42,7 @@ import tasksData from '../data/tasks.json';
 import feedbackData from '../data/feedback.json';
 
 // Initialize collections from JSON data
-let collections: CollectionSchema[] = [...schemaData];
+let collections: CollectionSchema[] = [...schemaData] as CollectionSchema[];
 
 // Initialize records from JSON data
 let records: { [collectionId: string]: CollectionRecord[] } = {
