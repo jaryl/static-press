@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Loader } from "@/components/ui/loader";
 import Container from "@/components/common/Container";
 import { PrimaryHeader } from "@/components/common/PrimaryHeader";
+import { SecondaryHeader } from "@/components/common/SecondaryHeader";
 
 const SchemaEditor = () => {
   const { id } = useParams<{ id: string }>();
@@ -57,11 +58,9 @@ const SchemaEditor = () => {
           backLink={`/collections/${currentCollection.slug}`}
         />
 
-        <div className="secondary-header">
-          <div className="text-xs text-muted-foreground">
-            Define the structure and fields for this collection
-          </div>
-        </div>
+        <SecondaryHeader>
+          Define the structure and fields for this collection
+        </SecondaryHeader>
 
         <div className="flex-1 overflow-auto">
           <div className="container max-w-7xl mx-auto py-6">

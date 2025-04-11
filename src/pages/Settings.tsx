@@ -10,6 +10,7 @@ import { ExternalLink } from 'lucide-react';
 import { LogOut } from 'lucide-react';
 import Container from "@/components/common/Container";
 import { PrimaryHeader } from "@/components/common/PrimaryHeader";
+import { SecondaryHeader } from "@/components/common/SecondaryHeader";
 
 const Settings = () => {
   const { user, logout } = useAuth();
@@ -24,11 +25,9 @@ const Settings = () => {
             backLink="/dashboard"
           />
 
-          <div className="secondary-header">
-            <div className="text-xs text-muted-foreground">
-              Manage your account and application settings
-            </div>
-          </div>
+          <SecondaryHeader>
+            Manage your account and application settings
+          </SecondaryHeader>
 
           <div className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

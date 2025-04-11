@@ -15,7 +15,7 @@ import RecordRow from "@/components/collections/RecordRow";
 import NewRecordRow from "@/components/collections/NewRecordRow";
 import EmptyState from "@/components/collections/EmptyState";
 import { PrimaryHeader } from "@/components/common/PrimaryHeader";
-import CollectionSecondaryHeader from "@/components/collections/CollectionSecondaryHeader";
+import { SecondaryHeader } from "@/components/common/SecondaryHeader";
 import NoResults from "@/components/collections/NoResults";
 
 // Import UI components
@@ -96,7 +96,6 @@ const Collection = () => {
     <Container>
       <Sidebar />
       <div className="flex flex-col flex-1 overflow-auto">
-        {/* Primary Header */}
         <PrimaryHeader
           title={currentCollection.name}
           subtitle={
@@ -126,11 +125,11 @@ const Collection = () => {
         </PrimaryHeader>
 
         {/* Secondary Header with Search */}
-        <CollectionSecondaryHeader
+        <SecondaryHeader
           description={currentCollection.description}
           hasRecords={hasAnyRecords}
           searchTerm={filter.searchTerm}
-          onSearch={filter.handleSearch}
+          onSearch={(value) => filter.handleSearch({ target: { value } } as React.ChangeEvent<HTMLInputElement>)}
         />
 
         {/* Main Content Area */}

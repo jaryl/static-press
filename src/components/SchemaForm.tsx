@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Collection, Field } from "@/types";
 import { useCollection } from "@/contexts/CollectionContext";
 import { Card, CardContent } from "@/components/ui/card";
-import { Grip, Plus, Trash2 } from "lucide-react";
+import { Grip, Plus, Trash2, FileJson } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
@@ -297,9 +297,14 @@ export function SchemaForm({ collection }: SchemaFormProps) {
         </div>
 
         {schema.fields.length === 0 ? (
-          <div className="text-center py-8 bg-muted/30 rounded-md">
-            <p className="text-muted-foreground">No fields defined yet</p>
-            <p className="text-sm text-muted-foreground mt-1">Click "Add Field" to define data structure</p>
+          <div className="flex flex-col flex-1 items-center justify-center bg-muted/20 p-8 rounded-lg border border-dashed border-muted">
+            <div className="bg-primary/5 p-4 rounded-full mb-5">
+              <FileJson className="h-10 w-10 text-primary/60" />
+            </div>
+            <h3 className="text-lg font-medium mb-2">No fields defined yet</h3>
+            <p className="text-sm text-muted-foreground text-center max-w-md">
+              Click "Add Field" to define data structure
+            </p>
           </div>
         ) : (
           <DndContext
