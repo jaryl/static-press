@@ -1,0 +1,92 @@
+
+[
+  {
+    "id": "1",
+    "name": "Products",
+    "slug": "products",
+    "description": "Product catalog items",
+    "fields": [
+      { "id": "1-1", "name": "name", "type": "text", "required": true },
+      { "id": "1-2", "name": "price", "type": "number", "required": true },
+      { "id": "1-3", "name": "inStock", "type": "boolean", "required": true }
+    ],
+    "createdAt": "2023-12-10T15:30:00Z",
+    "updatedAt": "2023-12-15T09:45:00Z"
+  },
+  {
+    "id": "2",
+    "name": "Customers",
+    "slug": "customers",
+    "description": "Customer information",
+    "fields": [
+      { "id": "2-1", "name": "name", "type": "text", "required": true },
+      { "id": "2-2", "name": "email", "type": "email", "required": true },
+      { "id": "2-3", "name": "joinDate", "type": "date", "required": false }
+    ],
+    "createdAt": "2023-12-05T11:20:00Z",
+    "updatedAt": "2023-12-20T14:10:00Z"
+  },
+  {
+    "id": "3",
+    "name": "Blog Posts",
+    "slug": "blog-posts",
+    "description": "Blog articles and content",
+    "fields": [
+      { "id": "3-1", "name": "title", "type": "text", "required": true },
+      { "id": "3-2", "name": "content", "type": "text", "required": true },
+      { "id": "3-3", "name": "author", "type": "text", "required": true },
+      { "id": "3-4", "name": "publishDate", "type": "date", "required": true },
+      { "id": "3-5", "name": "featured", "type": "boolean", "required": false }
+    ],
+    "createdAt": "2024-01-15T08:30:00Z",
+    "updatedAt": "2024-01-15T08:30:00Z"
+  },
+  {
+    "id": "4",
+    "name": "Events",
+    "slug": "events",
+    "description": "Upcoming and past events",
+    "fields": [
+      { "id": "4-1", "name": "title", "type": "text", "required": true },
+      { "id": "4-2", "name": "location", "type": "text", "required": true },
+      { "id": "4-3", "name": "startDate", "type": "date", "required": true },
+      { "id": "4-4", "name": "endDate", "type": "date", "required": true },
+      { "id": "4-5", "name": "capacity", "type": "number", "required": false },
+      { "id": "4-6", "name": "category", "type": "select", "required": true, "options": ["Conference", "Workshop", "Meetup", "Webinar"] }
+    ],
+    "createdAt": "2024-02-05T13:45:00Z",
+    "updatedAt": "2024-02-10T09:20:00Z"
+  },
+  {
+    "id": "5",
+    "name": "Tasks",
+    "slug": "tasks",
+    "description": "Project tasks and assignments",
+    "fields": [
+      { "id": "5-1", "name": "title", "type": "text", "required": true },
+      { "id": "5-2", "name": "description", "type": "text", "required": false },
+      { "id": "5-3", "name": "assignee", "type": "text", "required": true },
+      { "id": "5-4", "name": "dueDate", "type": "date", "required": true },
+      { "id": "5-5", "name": "status", "type": "select", "required": true, "options": ["To Do", "In Progress", "Review", "Done"] },
+      { "id": "5-6", "name": "priority", "type": "select", "required": true, "options": ["Low", "Medium", "High", "Urgent"] }
+    ],
+    "createdAt": "2024-03-01T10:15:00Z",
+    "updatedAt": "2024-03-05T16:30:00Z"
+  },
+  {
+    "id": "6",
+    "name": "Feedback",
+    "slug": "feedback",
+    "description": "User feedback and suggestions",
+    "fields": [
+      { "id": "6-1", "name": "subject", "type": "text", "required": true },
+      { "id": "6-2", "name": "message", "type": "text", "required": true },
+      { "id": "6-3", "name": "email", "type": "email", "required": true },
+      { "id": "6-4", "name": "rating", "type": "number", "required": true },
+      { "id": "6-5", "name": "category", "type": "select", "required": true, "options": ["Bug", "Feature Request", "Question", "Compliment", "Other"] },
+      { "id": "6-6", "name": "submittedOn", "type": "date", "required": true }
+    ],
+    "createdAt": "2024-01-20T09:10:00Z",
+    "updatedAt": "2024-01-25T14:40:00Z"
+  }
+]

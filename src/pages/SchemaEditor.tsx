@@ -1,3 +1,4 @@
+
 import { useEffect } from "react";
 import { useParams, Link, Navigate } from "react-router-dom";
 import { useCollection } from "@/contexts/CollectionContext";
@@ -15,7 +16,9 @@ const SchemaEditor = () => {
   } = useCollection();
 
   useEffect(() => {
-    fetchCollection(id);
+    if (id) {
+      fetchCollection(id);
+    }
   }, [id, fetchCollection]);
 
   if (loading && !currentCollection) {
@@ -58,7 +61,7 @@ const SchemaEditor = () => {
             </h1>
 
             <Button variant="ghost" size="sm" className="h-7 text-xs text-muted-foreground hover:text-foreground" asChild>
-              <Link to={`/collections/${id}`}>
+              <Link to={`/collections/${currentCollection.slug}`}>
                 <ArrowLeft className="mr-1 h-4 w-4" />
                 Back
               </Link>

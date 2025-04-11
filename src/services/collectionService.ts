@@ -1,6 +1,6 @@
 
 // This service manages collections and their records
-// In a real app, this would connect to a backend API
+// Loading data from JSON files
 
 export interface FieldDefinition {
   id: string;
@@ -32,66 +32,26 @@ export interface CollectionRecord {
   updatedAt: string;
 }
 
-// In-memory store for collections and records
-let collections: CollectionSchema[] = [
-  {
-    id: "1",
-    name: "Products",
-    slug: "products",
-    description: "Product catalog items",
-    fields: [
-      { id: "1-1", name: "name", type: "text", required: true },
-      { id: "1-2", name: "price", type: "number", required: true },
-      { id: "1-3", name: "inStock", type: "boolean", required: true },
-    ],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: "2",
-    name: "Customers",
-    slug: "customers",
-    description: "Customer information",
-    fields: [
-      { id: "2-1", name: "name", type: "text", required: true },
-      { id: "2-2", name: "email", type: "email", required: true },
-      { id: "2-3", name: "joinDate", type: "date", required: false },
-    ],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-];
+// Import collection schema and data
+import schemaData from '../data/schema.json';
+import productsData from '../data/products.json';
+import customersData from '../data/customers.json';
+import blogPostsData from '../data/blog-posts.json';
+import eventsData from '../data/events.json';
+import tasksData from '../data/tasks.json';
+import feedbackData from '../data/feedback.json';
 
+// Initialize collections from JSON data
+let collections: CollectionSchema[] = [...schemaData];
+
+// Initialize records from JSON data
 let records: { [collectionId: string]: CollectionRecord[] } = {
-  "1": [
-    {
-      id: "1-1",
-      collectionId: "1",
-      data: { name: "Laptop", price: 1299, inStock: true },
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    {
-      id: "1-2",
-      collectionId: "1",
-      data: { name: "Smartphone", price: 799, inStock: true },
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-  ],
-  "2": [
-    {
-      id: "2-1",
-      collectionId: "2",
-      data: { 
-        name: "Jane Doe", 
-        email: "jane@example.com", 
-        joinDate: "2023-01-15" 
-      },
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-  ],
+  "1": productsData,
+  "2": customersData,
+  "3": blogPostsData,
+  "4": eventsData,
+  "5": tasksData,
+  "6": feedbackData
 };
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -103,9 +63,17 @@ export const collectionService = {
     return [...collections];
   },
 
-  getCollection: async (id: string): Promise<CollectionSchema | null> => {
+  getCollection: async (idOrSlug: string): Promise<CollectionSchema | null> => {
     await delay(200);
-    const collection = collections.find(c => c.id === id);
+    const collection = collections.find(c => 
+      c.id === idOrSlug || c.slug === idOrSlug
+    );
+    return collection ? { ...collection } : null;
+  },
+
+  getCollectionBySlug: async (slug: string): Promise<CollectionSchema | null> => {
+    await delay(200);
+    const collection = collections.find(c => c.slug === slug);
     return collection ? { ...collection } : null;
   },
 
@@ -122,10 +90,14 @@ export const collectionService = {
     return newCollection;
   },
 
-  updateCollection: async (id: string, updates: Partial<Omit<CollectionSchema, 'id' | 'createdAt' | 'updatedAt'>>): Promise<CollectionSchema> => {
+  updateCollection: async (idOrSlug: string, updates: Partial<Omit<CollectionSchema, 'id' | 'createdAt' | 'updatedAt'>>): Promise<CollectionSchema> => {
     await delay(500);
+    const collection = collections.find(c => c.id === idOrSlug || c.slug === idOrSlug);
+    
+    if (!collection) throw new Error("Collection not found");
+    
     collections = collections.map(c => 
-      c.id === id 
+      (c.id === idOrSlug || c.slug === idOrSlug)
         ? { 
             ...c, 
             ...updates, 
@@ -133,53 +105,89 @@ export const collectionService = {
           } 
         : c
     );
-    const updated = collections.find(c => c.id === id);
-    if (!updated) throw new Error("Collection not found");
+    
+    const updated = collections.find(c => c.id === collection.id);
+    if (!updated) throw new Error("Collection not found after update");
     return updated;
   },
 
-  deleteCollection: async (id: string): Promise<void> => {
+  deleteCollection: async (idOrSlug: string): Promise<void> => {
     await delay(500);
-    collections = collections.filter(c => c.id !== id);
-    delete records[id];
+    const collection = collections.find(c => c.id === idOrSlug || c.slug === idOrSlug);
+    if (!collection) throw new Error("Collection not found");
+    
+    collections = collections.filter(c => c.id !== collection.id);
+    delete records[collection.id];
   },
 
   // Records operations
-  getRecords: async (collectionId: string): Promise<CollectionRecord[]> => {
+  getRecords: async (collectionIdOrSlug: string): Promise<CollectionRecord[]> => {
     await delay(300);
-    return records[collectionId] ? [...records[collectionId]] : [];
+    
+    // First find the collection by ID or slug
+    const collection = collections.find(c => 
+      c.id === collectionIdOrSlug || c.slug === collectionIdOrSlug
+    );
+    
+    if (!collection) return [];
+    
+    return records[collection.id] ? [...records[collection.id]] : [];
   },
 
-  getRecord: async (collectionId: string, recordId: string): Promise<CollectionRecord | null> => {
+  getRecord: async (collectionIdOrSlug: string, recordId: string): Promise<CollectionRecord | null> => {
     await delay(200);
-    const record = records[collectionId]?.find(r => r.id === recordId);
+    
+    // First find the collection by ID or slug
+    const collection = collections.find(c => 
+      c.id === collectionIdOrSlug || c.slug === collectionIdOrSlug
+    );
+    
+    if (!collection) return null;
+    
+    const record = records[collection.id]?.find(r => r.id === recordId);
     return record ? { ...record } : null;
   },
 
-  createRecord: async (collectionId: string, data: RecordData): Promise<CollectionRecord> => {
+  createRecord: async (collectionIdOrSlug: string, data: RecordData): Promise<CollectionRecord> => {
     await delay(500);
+    
+    // First find the collection by ID or slug
+    const collection = collections.find(c => 
+      c.id === collectionIdOrSlug || c.slug === collectionIdOrSlug
+    );
+    
+    if (!collection) throw new Error("Collection not found");
+    
     const newRecord: CollectionRecord = {
-      id: `${collectionId}-${Date.now()}`,
-      collectionId,
+      id: `${collection.id}-${Date.now()}`,
+      collectionId: collection.id,
       data,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
     
-    if (!records[collectionId]) {
-      records[collectionId] = [];
+    if (!records[collection.id]) {
+      records[collection.id] = [];
     }
     
-    records[collectionId] = [...records[collectionId], newRecord];
+    records[collection.id] = [...records[collection.id], newRecord];
     return newRecord;
   },
 
-  updateRecord: async (collectionId: string, recordId: string, data: RecordData): Promise<CollectionRecord> => {
+  updateRecord: async (collectionIdOrSlug: string, recordId: string, data: RecordData): Promise<CollectionRecord> => {
     await delay(500);
-    const collectionRecords = records[collectionId];
-    if (!collectionRecords) throw new Error("Collection not found");
     
-    records[collectionId] = collectionRecords.map(r => 
+    // First find the collection by ID or slug
+    const collection = collections.find(c => 
+      c.id === collectionIdOrSlug || c.slug === collectionIdOrSlug
+    );
+    
+    if (!collection) throw new Error("Collection not found");
+    
+    const collectionRecords = records[collection.id];
+    if (!collectionRecords) throw new Error("Collection records not found");
+    
+    records[collection.id] = collectionRecords.map(r => 
       r.id === recordId 
         ? { 
             ...r, 
@@ -189,16 +197,24 @@ export const collectionService = {
         : r
     );
     
-    const updated = records[collectionId].find(r => r.id === recordId);
+    const updated = records[collection.id].find(r => r.id === recordId);
     if (!updated) throw new Error("Record not found");
     return updated;
   },
 
-  deleteRecord: async (collectionId: string, recordId: string): Promise<void> => {
+  deleteRecord: async (collectionIdOrSlug: string, recordId: string): Promise<void> => {
     await delay(500);
-    const collectionRecords = records[collectionId];
+    
+    // First find the collection by ID or slug
+    const collection = collections.find(c => 
+      c.id === collectionIdOrSlug || c.slug === collectionIdOrSlug
+    );
+    
+    if (!collection) return;
+    
+    const collectionRecords = records[collection.id];
     if (!collectionRecords) return;
     
-    records[collectionId] = collectionRecords.filter(r => r.id !== recordId);
+    records[collection.id] = collectionRecords.filter(r => r.id !== recordId);
   }
 };

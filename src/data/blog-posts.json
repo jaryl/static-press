@@ -1,0 +1,42 @@
+
+[
+  {
+    "id": "3-1",
+    "collectionId": "3",
+    "data": {
+      "title": "Getting Started with React",
+      "content": "React is a popular JavaScript library for building user interfaces...",
+      "author": "Jane Smith",
+      "publishDate": "2024-01-20",
+      "featured": true
+    },
+    "createdAt": "2024-01-20T08:30:00Z",
+    "updatedAt": "2024-01-20T08:30:00Z"
+  },
+  {
+    "id": "3-2",
+    "collectionId": "3",
+    "data": {
+      "title": "Advanced TypeScript Tips",
+      "content": "TypeScript offers many advanced features that can improve your code...",
+      "author": "John Doe",
+      "publishDate": "2024-01-25",
+      "featured": false
+    },
+    "createdAt": "2024-01-25T09:45:00Z",
+    "updatedAt": "2024-01-25T09:45:00Z"
+  },
+  {
+    "id": "3-3",
+    "collectionId": "3",
+    "data": {
+      "title": "CSS Grid Layout Explained",
+      "content": "CSS Grid is a powerful layout system that allows for complex designs...",
+      "author": "Emma Wilson",
+      "publishDate": "2024-02-05",
+      "featured": true
+    },
+    "createdAt": "2024-02-05T11:20:00Z",
+    "updatedAt": "2024-02-05T11:20:00Z"
+  }
+]
