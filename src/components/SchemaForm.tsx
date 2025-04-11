@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,7 +19,7 @@ interface SchemaFormProps {
   collection: Collection;
 }
 
-const FIELD_TYPES = ['text', 'number', 'boolean', 'date', 'email', 'url', 'select'];
+const FIELD_TYPES: Field['type'][] = ['text', 'number', 'boolean', 'date', 'email', 'url', 'select'];
 
 interface SortableFieldProps {
   field: Field;
