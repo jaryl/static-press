@@ -7,16 +7,18 @@ interface PrimaryHeaderProps {
   subtitle?: string | React.ReactNode;
   backLink?: string;
   children?: React.ReactNode;
+  className?: string;
 }
 
 export const PrimaryHeader = ({
   title,
   subtitle,
   backLink,
-  children
+  children,
+  className
 }: PrimaryHeaderProps) => {
   return (
-    <header className="page-header border-b border-border">
+    <header className={`sticky top-0 px-6 py-3 border-b border-border flex items-center justify-between bg-background z-50 ${className}`}>
       <div className="flex items-center justify-between w-full">
         <div className="flex items-center gap-2">
           <h1 className="text-base font-medium">

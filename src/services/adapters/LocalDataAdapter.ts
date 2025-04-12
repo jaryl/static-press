@@ -37,10 +37,10 @@ export class LocalDataAdapter {
         const hasInvalidRecords = data.default.some((item: any) => {
           // Check for missing required fields based on schema
           return collection.fields
-            .filter(field => field.required)
-            .some(field => {
+            .filter((field: any) => field.required)
+            .some((field: any) => {
               const fieldExists = Object.prototype.hasOwnProperty.call(item.data, field.name);
-              const fieldHasValue = item.data[field.name] !== null && item.data[field.name] !== undefined && item[field.name] !== '';
+              const fieldHasValue = item.data[field.name] !== null && item.data[field.name] !== undefined && item.data[field.name] !== '';
               return !fieldExists || !fieldHasValue;
             });
         });
@@ -50,24 +50,25 @@ export class LocalDataAdapter {
         }
 
         // Format the raw data into the expected record shape
-        this.loadedCollections[slug] = data.default.map((item: any) => {
-          // If the item already has the expected shape, return it as is
-          if (item.data && item.id && item.slug) {
-            return item;
-          }
+        this.loadedCollections[slug] = Array.isArray(data)
+          ? data.map((item: any) => {
+            // If the item already has the expected shape, return it as is
+            if (item && item.id) {
+              return item;
+            }
 
-          // Otherwise, transform it to the expected shape
-          return {
-            id: item.id || `${slug}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-            slug,
-            data: item,
-            createdAt: item.createdAt || new Date().toISOString(),
-            updatedAt: item.updatedAt || new Date().toISOString()
-          };
-        });
+            // Otherwise, transform it to the expected shape
+            return {
+              id: item.id,
+              data: item.data,
+              createdAt: item.createdAt || new Date().toISOString(),
+              updatedAt: item.updatedAt || new Date().toISOString()
+            };
+          })
+          : [];
       } catch (error) {
         console.error(`Failed to load ${slug}.json`, error);
-        throw error;
+        throw error; // Re-throw the error instead of returning empty array
       }
     }
     return [...this.loadedCollections[slug]];

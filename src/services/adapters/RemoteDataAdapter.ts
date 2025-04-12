@@ -48,11 +48,12 @@ export class RemoteDataAdapter {
         // Check if any required fields are missing in the data
         const hasInvalidRecords = data.some((item: any) => {
           // Check for missing required fields based on schema
+
           return collection.fields
-            .filter(field => field.required)
-            .some(field => {
-              const fieldExists = Object.prototype.hasOwnProperty.call(item, field.name);
-              const fieldHasValue = item[field.name] !== null && item[field.name] !== undefined && item[field.name] !== '';
+            .filter((field: any) => field.required)
+            .some((field: any) => {
+              const fieldExists = Object.prototype.hasOwnProperty.call(item.data, field.name);
+              const fieldHasValue = item.data[field.name] !== null && item.data[field.name] !== undefined && item.data[field.name] !== '';
               return !fieldExists || !fieldHasValue;
             });
         });
@@ -65,15 +66,14 @@ export class RemoteDataAdapter {
         this.loadedCollections[slug] = Array.isArray(data)
           ? data.map((item: any) => {
             // If the item already has the expected shape, return it as is
-            if (item && item.id && item.slug) {
+            if (item && item.id) {
               return item;
             }
 
             // Otherwise, transform it to the expected shape
             return {
-              id: item.id || `${slug}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-              slug: slug,
-              data: item,
+              id: item.id,
+              data: item.data,
               createdAt: item.createdAt || new Date().toISOString(),
               updatedAt: item.updatedAt || new Date().toISOString()
             };

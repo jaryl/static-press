@@ -85,43 +85,11 @@
 
 /* SaaS UI-inspired global styles */
 @layer components {
-  .page-header {
-    @apply h-header flex items-center justify-between px-6 border-b border-border;
-  }
-
-  .secondary-header {
-    @apply px-6 py-3 border-b border-border flex items-center justify-between;
-  }
-
-  .saas-card {
-    @apply rounded-md bg-card border border-border overflow-hidden;
-  }
-
   .saas-button-primary {
     @apply bg-primary text-primary-foreground hover:bg-primary/90;
   }
 
   .saas-input {
     @apply bg-secondary text-foreground border-0 rounded-md;
-  }
-
-  .saas-badge {
-    @apply px-2 py-0.5 text-xs rounded-full;
-  }
-
-  .saas-badge-blue {
-    @apply bg-blue-500/20 text-blue-400;
-  }
-
-  .saas-badge-green {
-    @apply bg-green-500/20 text-green-400;
-  }
-
-  .saas-badge-amber {
-    @apply bg-amber-500/20 text-amber-400;
-  }
-
-  .saas-badge-purple {
-    @apply bg-primary/20 text-primary;
   }
 }

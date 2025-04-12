@@ -20,7 +20,7 @@ export const SecondaryHeader = ({
   onSearch
 }: SecondaryHeaderProps) => {
   return (
-    <div className={`secondary-header ${className}`}>
+    <header className={`sticky top-14 px-6 py-3 min-h-14 border-b border-border flex items-center justify-between bg-background z-40 ${className}`}>
       {description && (
         <div className="text-xs text-muted-foreground">
           {description}
@@ -44,6 +44,6 @@ export const SecondaryHeader = ({
           />
         </div>
       )}
-    </div>
+    </header>
   );
 };
