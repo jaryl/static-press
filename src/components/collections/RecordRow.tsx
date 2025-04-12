@@ -86,10 +86,10 @@ const RecordRow = memo(({
               size="sm"
               variant="ghost"
               onClick={onStartEdit}
-              className="h-6 w-6 p-0"
+              className="h-6 w-6 p-0 text-muted-foreground/50 hover:text-muted-foreground"
               disabled={disableActions}
             >
-              <Edit size={14} />
+              <Edit />
             </Button>
 
             <AlertDialog>
@@ -97,10 +97,10 @@ const RecordRow = memo(({
                 <Button
                   size="sm"
                   variant="ghost"
-                  className="h-6 w-6 p-0 text-destructive"
+                  className="h-6 w-6 p-0 text-destructive/50 hover:text-destructive"
                   disabled={disableActions}
                 >
-                  <Trash2 size={14} />
+                  <Trash2 />
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>

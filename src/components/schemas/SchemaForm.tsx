@@ -8,12 +8,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Collection, Field } from "@/types";
 import { useCollection } from "@/contexts/CollectionContext";
 import { Card, CardContent } from "@/components/ui/card";
-import { Grip, Plus, Trash2, FileJson } from "lucide-react";
+import { Grip, Plus, Trash2, FileJson, Lock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { restrictToParentElement } from '@dnd-kit/modifiers';
+import { generateSlug } from "@/lib/utils";
 
 interface SchemaFormProps {
   collection: Collection;
@@ -79,16 +80,17 @@ const SortableField = ({ field, index, onFieldChange, onRemoveField }: SortableF
           <div className="space-y-4">
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor={`field-name-${index}`} className="cursor-pointer mb-2 block">Field Name</Label>
+                <Label htmlFor={`field-name-${index}`} className="text-xs cursor-pointer mb-2 block">Field Name</Label>
                 <Input
                   id={`field-name-${index}`}
                   value={field.name}
                   onChange={(e) => onFieldChange(index, { name: e.target.value })}
                   required
+                  className="text-xs"
                 />
               </div>
               <div>
-                <Label htmlFor={`field-type-${index}`} className="cursor-pointer mb-2 block">Field Type</Label>
+                <Label htmlFor={`field-type-${index}`} className="text-xs cursor-pointer mb-2 block">Field Type</Label>
                 <Select
                   value={field.type}
                   onValueChange={(value) => onFieldChange(
@@ -123,14 +125,14 @@ const SortableField = ({ field, index, onFieldChange, onRemoveField }: SortableF
               />
               <Label
                 htmlFor={`field-required-${index}`}
-                className="cursor-pointer text-sm"
+                className="cursor-pointer text-xs"
               >
                 Required field
               </Label>
             </div>
           </div>
 
-          <div className="absolute top-4 right-4">
+          <div className="absolute bottom-2 right-2">
             <Button
               type="button"
               variant="ghost"
@@ -184,7 +186,8 @@ export function SchemaForm({ collection }: SchemaFormProps) {
   const handleNameChange = (value: string) => {
     setSchema({
       ...schema,
-      name: value
+      name: value,
+      slug: generateSlug(value)
     });
   };
 
@@ -265,30 +268,40 @@ export function SchemaForm({ collection }: SchemaFormProps) {
         <h2 className="text-base font-medium">Collection Details</h2>
         <div className="space-y-5">
           <div>
-            <Label htmlFor="name" className="cursor-pointer mb-2 block">Name</Label>
+            <Label htmlFor="name" className="text-xs cursor-pointer mb-2 block">Name</Label>
             <Input
               id="name"
               value={schema.name}
               onChange={(e) => handleNameChange(e.target.value)}
               required
+              className="text-xs"
             />
           </div>
           <div>
-            <Label htmlFor="slug" className="cursor-pointer mb-2 block">Slug (URL identifier)</Label>
-            <Input
-              id="slug"
-              value={schema.slug}
-              onChange={(e) => handleSlugChange(e.target.value)}
-              required
-            />
+            <Label htmlFor="slug" className="text-xs cursor-pointer mb-2 block">Slug (URL identifier)</Label>
+            <div className="relative">
+              <Input
+                id="slug"
+                value={schema.slug}
+                readOnly
+                className="bg-muted text-xs text-muted-foreground rounded-md pl-8 border border-muted-foreground/20"
+              />
+              <div className="absolute inset-y-0 left-0 flex items-center pl-2.5 pointer-events-none">
+                <Lock className="h-3.5 w-3.5 text-muted-foreground" />
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Auto-generated from name. Cannot be edited.
+            </p>
           </div>
           <div>
-            <Label htmlFor="description" className="cursor-pointer mb-2 block">Description</Label>
+            <Label htmlFor="description" className="text-xs cursor-pointer mb-2 block">Description</Label>
             <Textarea
               id="description"
               value={schema.description}
               onChange={(e) => handleDescriptionChange(e.target.value)}
               rows={3}
+              className="text-xs"
             />
           </div>
         </div>

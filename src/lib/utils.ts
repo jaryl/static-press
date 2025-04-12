@@ -29,17 +29,17 @@ export const handleApiError = (
 ): unknown => {
   const message = `Failed to ${operation}`;
   setError(message);
-  
+
   toast({
     title: "Error",
     description: message,
     variant: "destructive",
   });
-  
+
   if (shouldRethrow) {
     throw error;
   }
-  
+
   return error;
 };
 
@@ -59,4 +59,23 @@ export const withLoading = async <T>(
   } finally {
     setLoading(false);
   }
+};
+
+/**
+ * Generates a URL-friendly slug from a string
+ * @param str The string to convert to a slug
+ * @returns A URL-friendly slug
+ */
+export const generateSlug = (str: string): string => {
+  return str
+    .toLowerCase()
+    // Replace accented characters with their non-accented equivalents
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    // Replace spaces and non-alphanumeric characters with dashes
+    .replace(/[^a-z0-9]+/g, '-')
+    // Remove consecutive dashes
+    .replace(/-+/g, '-')
+    // Remove leading and trailing dashes
+    .replace(/^-|-$/g, '');
 };

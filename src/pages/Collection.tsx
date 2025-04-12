@@ -97,7 +97,7 @@ const Collection = () => {
                   size="sm"
                   onClick={handleCreateRecord}
                   className="h-8 text-xs"
-                  disabled={hasNewRecord}
+                  disabled={hasNewRecord || !!form.editingRecordId}
                 >
                   <Plus className="mr-1 h-3.5 w-3.5" />
                   New Record

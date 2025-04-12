@@ -10,8 +10,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { Plus } from 'lucide-react';
+import { Plus, Lock } from 'lucide-react';
 import { CollectionSchema } from '@/services/collectionService';
+import { generateSlug } from '@/lib/utils';
 
 export interface CollectionFormData {
   name: string;
@@ -42,8 +43,7 @@ export const CollectionForm: React.FC<CollectionFormProps> = ({
   const [formData, setFormData] = useState<CollectionFormData>(initialValues);
 
   const handleNameChange = (name: string) => {
-    // Generate slug from name - lowercase, replace spaces with dashes
-    const slug = name.toLowerCase().replace(/\s+/g, '-');
+    const slug = generateSlug(name);
     setFormData({ ...formData, name, slug });
   };
 
@@ -70,13 +70,20 @@ export const CollectionForm: React.FC<CollectionFormProps> = ({
       </div>
       <div>
         <Label htmlFor="slug" className="text-xs mb-2 block">Slug (URL identifier)</Label>
-        <Input
-          id="slug"
-          value={formData.slug}
-          onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-          required
-          className="bg-background text-foreground rounded-md text-xs h-10"
-        />
+        <div className="relative">
+          <Input
+            id="slug"
+            value={formData.slug}
+            readOnly
+            className="bg-muted text-muted-foreground rounded-md text-xs h-10 pl-8 border border-muted-foreground/20"
+          />
+          <div className="absolute inset-y-0 left-0 flex items-center pl-2.5 pointer-events-none">
+            <Lock className="h-3.5 w-3.5 text-muted-foreground" />
+          </div>
+        </div>
+        <p className="text-xs text-muted-foreground mt-1">
+          Auto-generated from name. Cannot be edited.
+        </p>
       </div>
       <div>
         <Label htmlFor="description" className="text-xs mb-2 block">Description</Label>
