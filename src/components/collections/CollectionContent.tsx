@@ -38,12 +38,12 @@ const CollectionContent = ({ id, onCreateRecord }: CollectionContentProps) => {
   // Load collection data
   useEffect(() => {
     let isMounted = true;
-    
+
     const loadData = async () => {
       if (!isMounted) return;
       setIsLoading(true);
       setError(null);
-      
+
       try {
         await fetchCollection(id);
         await fetchRecords(id);
@@ -63,7 +63,7 @@ const CollectionContent = ({ id, onCreateRecord }: CollectionContentProps) => {
     };
 
     loadData();
-    
+
     return () => {
       isMounted = false;
     };
@@ -116,53 +116,59 @@ const CollectionContent = ({ id, onCreateRecord }: CollectionContentProps) => {
           onCreateRecord={() => onCreateRecord ? onCreateRecord(currentCollection) : form.createNewRecord(currentCollection)}
         />
       ) : hasFilteredRecords ? (
-        <div className="flex-1">
+        <div className="flex-1 max-w-full">
           {/* Error Display */}
           <ErrorDisplay errors={form.errors} />
 
-          {/* Records Table */}
-          <Table>
-            <TableHeader>
-              <TableRow>
-                {currentCollection.fields.map((field) => (
-                  <TableHead key={field.id} className="text-xs">
-                    {field.name}
-                    {field.required && <span className="text-destructive ml-1">*</span>}
-                  </TableHead>
-                ))}
-                <TableHead className="text-xs text-right w-[100px]">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {/* New Record Row */}
-              {hasNewRecord && (
-                <NewRecordRow
-                  collection={currentCollection}
-                  formData={form.formData}
-                  onFieldChange={form.handleFieldChange}
-                  onSave={() => form.saveRecord(id, currentCollection)}
-                  onCancel={form.cancelEditing}
-                />
-              )}
+          {/* Records Table with proper horizontal scroll handling */}
+          <div className="mt-4 flow-root w-full">
+            <div className="overflow-x-auto">
+              <div className="inline-block min-w-full align-middle">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      {currentCollection.fields.map((field) => (
+                        <TableHead key={field.id} className="text-xs">
+                          {field.name}
+                          {field.required && <span className="text-destructive ml-1">*</span>}
+                        </TableHead>
+                      ))}
+                      <TableHead className="text-xs text-right w-[100px] sticky right-0 z-10 bg-background group-hover:bg-muted">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {/* New Record Row */}
+                    {hasNewRecord && (
+                      <NewRecordRow
+                        collection={currentCollection}
+                        formData={form.formData}
+                        onFieldChange={form.handleFieldChange}
+                        onSave={() => form.saveRecord(id, currentCollection)}
+                        onCancel={form.cancelEditing}
+                      />
+                    )}
 
-              {/* Record Rows */}
-              {filter.filteredRecords.map((record) => (
-                <RecordRow
-                  key={record.id}
-                  record={record}
-                  collection={currentCollection}
-                  isEditing={form.editingRecordId === record.id}
-                  formData={form.formData}
-                  onFieldChange={form.handleFieldChange}
-                  onStartEdit={() => form.startEditing(record.id, record.data)}
-                  onSave={() => form.saveRecord(id, currentCollection)}
-                  onCancel={form.cancelEditing}
-                  onDelete={() => handleDelete(record.id)}
-                  disableActions={form.isEditing}
-                />
-              ))}
-            </TableBody>
-          </Table>
+                    {/* Record Rows */}
+                    {filter.filteredRecords.map((record) => (
+                      <RecordRow
+                        key={record.id}
+                        record={record}
+                        collection={currentCollection}
+                        isEditing={form.editingRecordId === record.id}
+                        formData={form.formData}
+                        onFieldChange={form.handleFieldChange}
+                        onStartEdit={() => form.startEditing(record.id, record.data)}
+                        onSave={() => form.saveRecord(id, currentCollection)}
+                        onCancel={form.cancelEditing}
+                        onDelete={() => handleDelete(record.id)}
+                        disableActions={form.isEditing}
+                      />
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          </div>
         </div>
       ) : (
         <NoResults />

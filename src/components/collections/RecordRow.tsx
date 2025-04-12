@@ -44,7 +44,7 @@ const RecordRow = memo(({
   return (
     <TableRow className={isEditing ? "bg-primary/5" : undefined}>
       {collection.fields.map((field) => (
-        <TableCell key={`${record.id}-${field.id}`} className="text-xs px-4 py-2">
+        <TableCell key={`${record.id}-${field.id}`} className="text-xs px-4 py-2 items-start">
           {isEditing ? (
             <FieldInput
               field={field}
@@ -60,7 +60,7 @@ const RecordRow = memo(({
           )}
         </TableCell>
       ))}
-      <TableCell className="text-right space-x-1 p-2">
+      <TableCell className="text-right space-x-1 p-2 sticky right-0 z-10 bg-background group-hover:bg-muted">
         {isEditing ? (
           <>
             <Button

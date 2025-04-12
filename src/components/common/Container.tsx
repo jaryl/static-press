@@ -7,7 +7,7 @@ interface ContainerProps {
 
 const Container = ({ children, className = "" }: ContainerProps) => {
   return (
-    <div className={`flex h-screen overflow-hidden bg-background ${className}`}>
+    <div className={`flex h-screen overflow-x-hidden bg-background ${className}`}>
       {children}
     </div>
   );
