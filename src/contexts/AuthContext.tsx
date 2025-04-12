@@ -1,7 +1,6 @@
-
 import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 import { authService, User } from '../services/authService';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 interface AuthContextType {
   user: User | null;
@@ -28,7 +27,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       setLoading(true);
       const user = await authService.login(username, password);
-      
+
       if (user) {
         setUser(user);
         toast({

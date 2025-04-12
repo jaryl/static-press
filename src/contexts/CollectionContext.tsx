@@ -6,7 +6,7 @@ import {
   RecordData,
   FieldDefinition
 } from '../services/collectionService';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 interface CollectionContextType {
   collections: CollectionSchema[];
