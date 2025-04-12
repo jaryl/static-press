@@ -47,6 +47,45 @@ const FieldInput = memo(({
           className="h-8 text-xs py-0 w-full"
         />
       );
+    case 'datetime':
+      // Format the datetime value for the datetime-local input if it's a valid date
+      let formattedDatetime = safeValue;
+
+      // If empty and the field is being actively edited, provide the current datetime as default
+      if (!formattedDatetime || formattedDatetime === '') {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        formattedDatetime = `${year}-${month}-${day}T${hours}:${minutes}`;
+      } else if (formattedDatetime) {
+        try {
+          // If it's already a valid ISO string that datetime-local can handle, use it
+          if (typeof formattedDatetime === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?$/.test(formattedDatetime)) {
+            // Already in the correct format
+          } else {
+            // Otherwise try to parse it as a date and format it
+            const date = new Date(formattedDatetime);
+            if (!isNaN(date.getTime())) {
+              // Format as YYYY-MM-DDThh:mm
+              formattedDatetime = date.toISOString().slice(0, 16);
+            }
+          }
+        } catch (e) {
+          console.error('Error formatting datetime:', e);
+        }
+      }
+
+      return (
+        <Input
+          type="datetime-local"
+          value={formattedDatetime}
+          onChange={(e) => onChange(field, e.target.value)}
+          className="h-8 text-xs py-0 w-full"
+        />
+      );
     case 'boolean':
       return (
         <Checkbox

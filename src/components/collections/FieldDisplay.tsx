@@ -1,15 +1,13 @@
 import { memo } from "react";
-import { FieldDefinition, CollectionSchema } from "@/services/collectionService";
+import { FieldDefinition } from "@/services/collectionService";
 
 // Component to format a field value for display
 const FieldDisplay = memo(({
   field,
   value,
-  collection
 }: {
   field: FieldDefinition;
   value: any;
-  collection: CollectionSchema;
 }) => {
   if (value === undefined || value === null) {
     return <span className="text-gray-400">—</span>;
@@ -21,6 +19,13 @@ const FieldDisplay = memo(({
     case 'date':
       try {
         return <>{new Date(value).toLocaleDateString()}</>;
+      } catch (e) {
+        return <>{String(value)}</>;
+      }
+    case 'datetime':
+      try {
+        const date = new Date(value);
+        return <>{date.toLocaleDateString()} {date.toLocaleTimeString()}</>;
       } catch (e) {
         return <>{String(value)}</>;
       }

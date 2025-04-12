@@ -1,4 +1,3 @@
-
 // This service manages collections and their records
 // Loading data from JSON files
 import { v4 as uuidv4 } from 'uuid';
@@ -6,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 export interface FieldDefinition {
   id: string;
   name: string;
-  type: 'text' | 'number' | 'boolean' | 'date' | 'email' | 'url' | 'select';
+  type: 'text' | 'number' | 'boolean' | 'date' | 'datetime' | 'email' | 'url' | 'select';
   required: boolean;
   options?: string[]; // For select field types
 }

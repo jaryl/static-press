@@ -50,6 +50,23 @@ export const validateRecord = (data: RecordData, fields: FieldDefinition[]): str
           errors.push(`${field.name} must be a valid date`);
         }
         break;
+      case 'datetime':
+        if (typeof data[field.name] === 'string' && data[field.name].trim() === '') {
+          // Empty string is handled by the required check above
+          break;
+        }
+
+        try {
+          const datetime = new Date(data[field.name]);
+
+          if (isNaN(datetime.getTime())) {
+            errors.push(`${field.name} must be a valid datetime`);
+          }
+        } catch (e) {
+          console.error(`Error parsing datetime:`, e);
+          errors.push(`${field.name} must be a valid datetime`);
+        }
+        break;
       case 'select':
         if (field.options && !field.options.includes(String(data[field.name]))) {
           errors.push(`${field.name} must be one of the available options`);

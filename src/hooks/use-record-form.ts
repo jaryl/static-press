@@ -37,6 +37,15 @@ export function useRecordForm({ validateRecord, createRecord, updateRecord }: Re
     collection.fields.forEach(field => {
       if (field.type === 'boolean') {
         initialData[field.name] = false;
+      } else if (field.type === 'datetime') {
+        // Initialize datetime fields with current datetime in the format expected by datetime-local input
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        initialData[field.name] = `${year}-${month}-${day}T${hours}:${minutes}`;
       } else {
         initialData[field.name] = '';
       }
