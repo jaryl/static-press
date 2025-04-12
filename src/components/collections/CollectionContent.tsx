@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useCollection } from "@/contexts/CollectionContext";
@@ -10,17 +9,37 @@ import NewRecordRow from "./NewRecordRow";
 import EmptyState from "@/components/common/EmptyState";
 import NoResults from "@/components/common/NoResults";
 import ErrorDisplay from "@/components/ui/ErrorDisplay";
-import { useRecordForm } from "@/hooks/use-record-form";
-import { CollectionRecord } from "@/services/collectionService";
+import { CollectionRecord, RecordData, FieldDefinition, CollectionSchema } from "@/services/collectionService";
 
 interface CollectionContentProps {
   id: string;
   onCreateRecord: () => void;
   searchTerm?: string;
   filteredRecords?: CollectionRecord[];
+  newRecordId?: string | null;
+  formData?: RecordData;
+  onFieldChange?: (field: FieldDefinition, value: any) => void;
+  onSaveRecord?: (id: string, collection: CollectionSchema) => Promise<boolean>;
+  onCancelEdit?: () => void;
+  editingRecordId?: string | null;
+  onStartEdit?: (recordId: string, initialData: RecordData) => void;
+  formErrors?: string[];
 }
 
-const CollectionContent = ({ id, onCreateRecord, searchTerm, filteredRecords }: CollectionContentProps) => {
+const CollectionContent = ({
+  id,
+  onCreateRecord,
+  searchTerm,
+  filteredRecords,
+  newRecordId,
+  formData = {},
+  onFieldChange,
+  onSaveRecord,
+  onCancelEdit,
+  editingRecordId,
+  onStartEdit,
+  formErrors = []
+}: CollectionContentProps) => {
   const {
     fetchCollection,
     fetchRecords,
@@ -33,9 +52,6 @@ const CollectionContent = ({ id, onCreateRecord, searchTerm, filteredRecords }: 
   } = useCollection();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
-
-  // Use custom hooks for form
-  const form = useRecordForm({ validateRecord, createRecord, updateRecord });
 
   // Load collection data
   useEffect(() => {
@@ -77,7 +93,7 @@ const CollectionContent = ({ id, onCreateRecord, searchTerm, filteredRecords }: 
   };
 
   // Derived state
-  const hasNewRecord = !!form.newRecordId;
+  const hasNewRecord = !!newRecordId;
   const displayRecords = filteredRecords || records;
   const hasAnyRecords = records.length > 0 || hasNewRecord;
   const hasFilteredRecords = displayRecords.length > 0 || hasNewRecord;
@@ -122,13 +138,13 @@ const CollectionContent = ({ id, onCreateRecord, searchTerm, filteredRecords }: 
       ) : hasFilteredRecords ? (
         <div className="flex-1 max-w-full">
           {/* Error Display */}
-          <ErrorDisplay errors={form.errors} />
+          <ErrorDisplay errors={formErrors} />
 
           {/* Records Table with proper horizontal scroll handling */}
           <div className="mt-4 flow-root w-full">
             <div className="overflow-x-auto">
               <div className="inline-block min-w-full align-middle">
-                <Table>
+                <Table className="collection-table">
                   <TableHeader>
                     <TableRow>
                       {currentCollection.fields.map((field) => (
@@ -145,10 +161,10 @@ const CollectionContent = ({ id, onCreateRecord, searchTerm, filteredRecords }: 
                     {hasNewRecord && (
                       <NewRecordRow
                         collection={currentCollection}
-                        formData={form.formData}
-                        onFieldChange={form.handleFieldChange}
-                        onSave={() => form.saveRecord(id, currentCollection)}
-                        onCancel={form.cancelEditing}
+                        formData={formData}
+                        onFieldChange={onFieldChange || (() => { })}
+                        onSave={() => onSaveRecord?.(id, currentCollection)}
+                        onCancel={onCancelEdit || (() => { })}
                       />
                     )}
 
@@ -158,14 +174,14 @@ const CollectionContent = ({ id, onCreateRecord, searchTerm, filteredRecords }: 
                         key={record.id}
                         record={record}
                         collection={currentCollection}
-                        isEditing={form.editingRecordId === record.id}
-                        formData={form.formData}
-                        onFieldChange={form.handleFieldChange}
-                        onStartEdit={() => form.startEditing(record.id, record.data)}
-                        onSave={() => form.saveRecord(id, currentCollection)}
-                        onCancel={form.cancelEditing}
+                        isEditing={editingRecordId === record.id}
+                        formData={formData}
+                        onFieldChange={onFieldChange || (() => { })}
+                        onStartEdit={() => onStartEdit?.(record.id, record.data)}
+                        onSave={() => onSaveRecord?.(id, currentCollection)}
+                        onCancel={onCancelEdit || (() => { })}
                         onDelete={() => handleDelete(record.id)}
-                        disableActions={form.isEditing}
+                        disableActions={!!newRecordId || !!editingRecordId}
                       />
                     ))}
                   </TableBody>

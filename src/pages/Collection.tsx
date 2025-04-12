@@ -1,4 +1,3 @@
-
 import { useParams, Link } from "react-router-dom";
 import { useCollection } from "@/contexts/CollectionContext";
 import { Sidebar } from "@/components/layout/Sidebar";
@@ -34,7 +33,16 @@ const Collection = () => {
 
   const handleCreateRecord = () => {
     if (currentCollection) {
+      // Create a new record with the current collection schema
       form.createNewRecord(currentCollection);
+
+      // Scroll to the table if needed
+      setTimeout(() => {
+        const tableElement = document.querySelector('.collection-table');
+        if (tableElement) {
+          tableElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
     }
   };
 
@@ -114,6 +122,14 @@ const Collection = () => {
             onCreateRecord={handleCreateRecord}
             searchTerm={filter.searchTerm}
             filteredRecords={filter.filteredRecords}
+            newRecordId={form.newRecordId}
+            formData={form.formData}
+            onFieldChange={form.handleFieldChange}
+            onSaveRecord={(id, collection) => form.saveRecord(id, collection)}
+            onCancelEdit={form.cancelEditing}
+            editingRecordId={form.editingRecordId}
+            onStartEdit={form.startEditing}
+            formErrors={form.errors}
           />
         </CollectionErrorBoundary>
       </div>
