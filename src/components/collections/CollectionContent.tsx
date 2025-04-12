@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useCollection } from "@/contexts/CollectionContext";
@@ -10,14 +11,16 @@ import EmptyState from "./EmptyState";
 import NoResults from "./NoResults";
 import ErrorDisplay from "@/components/ui/ErrorDisplay";
 import { useRecordForm } from "@/hooks/useRecordForm";
-import { useRecordFilter } from "@/hooks/useRecordFilter";
+import { CollectionRecord } from "@/services/collectionService";
 
 interface CollectionContentProps {
   id: string;
   onCreateRecord?: (collection: any) => void;
+  searchTerm?: string;
+  filteredRecords?: CollectionRecord[];
 }
 
-const CollectionContent = ({ id, onCreateRecord }: CollectionContentProps) => {
+const CollectionContent = ({ id, onCreateRecord, searchTerm, filteredRecords }: CollectionContentProps) => {
   const {
     fetchCollection,
     fetchRecords,
@@ -31,9 +34,8 @@ const CollectionContent = ({ id, onCreateRecord }: CollectionContentProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  // Use custom hooks for form and filtering
+  // Use custom hooks for form
   const form = useRecordForm({ validateRecord, createRecord, updateRecord });
-  const filter = useRecordFilter(records);
 
   // Load collection data
   useEffect(() => {
@@ -76,8 +78,10 @@ const CollectionContent = ({ id, onCreateRecord }: CollectionContentProps) => {
 
   // Derived state
   const hasNewRecord = !!form.newRecordId;
-  const hasAnyRecords = filter.hasRecords(hasNewRecord ? 1 : 0);
-  const hasFilteredRecords = filter.hasFilteredRecords(hasNewRecord ? 1 : 0);
+  const displayRecords = filteredRecords || records;
+  const hasAnyRecords = records.length > 0 || hasNewRecord;
+  const hasFilteredRecords = displayRecords.length > 0 || hasNewRecord;
+  const isFiltering = searchTerm && searchTerm.trim() !== '';
 
   // If there's an error, throw it so the error boundary can catch it
   if (error) {
@@ -149,7 +153,7 @@ const CollectionContent = ({ id, onCreateRecord }: CollectionContentProps) => {
                     )}
 
                     {/* Record Rows */}
-                    {filter.filteredRecords.map((record) => (
+                    {displayRecords.map((record) => (
                       <RecordRow
                         key={record.id}
                         record={record}

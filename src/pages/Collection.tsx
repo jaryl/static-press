@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useCollection } from "@/contexts/CollectionContext";
@@ -88,7 +89,7 @@ const Collection = () => {
               description={currentCollection.description || ''}
               hasRecords={hasAnyRecords}
               searchTerm={filter.searchTerm}
-              onSearch={(value) => filter.handleSearch({ target: { value } } as React.ChangeEvent<HTMLInputElement>)}
+              onSearch={filter.handleSearch}
             />
           </>
         )}
@@ -97,6 +98,8 @@ const Collection = () => {
           <CollectionContent
             id={slug}
             onCreateRecord={(collection) => form.createNewRecord(collection)}
+            searchTerm={filter.searchTerm}
+            filteredRecords={filter.filteredRecords}
           />
         </CollectionErrorBoundary>
       </div>
