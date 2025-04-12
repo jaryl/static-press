@@ -1,3 +1,4 @@
+
 // This service manages collections and their records
 // Loading data from JSON files
 
@@ -10,6 +11,7 @@ export interface FieldDefinition {
 }
 
 export interface CollectionSchema {
+  id: string;
   name: string;
   slug: string;
   description: string;

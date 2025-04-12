@@ -1,3 +1,4 @@
+
 import { useEffect } from "react";
 import { useParams, Link, Navigate } from "react-router-dom";
 import { useCollection } from "@/contexts/CollectionContext";
@@ -5,7 +6,7 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { SchemaForm } from "@/components/SchemaForm";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Loader } from "@/components/ui/loader";
+import { Loader } from "@/components/ui/Loader";
 import Container from "@/components/common/Container";
 import { PrimaryHeader } from "@/components/common/PrimaryHeader";
 import { SecondaryHeader } from "@/components/common/SecondaryHeader";

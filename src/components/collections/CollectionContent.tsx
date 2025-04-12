@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useCollection } from "@/contexts/CollectionContext";
 import { Button } from "@/components/ui/button";
-import { Loader } from "@/components/ui/loader";
+import { Loader } from "@/components/ui/Loader";
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import RecordRow from "./RecordRow";
 import NewRecordRow from "./NewRecordRow";

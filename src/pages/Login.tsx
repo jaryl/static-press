@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 import { Database } from "lucide-react";
-import { Loader } from "@/components/ui/loader";
+import { Loader } from "@/components/ui/Loader";
 
 const Login = () => {
   const [username, setUsername] = useState("");

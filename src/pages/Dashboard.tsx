@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useCollection } from "@/contexts/CollectionContext";
 import { Button } from "@/components/ui/button";
@@ -24,7 +25,7 @@ import {
   TableCell
 } from "@/components/ui/table";
 import Container from "@/components/common/Container";
-import { Loader } from "@/components/ui/loader";
+import { Loader } from "@/components/ui/Loader";
 import { PrimaryHeader } from "@/components/common/PrimaryHeader";
 import { SecondaryHeader } from "@/components/common/SecondaryHeader";
 import NoResults from "@/components/collections/NoResults";

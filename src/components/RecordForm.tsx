@@ -35,9 +35,9 @@ export function RecordForm({ collection, initialData = {}, recordId, onComplete 
 
     try {
       if (recordId) {
-        await updateRecord(collection.id, recordId, formData);
+        await updateRecord(collection.slug, recordId, formData);
       } else {
-        await createRecord(collection.id, formData);
+        await createRecord(collection.slug, formData);
       }
       onComplete?.();
     } catch (error) {
