@@ -1,3 +1,4 @@
+
 import { createContext, ReactNode, useContext, useState } from 'react';
 import {
   collectionService,
@@ -118,7 +119,13 @@ export const CollectionProvider = ({ children }: { children: ReactNode }) => {
   const createCollection = async (collection: Omit<CollectionSchema, 'id' | 'createdAt' | 'updatedAt'>): Promise<CollectionSchema> => {
     setLoading(true);
     try {
-      const newCollection = await collectionService.createCollection(collection);
+      // Generate a unique ID for the new collection
+      const collectionWithId = {
+        ...collection,
+        id: `col-${Date.now()}` // Generate a unique ID
+      };
+      
+      const newCollection = await collectionService.createCollection(collectionWithId);
       setCollections([...collections, newCollection]);
       toast({
         title: "Success",

@@ -36,6 +36,7 @@ const Dashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [newCollection, setNewCollection] = useState({
+    id: `col-${Date.now()}`,
     name: "",
     slug: "",
     description: "",
@@ -57,6 +58,7 @@ const Dashboard = () => {
       fields: []
     });
     setNewCollection({
+      id: `col-${Date.now()}`,
       name: "",
       slug: "",
       description: "",
