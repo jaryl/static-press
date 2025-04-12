@@ -1,2 +1,28 @@
-
-[]
+[
+  {
+    "id": "1",
+    "data": {
+      "subject": "Bug Report",
+      "message": "The login button doesn't work on mobile",
+      "email": "user@example.com",
+      "rating": 3,
+      "category": "Bug",
+      "submittedOn": "2024-01-20"
+    },
+    "createdAt": "2024-01-20T09:10:00Z",
+    "updatedAt": "2024-01-25T14:40:00Z"
+  },
+  {
+    "id": "2",
+    "data": {
+      "subject": "Feature Request",
+      "message": "Please add dark mode",
+      "email": "user2@example.com",
+      "rating": 5,
+      "category": "Feature Request",
+      "submittedOn": "2024-01-22"
+    },
+    "createdAt": "2024-01-22T11:30:00Z",
+    "updatedAt": "2024-01-22T11:30:00Z"
+  }
+]

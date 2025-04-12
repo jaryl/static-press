@@ -24,13 +24,13 @@ export class RemoteDataAdapter {
     }
   }
 
-  async getCollectionData(collectionId: string): Promise<any[]> {
-    if (!this.loadedCollections[collectionId]) {
+  async getCollectionData(slug: string): Promise<any[]> {
+    if (!this.loadedCollections[slug]) {
       const schema = await this.getSchema();
-      const collection = schema.find(c => c.id === collectionId);
+      const collection = schema.find(c => c.slug === slug);
 
       if (!collection?.slug) {
-        const error = new Error(`Collection ${collectionId} not found in schema`);
+        const error = new Error(`Collection ${slug} not found in schema`);
         console.error(error);
         throw error; // Throw error instead of returning empty array
       }
@@ -62,17 +62,17 @@ export class RemoteDataAdapter {
         }
 
         // Format the raw data into the expected record shape
-        this.loadedCollections[collectionId] = Array.isArray(data)
+        this.loadedCollections[slug] = Array.isArray(data)
           ? data.map((item: any) => {
             // If the item already has the expected shape, return it as is
-            if (item.data && item.id && item.collectionId) {
+            if (item && item.id && item.slug) {
               return item;
             }
 
             // Otherwise, transform it to the expected shape
             return {
-              id: item.id || `${collectionId}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-              collectionId: collectionId,
+              id: item.id || `${slug}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+              slug: slug,
               data: item,
               createdAt: item.createdAt || new Date().toISOString(),
               updatedAt: item.updatedAt || new Date().toISOString()
@@ -84,6 +84,6 @@ export class RemoteDataAdapter {
         throw error; // Re-throw the error instead of returning empty array
       }
     }
-    return [...this.loadedCollections[collectionId]];
+    return [...this.loadedCollections[slug]];
   }
 }

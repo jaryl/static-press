@@ -1,56 +1,50 @@
-
 [
   {
     "id": "2-1",
-    "collectionId": "2",
-    "data": { 
-      "name": "Jane Doe", 
-      "email": "jane@example.com", 
-      "joinDate": "2023-01-15" 
+    "data": {
+      "name": "Jane Doe",
+      "email": "jane@example.com",
+      "joinDate": "2023-01-15"
     },
     "createdAt": "2023-01-15T10:30:00Z",
     "updatedAt": "2023-01-15T10:30:00Z"
   },
   {
     "id": "2-2",
-    "collectionId": "2",
-    "data": { 
-      "name": "John Smith", 
-      "email": "john@example.com", 
-      "joinDate": "2023-02-20" 
+    "data": {
+      "name": "John Smith",
+      "email": "john@example.com",
+      "joinDate": "2023-02-20"
     },
     "createdAt": "2023-02-20T09:15:00Z",
     "updatedAt": "2023-02-20T09:15:00Z"
   },
   {
     "id": "2-3",
-    "collectionId": "2",
-    "data": { 
-      "name": "Emma Wilson", 
-      "email": "emma@example.com", 
-      "joinDate": "2023-03-10" 
+    "data": {
+      "name": "Emma Wilson",
+      "email": "emma@example.com",
+      "joinDate": "2023-03-10"
     },
     "createdAt": "2023-03-10T14:45:00Z",
     "updatedAt": "2023-03-10T14:45:00Z"
   },
   {
     "id": "2-4",
-    "collectionId": "2",
-    "data": { 
-      "name": "Michael Brown", 
-      "email": "michael@example.com", 
-      "joinDate": "2023-04-05" 
+    "data": {
+      "name": "Michael Brown",
+      "email": "michael@example.com",
+      "joinDate": "2023-04-05"
     },
     "createdAt": "2023-04-05T11:20:00Z",
     "updatedAt": "2023-04-05T11:20:00Z"
   },
   {
     "id": "2-5",
-    "collectionId": "2",
-    "data": { 
-      "name": "Sarah Johnson", 
-      "email": "sarah@example.com", 
-      "joinDate": "2023-05-15" 
+    "data": {
+      "name": "Sarah Johnson",
+      "email": "sarah@example.com",
+      "joinDate": "2023-05-15"
     },
     "createdAt": "2023-05-15T16:10:00Z",
     "updatedAt": "2023-05-15T16:10:00Z"

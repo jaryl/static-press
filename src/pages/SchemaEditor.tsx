@@ -11,7 +11,7 @@ import { PrimaryHeader } from "@/components/common/PrimaryHeader";
 import { SecondaryHeader } from "@/components/common/SecondaryHeader";
 
 const SchemaEditor = () => {
-  const { id } = useParams<{ id: string }>();
+  const { slug } = useParams<{ slug: string }>();
   const {
     fetchCollection,
     currentCollection,
@@ -19,8 +19,8 @@ const SchemaEditor = () => {
   } = useCollection();
 
   useEffect(() => {
-    fetchCollection(id);
-  }, [id]);
+    fetchCollection(slug);
+  }, [slug]);
 
   if (loading && !currentCollection) {
     return (

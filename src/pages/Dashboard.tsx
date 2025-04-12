@@ -175,7 +175,7 @@ const Dashboard = () => {
               </TableHeader>
               <TableBody>
                 {filteredCollections.map((collection) => (
-                  <TableRow key={collection.id} className="hover:bg-muted/30">
+                  <TableRow key={collection.slug} className="hover:bg-muted/30">
                     <TableCell className="py-3">
                       <div className="flex flex-col">
                         <span className="text-xs font-medium">{collection.name}</span>
@@ -199,7 +199,7 @@ const Dashboard = () => {
                                 className="h-7 w-7 p-0"
                                 asChild
                               >
-                                <Link to={`/collections/${collection.id}`}>
+                                <Link to={`/collections/${collection.slug}`}>
                                   <Eye className="h-3.5 w-3.5" />
                                 </Link>
                               </Button>
@@ -235,7 +235,7 @@ const Dashboard = () => {
                                 className="h-7 w-7 p-0"
                                 asChild
                               >
-                                <Link to={`/schema/${collection.id}`}>
+                                <Link to={`/schema/${collection.slug}`}>
                                   <Pencil className="h-3.5 w-3.5" />
                                 </Link>
                               </Button>

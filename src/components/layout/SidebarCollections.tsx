@@ -116,12 +116,12 @@ export function SidebarCollections({ isOpen, collections, createCollection }: Si
 
         <div className="space-y-2 px-2">
           {collections.map((collection) => (
-            <Link key={collection.id} to={`/collections/${collection.id}`}>
+            <Link key={collection.slug} to={`/collections/${collection.slug}`}>
               <Button
                 variant="ghost"
                 className={cn(
                   "w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent h-8 px-3 py-5",
-                  location.pathname.includes(`/collections/${collection.id}`) && "bg-sidebar-accent text-sidebar-primary"
+                  location.pathname.includes(`/collections/${collection.slug}`) && "bg-sidebar-accent text-sidebar-primary"
                 )}
               >
                 <span className="mr-2">
@@ -155,12 +155,12 @@ export function SidebarCollections({ isOpen, collections, createCollection }: Si
 
       <div className="flex flex-col space-y-2">
         {collections.map((collection) => (
-          <Link key={collection.id} to={`/collections/${collection.id}`}>
+          <Link key={collection.slug} to={`/collections/${collection.slug}`}>
             <Button
               variant="ghost"
               className={cn(
                 "h-8 w-8 flex items-center justify-center text-sidebar-foreground hover:bg-sidebar-accent",
-                location.pathname.includes(`/collections/${collection.id}`) && "bg-sidebar-accent text-sidebar-primary"
+                location.pathname.includes(`/collections/${collection.slug}`) && "bg-sidebar-accent text-sidebar-primary"
               )}
               title={collection.name}
             >

@@ -14,7 +14,7 @@ import { useRecordForm } from "@/hooks/useRecordForm";
 import { useRecordFilter } from "@/hooks/useRecordFilter";
 
 const Collection = () => {
-  const { id } = useParams<{ id: string }>();
+  const { slug } = useParams<{ slug: string }>();
   const {
     currentCollection,
     records,
@@ -31,7 +31,7 @@ const Collection = () => {
   const hasNewRecord = !!form.newRecordId;
   const hasAnyRecords = filter.hasRecords(hasNewRecord ? 1 : 0);
 
-  if (!id) {
+  if (!slug) {
     return (
       <div className="flex h-screen overflow-hidden bg-background">
         <Sidebar />
@@ -63,7 +63,7 @@ const Collection = () => {
                 </Badge>
               }
             >
-              <Link to={`/schema/${id}`}>
+              <Link to={`/schema/${slug}`}>
                 <Button variant="outline" size="sm" className="h-8 text-xs">
                   <Edit className="mr-1 h-3.5 w-3.5" />
                   Schema
@@ -95,7 +95,7 @@ const Collection = () => {
 
         <CollectionErrorBoundary onRetry={() => window.location.reload()}>
           <CollectionContent
-            id={id}
+            id={slug}
             onCreateRecord={(collection) => form.createNewRecord(collection)}
           />
         </CollectionErrorBoundary>

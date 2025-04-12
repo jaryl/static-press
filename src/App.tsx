@@ -34,13 +34,13 @@ const App = () => (
                 </ProtectedRoute>
               } />
 
-              <Route path="/collections/:id" element={
+              <Route path="/collections/:slug" element={
                 <ProtectedRoute>
                   <Collection />
                 </ProtectedRoute>
               } />
 
-              <Route path="/schema/:id" element={
+              <Route path="/schema/:slug" element={
                 <ProtectedRoute>
                   <SchemaEditor />
                 </ProtectedRoute>

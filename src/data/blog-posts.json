@@ -1,8 +1,6 @@
-
 [
   {
     "id": "3-1",
-    "collectionId": "3",
     "data": {
       "title": "Getting Started with React",
       "content": "React is a popular JavaScript library for building user interfaces...",
@@ -15,7 +13,6 @@
   },
   {
     "id": "3-2",
-    "collectionId": "3",
     "data": {
       "title": "Advanced TypeScript Tips",
       "content": "TypeScript offers many advanced features that can improve your code...",
@@ -28,7 +25,6 @@
   },
   {
     "id": "3-3",
-    "collectionId": "3",
     "data": {
       "title": "CSS Grid Layout Explained",
       "content": "CSS Grid is a powerful layout system that allows for complex designs...",

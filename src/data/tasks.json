@@ -1,8 +1,6 @@
-
 [
   {
     "id": "5-1",
-    "collectionId": "5",
     "data": {
       "title": "Implement user authentication",
       "description": "Add login and registration functionality using JWT",
@@ -16,7 +14,6 @@
   },
   {
     "id": "5-2",
-    "collectionId": "5",
     "data": {
       "title": "Design landing page",
       "description": "Create responsive design for the main landing page",

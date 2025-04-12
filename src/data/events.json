@@ -1,8 +1,6 @@
-
 [
   {
     "id": "4-1",
-    "collectionId": "4",
     "data": {
       "title": "Annual Tech Conference",
       "location": "San Francisco, CA",
@@ -16,7 +14,6 @@
   },
   {
     "id": "4-2",
-    "collectionId": "4",
     "data": {
       "title": "React Workshop",
       "location": "New York, NY",
@@ -30,7 +27,6 @@
   },
   {
     "id": "4-3",
-    "collectionId": "4",
     "data": {
       "title": "Web Development Meetup",
       "location": "Austin, TX",
@@ -44,7 +40,6 @@
   },
   {
     "id": "4-4",
-    "collectionId": "4",
     "data": {
       "title": "UX Design Principles Webinar",
       "location": "Online",

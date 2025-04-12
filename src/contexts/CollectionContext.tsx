@@ -16,13 +16,13 @@ interface CollectionContextType {
   error: string | null;
   fetchCollections: () => Promise<void>;
   fetchCollection: (id: string) => Promise<CollectionSchema | null>;
-  fetchRecords: (collectionId: string) => Promise<CollectionRecord[]>;
+  fetchRecords: (slug: string) => Promise<CollectionRecord[]>;
   createCollection: (collection: Omit<CollectionSchema, 'id' | 'createdAt' | 'updatedAt'>) => Promise<CollectionSchema>;
   updateCollection: (id: string, updates: Partial<Omit<CollectionSchema, 'id' | 'createdAt' | 'updatedAt'>>) => Promise<CollectionSchema>;
   deleteCollection: (id: string) => Promise<void>;
-  createRecord: (collectionId: string, data: RecordData) => Promise<CollectionRecord>;
-  updateRecord: (collectionId: string, recordId: string, data: RecordData) => Promise<CollectionRecord>;
-  deleteRecord: (collectionId: string, recordId: string) => Promise<void>;
+  createRecord: (slug: string, data: RecordData) => Promise<CollectionRecord>;
+  updateRecord: (slug: string, recordId: string, data: RecordData) => Promise<CollectionRecord>;
+  deleteRecord: (slug: string, recordId: string) => Promise<void>;
   validateRecord: (data: RecordData, fields: FieldDefinition[]) => string[];
 }
 
@@ -74,17 +74,17 @@ export const CollectionProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const fetchRecords = async (collectionId: string): Promise<CollectionRecord[]> => {
+  const fetchRecords = async (slug: string): Promise<CollectionRecord[]> => {
     setLoading(true);
     try {
       // First ensure we have the collection data
-      const collection = await collectionService.getCollection(collectionId);
+      const collection = await collectionService.getCollection(slug);
       if (!collection) {
         throw new Error('Collection not found');
       }
 
       // Then fetch the records - this will trigger lazy loading if needed
-      const data = await collectionService.getRecords(collectionId);
+      const data = await collectionService.getRecords(slug);
       setRecords(data);
       setError(null);
       return data;
@@ -139,16 +139,16 @@ export const CollectionProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const updateCollection = async (
-    id: string,
+    slug: string,
     updates: Partial<Omit<CollectionSchema, 'id' | 'createdAt' | 'updatedAt'>>
   ): Promise<CollectionSchema> => {
     setLoading(true);
     try {
-      const updatedCollection = await collectionService.updateCollection(id, updates);
+      const updatedCollection = await collectionService.updateCollection(slug, updates);
       setCollections(
-        collections.map(c => c.id === id ? updatedCollection : c)
+        collections.map(c => c.slug === slug ? updatedCollection : c)
       );
-      if (currentCollection?.id === id) {
+      if (currentCollection?.slug === slug) {
         setCurrentCollection(updatedCollection);
       }
       toast({
@@ -169,12 +169,12 @@ export const CollectionProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const deleteCollection = async (id: string): Promise<void> => {
+  const deleteCollection = async (slug: string): Promise<void> => {
     setLoading(true);
     try {
-      await collectionService.deleteCollection(id);
-      setCollections(collections.filter(c => c.id !== id));
-      if (currentCollection?.id === id) {
+      await collectionService.deleteCollection(slug);
+      setCollections(collections.filter(c => c.slug !== slug));
+      if (currentCollection?.slug === slug) {
         setCurrentCollection(null);
       }
       toast({
@@ -194,10 +194,10 @@ export const CollectionProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const createRecord = async (collectionId: string, data: RecordData): Promise<CollectionRecord> => {
+  const createRecord = async (slug: string, data: RecordData): Promise<CollectionRecord> => {
     setLoading(true);
     try {
-      const newRecord = await collectionService.createRecord(collectionId, data);
+      const newRecord = await collectionService.createRecord(slug, data);
       setRecords([...records, newRecord]);
       toast({
         title: "Success",
@@ -217,10 +217,10 @@ export const CollectionProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const updateRecord = async (collectionId: string, recordId: string, data: RecordData): Promise<CollectionRecord> => {
+  const updateRecord = async (slug: string, recordId: string, data: RecordData): Promise<CollectionRecord> => {
     setLoading(true);
     try {
-      const updatedRecord = await collectionService.updateRecord(collectionId, recordId, data);
+      const updatedRecord = await collectionService.updateRecord(slug, recordId, data);
       setRecords(
         records.map(r => r.id === recordId ? updatedRecord : r)
       );
@@ -242,10 +242,10 @@ export const CollectionProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const deleteRecord = async (collectionId: string, recordId: string): Promise<void> => {
+  const deleteRecord = async (slug: string, recordId: string): Promise<void> => {
     setLoading(true);
     try {
-      await collectionService.deleteRecord(collectionId, recordId);
+      await collectionService.deleteRecord(slug, recordId);
       setRecords(records.filter(r => r.id !== recordId));
       toast({
         title: "Success",

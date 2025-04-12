@@ -3,8 +3,8 @@ import { RecordData, FieldDefinition, CollectionSchema } from "@/services/collec
 
 type RecordFormProps = {
   validateRecord: (data: RecordData, fields: FieldDefinition[]) => string[];
-  createRecord: (collectionId: string, data: RecordData) => Promise<any>;
-  updateRecord: (collectionId: string, recordId: string, data: RecordData) => Promise<any>;
+  createRecord: (slug: string, data: RecordData) => Promise<any>;
+  updateRecord: (slug: string, recordId: string, data: RecordData) => Promise<any>;
 };
 
 export function useRecordForm({ validateRecord, createRecord, updateRecord }: RecordFormProps) {
@@ -52,7 +52,7 @@ export function useRecordForm({ validateRecord, createRecord, updateRecord }: Re
     setErrors([]);
   };
 
-  const saveRecord = async (collectionId: string, collection: CollectionSchema) => {
+  const saveRecord = async (slug: string, collection: CollectionSchema) => {
     if (!collection) return;
 
     const validationErrors = validateRecord(formData, collection.fields);
@@ -63,10 +63,10 @@ export function useRecordForm({ validateRecord, createRecord, updateRecord }: Re
 
     try {
       if (newRecordId) {
-        await createRecord(collectionId, formData);
+        await createRecord(slug, formData);
         setNewRecordId(null);
       } else if (editingRecordId) {
-        await updateRecord(collectionId, editingRecordId, formData);
+        await updateRecord(slug, editingRecordId, formData);
         setEditingRecordId(null);
       }
       return true;
