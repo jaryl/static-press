@@ -1,6 +1,7 @@
 
 // This service manages collections and their records
 // Loading data from JSON files
+import { v4 as uuidv4 } from 'uuid';
 
 export interface FieldDefinition {
   id: string;
@@ -120,7 +121,7 @@ export const collectionService = {
     if (!collection) throw new Error("Collection not found");
 
     const newRecord: CollectionRecord = {
-      id: `${slug}-${Date.now()}`,
+      id: `${slug}-${uuidv4()}`,
       slug,
       data,
       createdAt: new Date().toISOString(),

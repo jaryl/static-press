@@ -1,4 +1,6 @@
+
 import { useState } from "react";
+import { v4 as uuidv4 } from 'uuid';
 import { RecordData, FieldDefinition, CollectionSchema } from "@/services/collectionService";
 
 type RecordFormProps = {
@@ -28,7 +30,7 @@ export function useRecordForm({ validateRecord, createRecord, updateRecord }: Re
   const createNewRecord = (collection: CollectionSchema) => {
     if (!collection) return;
 
-    const tempId = `new-${Date.now()}`;
+    const tempId = `new-${uuidv4()}`;
     setNewRecordId(tempId);
 
     // Initialize with empty values

@@ -1,3 +1,4 @@
+
 import { useParams, Link } from "react-router-dom";
 import { useCollection } from "@/contexts/CollectionContext";
 import { Sidebar } from "@/components/layout/Sidebar";
@@ -29,7 +30,13 @@ const Collection = () => {
 
   // Derived state
   const hasNewRecord = !!form.newRecordId;
-  const hasAnyRecords = filter.hasRecords(hasNewRecord ? 1 : 0);
+  const hasAnyRecords = records.length > 0 || hasNewRecord;
+
+  const handleCreateRecord = () => {
+    if (currentCollection) {
+      form.createNewRecord(currentCollection);
+    }
+  };
 
   if (!slug) {
     return (
@@ -80,7 +87,7 @@ const Collection = () => {
               {hasAnyRecords && (
                 <Button
                   size="sm"
-                  onClick={() => form.createNewRecord(currentCollection)}
+                  onClick={handleCreateRecord}
                   className="h-8 text-xs"
                   disabled={hasNewRecord}
                 >
@@ -104,7 +111,7 @@ const Collection = () => {
         <CollectionErrorBoundary onRetry={() => window.location.reload()}>
           <CollectionContent
             id={slug}
-            onCreateRecord={(collection) => form.createNewRecord(collection)}
+            onCreateRecord={handleCreateRecord}
             searchTerm={filter.searchTerm}
             filteredRecords={filter.filteredRecords}
           />

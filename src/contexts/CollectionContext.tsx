@@ -1,5 +1,6 @@
 
 import { createContext, ReactNode, useContext, useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import {
   collectionService,
   CollectionSchema,
@@ -119,10 +120,10 @@ export const CollectionProvider = ({ children }: { children: ReactNode }) => {
   const createCollection = async (collection: Omit<CollectionSchema, 'id' | 'createdAt' | 'updatedAt'>): Promise<CollectionSchema> => {
     setLoading(true);
     try {
-      // Generate a unique ID for the new collection
+      // Generate a UUID for the new collection
       const collectionWithId = {
         ...collection,
-        id: `col-${Date.now()}` // Generate a unique ID
+        id: `col-${uuidv4()}`
       };
       
       const newCollection = await collectionService.createCollection(collectionWithId);

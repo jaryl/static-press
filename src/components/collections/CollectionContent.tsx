@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useCollection } from "@/contexts/CollectionContext";
@@ -14,7 +15,7 @@ import { CollectionRecord } from "@/services/collectionService";
 
 interface CollectionContentProps {
   id: string;
-  onCreateRecord?: (collection: any) => void;
+  onCreateRecord: () => void;
   searchTerm?: string;
   filteredRecords?: CollectionRecord[];
 }
@@ -116,7 +117,7 @@ const CollectionContent = ({ id, onCreateRecord, searchTerm, filteredRecords }: 
       ) : !hasAnyRecords ? (
         <EmptyState
           collectionName={currentCollection.name}
-          onCreateRecord={() => onCreateRecord ? onCreateRecord(currentCollection) : form.createNewRecord(currentCollection)}
+          onCreateRecord={onCreateRecord}
         />
       ) : hasFilteredRecords ? (
         <div className="flex-1 max-w-full">
