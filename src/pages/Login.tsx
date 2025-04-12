@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 import { Database } from "lucide-react";
-import { Loader } from "@/components/ui/Loader";
+import { Spinner } from "@/components/ui/spinner";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -74,7 +74,7 @@ const Login = () => {
               >
                 {loading ? (
                   <>
-                    <Loader />
+                    <Spinner />
                     Signing in...
                   </>
                 ) : (

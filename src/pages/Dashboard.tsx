@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useCollection } from "@/contexts/CollectionContext";
 import { Button } from "@/components/ui/button";
@@ -7,7 +6,7 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Search, Eye, FileJson, Pencil } from "lucide-react";
+import { Plus, Eye, FileJson, Pencil } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import {
@@ -25,7 +24,7 @@ import {
   TableCell
 } from "@/components/ui/table";
 import Container from "@/components/common/Container";
-import { Loader } from "@/components/ui/Loader";
+import { Spinner } from "@/components/ui/spinner";
 import { PrimaryHeader } from "@/components/common/PrimaryHeader";
 import { SecondaryHeader } from "@/components/common/SecondaryHeader";
 import NoResults from "@/components/collections/NoResults";
@@ -84,10 +83,14 @@ const Dashboard = () => {
     });
   };
 
-  const filteredCollections = collections.filter(collection =>
-    collection.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    collection.description.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredCollections = collections.filter(collection => {
+    // Ensure searchTerm is treated as a string
+    const search = String(searchTerm).toLowerCase();
+    return (
+      collection.name.toLowerCase().includes(search) ||
+      (collection.description?.toLowerCase() || '').includes(search)
+    );
+  });
 
   return (
     <Container>
@@ -96,17 +99,6 @@ const Dashboard = () => {
         <PrimaryHeader
           title="Collections"
         >
-          {/* Search Input */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search by name or email..."
-              className="w-[280px] pl-9 py-0 h-8 bg-background/10 text-sidebar-foreground border border-border/50 rounded-lg text-xs"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-
           {/* New Collection Button */}
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
             <DialogTrigger asChild>
@@ -157,13 +149,17 @@ const Dashboard = () => {
             </DialogContent>
           </Dialog>
         </PrimaryHeader>
-        <SecondaryHeader>
-          Manage your data collections and schemas
-        </SecondaryHeader>
+        <SecondaryHeader
+          description="Manage your data collections and schemas"
+          searchTerm={searchTerm}
+          hasRecords={collections.length > 0}
+          searchPlaceholder="Search collections..."
+          onSearch={handleSearch}
+        />
 
         {loading && collections.length === 0 ? (
           <div className="flex items-center justify-center h-64">
-            <Loader />
+            <Spinner />
           </div>
         ) : filteredCollections.length > 0 ? (
           <Card className="bg-card border-border overflow-hidden shadow-sm m-6">
@@ -255,24 +251,22 @@ const Dashboard = () => {
               </TableBody>
             </Table>
           </Card>
+        ) : searchTerm ? (
+          <NoResults
+            message="No collections match your search"
+            helpText="Try a different search term"
+          />
         ) : (
-          searchTerm ? (
-            <NoResults
-              message="No collections match your search"
-              helpText="Try a different search term"
-            />
-          ) : (
-            <Card className="bg-card border-border p-6 text-center">
-              <div>
-                <p className="text-sm font-medium">No collections yet</p>
-                <p className="text-xs text-muted-foreground mt-1">Create your first collection to get started</p>
-                <Button className="mt-4 text-xs h-7" onClick={() => setIsCreateDialogOpen(true)}>
-                  <Plus className="mr-1 h-3.5 w-3.5" />
-                  Create Collection
-                </Button>
-              </div>
-            </Card>
-          )
+          <Card className="bg-card border-border p-6 text-center">
+            <div>
+              <p className="text-sm font-medium">No collections yet</p>
+              <p className="text-xs text-muted-foreground mt-1">Create your first collection to get started</p>
+              <Button className="mt-4 text-xs h-7" onClick={() => setIsCreateDialogOpen(true)}>
+                <Plus className="mr-1 h-3.5 w-3.5" />
+                Create Collection
+              </Button>
+            </div>
+          </Card>
         )}
       </div>
     </Container>

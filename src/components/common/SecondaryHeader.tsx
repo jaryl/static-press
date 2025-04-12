@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
@@ -9,7 +8,8 @@ interface SecondaryHeaderProps {
   description?: string;
   hasRecords?: boolean;
   searchTerm?: string;
-  onSearch?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  searchPlaceholder?: string;
+  onSearch?: (value: string) => void;
 }
 
 export const SecondaryHeader = ({
@@ -18,6 +18,7 @@ export const SecondaryHeader = ({
   description,
   hasRecords,
   searchTerm,
+  searchPlaceholder = "Search records...",
   onSearch
 }: SecondaryHeaderProps) => {
   return (
@@ -38,10 +39,10 @@ export const SecondaryHeader = ({
         <div className="relative ml-auto">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
           <Input
-            placeholder="Search records..."
+            placeholder={searchPlaceholder}
             className="w-[200px] pl-8 py-0 h-7 bg-background/10 text-xs border border-border/50 rounded-lg"
             value={searchTerm}
-            onChange={onSearch}
+            onChange={(e) => onSearch?.(e.target.value)}
           />
         </div>
       )}

@@ -1,12 +1,10 @@
-
 import { useEffect } from "react";
-import { useParams, Link, Navigate } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { useCollection } from "@/contexts/CollectionContext";
 import { Sidebar } from "@/components/layout/Sidebar";
-import { SchemaForm } from "@/components/SchemaForm";
-import { ArrowLeft } from "lucide-react";
+import { SchemaForm } from "@/components/schemas/SchemaForm";
 import { Button } from "@/components/ui/button";
-import { Loader } from "@/components/ui/Loader";
+import { Spinner } from "@/components/ui/spinner";
 import Container from "@/components/common/Container";
 import { PrimaryHeader } from "@/components/common/PrimaryHeader";
 import { SecondaryHeader } from "@/components/common/SecondaryHeader";
@@ -26,7 +24,7 @@ const SchemaEditor = () => {
   if (loading && !currentCollection) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader />
+        <Spinner />
       </div>
     );
   }
@@ -65,7 +63,21 @@ const SchemaEditor = () => {
 
         <div className="flex-1 overflow-auto">
           <div className="container max-w-7xl mx-auto py-6">
-            <SchemaForm collection={currentCollection} />
+            <SchemaForm
+              collection={{
+                id: currentCollection.slug,
+                name: currentCollection.name,
+                slug: currentCollection.slug,
+                description: currentCollection.description,
+                fields: currentCollection.fields.map(field => ({
+                  id: field.id,
+                  name: field.name,
+                  type: field.type,
+                  required: field.required,
+                  options: field.options
+                }))
+              }}
+            />
           </div>
         </div>
       </div>

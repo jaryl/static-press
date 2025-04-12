@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { Loader2 } from 'lucide-react';
 
-interface LoaderProps {
+interface SpinnerProps {
   size?: number;
   className?: string;
 }
@@ -9,7 +9,7 @@ interface LoaderProps {
 /**
  * Reusable loading spinner component
  */
-const Loader = memo(({ size = 8, className = "text-primary/70" }: LoaderProps) => {
+const Spinner = memo(({ size = 8, className = "text-primary/70" }: SpinnerProps) => {
   return (
     <div className="flex items-center justify-center h-64">
       <Loader2 className={`h-${size} w-${size} animate-spin ${className}`} />
@@ -17,4 +17,4 @@ const Loader = memo(({ size = 8, className = "text-primary/70" }: LoaderProps) =
   );
 });
 
-export { Loader };
+export { Spinner };

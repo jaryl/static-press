@@ -1,5 +1,3 @@
-
-import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useCollection } from "@/contexts/CollectionContext";
 import { Sidebar } from "@/components/layout/Sidebar";
@@ -10,9 +8,10 @@ import { Button } from "@/components/ui/button";
 import { PrimaryHeader } from "@/components/common/PrimaryHeader";
 import { SecondaryHeader } from "@/components/common/SecondaryHeader";
 import { Badge } from "@/components/ui/badge";
-import { Edit, Plus } from "lucide-react";
+import { Edit, Plus, FileJson } from "lucide-react";
 import { useRecordForm } from "@/hooks/useRecordForm";
 import { useRecordFilter } from "@/hooks/useRecordFilter";
+import { getDataUrl } from "@/lib/utils";
 
 const Collection = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -71,6 +70,13 @@ const Collection = () => {
                 </Button>
               </Link>
 
+              <a href={getDataUrl(slug)} target="_blank" rel="noopener noreferrer">
+                <Button variant="outline" size="sm" className="h-8 text-xs">
+                  <FileJson className="mr-1 h-3.5 w-3.5" />
+                  View JSON
+                </Button>
+              </a>
+
               {hasAnyRecords && (
                 <Button
                   size="sm"
@@ -88,6 +94,7 @@ const Collection = () => {
             <SecondaryHeader
               description={currentCollection.description || ''}
               hasRecords={hasAnyRecords}
+              searchPlaceholder="Search records..."
               searchTerm={filter.searchTerm}
               onSearch={filter.handleSearch}
             />

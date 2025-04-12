@@ -1,9 +1,8 @@
-
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useCollection } from "@/contexts/CollectionContext";
 import { Button } from "@/components/ui/button";
-import { Loader } from "@/components/ui/Loader";
+import { Spinner } from "@/components/ui/spinner";
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import RecordRow from "./RecordRow";
 import NewRecordRow from "./NewRecordRow";
@@ -92,7 +91,7 @@ const CollectionContent = ({ id, onCreateRecord, searchTerm, filteredRecords }: 
     return (
       <div className="flex-1 flex items-center justify-center">
         {isLoading ? (
-          <Loader />
+          <Spinner />
         ) : (
           <div className="text-center">
             <p className="text-sm font-medium">Collection not found</p>
@@ -112,7 +111,7 @@ const CollectionContent = ({ id, onCreateRecord, searchTerm, filteredRecords }: 
     <div className="p-0 flex flex-1">
       {isLoading ? (
         <div className="flex flex-col flex-1 items-center justify-center">
-          <Loader />
+          <Spinner />
         </div>
       ) : !hasAnyRecords ? (
         <EmptyState

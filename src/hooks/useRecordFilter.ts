@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from "react";
 import { CollectionRecord } from "@/services/collectionService";
 
@@ -30,8 +29,8 @@ export function useRecordFilter(records: CollectionRecord[]) {
     return filteredRecords.length > 0 || additionalRecords > 0;
   };
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
+  const handleSearch = (value: string) => {
+    setSearchTerm(value);
   };
 
   return {

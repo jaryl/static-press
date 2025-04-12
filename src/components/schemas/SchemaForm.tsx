@@ -113,30 +113,33 @@ const SortableField = ({ field, index, onFieldChange, onRemoveField }: SortableF
               </div>
             </div>
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id={`required-${index}`}
-                  checked={field.required}
-                  onCheckedChange={(checked) =>
-                    onFieldChange(index, { required: checked === true })
-                  }
-                />
-                <Label htmlFor={`required-${index}`} className="cursor-pointer">Required field</Label>
-              </div>
-
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="text-destructive hover:bg-destructive/10"
-                onClick={() => onRemoveField(index)}
-              >
-                <Trash2 size={18} />
-              </Button>
-            </div>
-
             {renderFieldOptions()}
+
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id={`field-required-${index}`}
+                checked={field.required}
+                onCheckedChange={(checked) => onFieldChange(index, { required: !!checked })}
+              />
+              <Label
+                htmlFor={`field-required-${index}`}
+                className="cursor-pointer text-sm"
+              >
+                Required field
+              </Label>
+            </div>
+          </div>
+
+          <div className="absolute top-4 right-4">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0"
+              onClick={() => onRemoveField(index)}
+            >
+              <Trash2 size={16} className="text-muted-foreground hover:text-destructive" />
+            </Button>
           </div>
         </div>
       </CardContent>
@@ -145,14 +148,16 @@ const SortableField = ({ field, index, onFieldChange, onRemoveField }: SortableF
 };
 
 export function SchemaForm({ collection }: SchemaFormProps) {
-  const [schema, setSchema] = useState<Collection>({ ...collection });
-  const { updateCollection } = useCollection();
   const navigate = useNavigate();
+  const { updateCollection } = useCollection();
+  const [schema, setSchema] = useState<Collection>({
+    ...collection
+  });
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 5,
+        distance: 8,
       },
     }),
     useSensor(KeyboardSensor, {
@@ -164,13 +169,13 @@ export function SchemaForm({ collection }: SchemaFormProps) {
     const { active, over } = event;
 
     if (active.id !== over.id) {
-      setSchema((schema) => {
-        const oldIndex = schema.fields.findIndex((field) => field.id === active.id);
-        const newIndex = schema.fields.findIndex((field) => field.id === over.id);
+      setSchema((prev) => {
+        const oldIndex = prev.fields.findIndex((f) => f.id === active.id);
+        const newIndex = prev.fields.findIndex((f) => f.id === over.id);
 
         return {
-          ...schema,
-          fields: arrayMove(schema.fields, oldIndex, newIndex),
+          ...prev,
+          fields: arrayMove(prev.fields, oldIndex, newIndex),
         };
       });
     }
@@ -199,7 +204,10 @@ export function SchemaForm({ collection }: SchemaFormProps) {
 
   const handleFieldChange = (index: number, field: Partial<Field>) => {
     const updatedFields = [...schema.fields];
-    updatedFields[index] = { ...updatedFields[index], ...field };
+    updatedFields[index] = {
+      ...updatedFields[index],
+      ...field
+    };
 
     setSchema({
       ...schema,
@@ -209,9 +217,9 @@ export function SchemaForm({ collection }: SchemaFormProps) {
 
   const handleAddField = () => {
     const newField: Field = {
-      id: `${schema.id}-field-${Date.now()}`,
-      name: "",
-      type: "text",
+      id: `field-${Date.now()}`,
+      name: '',
+      type: 'text',
       required: false
     };
 
