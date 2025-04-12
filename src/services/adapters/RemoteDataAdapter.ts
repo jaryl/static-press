@@ -74,8 +74,8 @@ export class RemoteDataAdapter {
             return {
               id: item.id,
               data: item.data,
-              createdAt: item.createdAt || new Date().toISOString(),
-              updatedAt: item.updatedAt || new Date().toISOString()
+              createdAt: item.createdAt,
+              updatedAt: item.updatedAt
             };
           })
           : [];

@@ -50,8 +50,8 @@ export class LocalDataAdapter {
         }
 
         // Format the raw data into the expected record shape
-        this.loadedCollections[slug] = Array.isArray(data)
-          ? data.map((item: any) => {
+        this.loadedCollections[slug] = Array.isArray(data.default)
+          ? data.default.map((item: any) => {
             // If the item already has the expected shape, return it as is
             if (item && item.id) {
               return item;
@@ -60,9 +60,9 @@ export class LocalDataAdapter {
             // Otherwise, transform it to the expected shape
             return {
               id: item.id,
-              data: item.data,
-              createdAt: item.createdAt || new Date().toISOString(),
-              updatedAt: item.updatedAt || new Date().toISOString()
+              data: item.data.default,
+              createdAt: item.createdAt,
+              updatedAt: item.updatedAt
             };
           })
           : [];
