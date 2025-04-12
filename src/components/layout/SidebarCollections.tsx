@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Database, PlusCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CollectionSchema } from "@/services/collectionService";
+import { CollectionForm, CollectionFormData } from '@/components/common/CollectionForm';
 
 interface SidebarCollectionsProps {
   isOpen: boolean;
@@ -17,81 +18,24 @@ interface SidebarCollectionsProps {
 
 export function SidebarCollections({ isOpen, collections, createCollection }: SidebarCollectionsProps) {
   const [isNewCollectionOpen, setIsNewCollectionOpen] = useState(false);
-  const [newCollection, setNewCollection] = useState({
-    name: "",
-    slug: "",
-    description: "",
-    fields: []
-  });
   const location = useLocation();
 
-  const handleNameChange = (value: string) => {
-    setNewCollection({
-      ...newCollection,
-      name: value,
-      slug: value.toLowerCase().replace(/\s+/g, '-')
-    });
-  };
-
-  const handleNewCollectionSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleCollectionFormSubmit = async (data: CollectionFormData) => {
     await createCollection({
-      ...newCollection,
-      fields: [] // Start with no fields, they'll be added in schema editor
-    });
-    setNewCollection({
-      name: "",
-      slug: "",
-      description: "",
-      fields: []
+      ...data,
+      fields: data.fields || []
     });
     setIsNewCollectionOpen(false);
   };
 
   // Common dialog content for both views
   const collectionDialog = (
-    <DialogContent className="bg-card border-border">
-      <DialogHeader>
-        <DialogTitle className="text-base">New Collection</DialogTitle>
-      </DialogHeader>
-      <form onSubmit={handleNewCollectionSubmit} className="space-y-4">
-        <div>
-          <Label htmlFor="name" className="text-xs">Name</Label>
-          <Input
-            id="name"
-            value={newCollection.name}
-            onChange={(e) => handleNameChange(e.target.value)}
-            required
-            className="saas-input text-xs h-8"
-          />
-        </div>
-        <div>
-          <Label htmlFor="slug" className="text-xs">Slug (URL identifier)</Label>
-          <Input
-            id="slug"
-            value={newCollection.slug}
-            onChange={(e) => setNewCollection({ ...newCollection, slug: e.target.value })}
-            required
-            className="saas-input text-xs h-8"
-          />
-        </div>
-        <div>
-          <Label htmlFor="description" className="text-xs">Description</Label>
-          <Textarea
-            id="description"
-            value={newCollection.description}
-            onChange={(e) => setNewCollection({ ...newCollection, description: e.target.value })}
-            className="saas-input text-xs"
-            rows={3}
-          />
-        </div>
-        <div className="flex justify-end">
-          <Button type="submit" className="saas-button-primary">
-            Create Collection
-          </Button>
-        </div>
-      </form>
-    </DialogContent>
+    <CollectionForm
+      onSubmit={handleCollectionFormSubmit}
+      isOpen={isNewCollectionOpen}
+      onOpenChange={setIsNewCollectionOpen}
+      title="New Collection"
+    />
   );
 
   // Expanded view of collections

@@ -1,4 +1,3 @@
-
 import { createContext, ReactNode, useContext, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import {
@@ -9,6 +8,8 @@ import {
   FieldDefinition
 } from '../services/collectionService';
 import { useToast } from '@/hooks/use-toast';
+import { validateRecord } from '../lib/validation';
+import { handleApiError, withLoading } from '../lib/utils';
 
 interface CollectionContextType {
   collections: CollectionSchema[];
@@ -20,8 +21,8 @@ interface CollectionContextType {
   fetchCollection: (id: string) => Promise<CollectionSchema | null>;
   fetchRecords: (slug: string) => Promise<CollectionRecord[]>;
   createCollection: (collection: Omit<CollectionSchema, 'id' | 'createdAt' | 'updatedAt'>) => Promise<CollectionSchema>;
-  updateCollection: (id: string, updates: Partial<Omit<CollectionSchema, 'id' | 'createdAt' | 'updatedAt'>>) => Promise<CollectionSchema>;
-  deleteCollection: (id: string) => Promise<void>;
+  updateCollection: (slug: string, updates: Partial<Omit<CollectionSchema, 'id' | 'createdAt' | 'updatedAt'>>) => Promise<CollectionSchema>;
+  deleteCollection: (slug: string) => Promise<void>;
   createRecord: (slug: string, data: RecordData) => Promise<CollectionRecord>;
   updateRecord: (slug: string, recordId: string, data: RecordData) => Promise<CollectionRecord>;
   deleteRecord: (slug: string, recordId: string) => Promise<void>;
@@ -39,289 +40,182 @@ export const CollectionProvider = ({ children }: { children: ReactNode }) => {
   const { toast } = useToast();
 
   const fetchCollections = async (): Promise<void> => {
-    setLoading(true);
-    try {
-      const data = await collectionService.getCollections();
-      setCollections(data);
-      setError(null);
-    } catch (err) {
-      setError('Failed to fetch collections');
-      toast({
-        title: "Error",
-        description: "Failed to fetch collections",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
+    return withLoading(async () => {
+      try {
+        const data = await collectionService.getCollections();
+        setCollections(data);
+        setError(null);
+      } catch (err) {
+        handleApiError('fetch collections', err, setError, toast, false);
+      }
+    }, setLoading);
   };
 
   const fetchCollection = async (id: string): Promise<CollectionSchema | null> => {
-    setLoading(true);
-    try {
-      const collection = await collectionService.getCollection(id);
-      setCurrentCollection(collection);
-      setError(null);
-      return collection;
-    } catch (err) {
-      setError('Failed to fetch collection');
-      toast({
-        title: "Error",
-        description: "Failed to fetch collection details",
-        variant: "destructive",
-      });
-      return null;
-    } finally {
-      setLoading(false);
-    }
+    return withLoading(async () => {
+      try {
+        const collection = await collectionService.getCollection(id);
+        setCurrentCollection(collection);
+        setError(null);
+        return collection;
+      } catch (err) {
+        handleApiError('fetch collection', err, setError, toast, false);
+        return null;
+      }
+    }, setLoading);
   };
 
   const fetchRecords = async (slug: string): Promise<CollectionRecord[]> => {
-    setLoading(true);
-    try {
-      // First ensure we have the collection data
-      const collection = await collectionService.getCollection(slug);
-      if (!collection) {
-        throw new Error('Collection not found');
+    return withLoading(async () => {
+      try {
+        // First ensure we have the collection data
+        const collection = await collectionService.getCollection(slug);
+        if (!collection) {
+          throw new Error('Collection not found');
+        }
+
+        // Then fetch the records - this will trigger lazy loading if needed
+        const data = await collectionService.getRecords(slug);
+        setRecords(data);
+        setError(null);
+        return data;
+      } catch (err) {
+        // Determine if this is a data format error that should be propagated
+        const errorMessage = err instanceof Error ? err.message : 'Failed to fetch records';
+        const isDataFormatError = errorMessage.includes('Malformed data') ||
+          errorMessage.includes('Invalid data format') ||
+          errorMessage.includes('missing required fields');
+
+        // Set error state regardless
+        setError(errorMessage);
+
+        // Show toast for network/general errors, but let data format errors propagate
+        if (!isDataFormatError) {
+          toast({
+            title: "Error",
+            description: "Failed to fetch collection records",
+            variant: "destructive",
+          });
+          return []; // Return empty array for non-data format errors
+        }
+
+        // Re-throw data format errors so they can be caught by the error boundary
+        throw err;
       }
-
-      // Then fetch the records - this will trigger lazy loading if needed
-      const data = await collectionService.getRecords(slug);
-      setRecords(data);
-      setError(null);
-      return data;
-    } catch (err) {
-      // Determine if this is a data format error that should be propagated
-      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch records';
-      const isDataFormatError = errorMessage.includes('Malformed data') ||
-        errorMessage.includes('Invalid data format') ||
-        errorMessage.includes('missing required fields');
-
-      // Set error state regardless
-      setError(errorMessage);
-
-      // Show toast for network/general errors, but let data format errors propagate
-      if (!isDataFormatError) {
-        toast({
-          title: "Error",
-          description: "Failed to fetch collection records",
-          variant: "destructive",
-        });
-        return []; // Return empty array for non-data format errors
-      }
-
-      // Re-throw data format errors so they can be caught by the error boundary
-      throw err;
-    } finally {
-      setLoading(false);
-    }
+    }, setLoading);
   };
 
   const createCollection = async (collection: Omit<CollectionSchema, 'id' | 'createdAt' | 'updatedAt'>): Promise<CollectionSchema> => {
-    setLoading(true);
-    try {
-      // Generate a UUID for the new collection
-      const collectionWithId = {
-        ...collection,
-        id: `col-${uuidv4()}`
-      };
-      
-      const newCollection = await collectionService.createCollection(collectionWithId);
-      setCollections([...collections, newCollection]);
-      toast({
-        title: "Success",
-        description: `Collection "${newCollection.name}" created successfully`,
-      });
-      return newCollection;
-    } catch (err) {
-      setError('Failed to create collection');
-      toast({
-        title: "Error",
-        description: "Failed to create collection",
-        variant: "destructive",
-      });
-      throw err;
-    } finally {
-      setLoading(false);
-    }
+    return withLoading(async () => {
+      try {
+        // Generate a UUID for the new collection
+        const collectionWithSlug = {
+          ...collection,
+          slug: `${collection.name.toLowerCase().replace(/\s+/g, '-')}`
+        };
+
+        const newCollection = await collectionService.createCollection(collectionWithSlug);
+        setCollections([...collections, newCollection]);
+        toast({
+          title: "Success",
+          description: `Collection "${newCollection.name}" created successfully`,
+        });
+        return newCollection;
+      } catch (err) {
+        handleApiError('create collection', err, setError, toast);
+      }
+    }, setLoading);
   };
 
   const updateCollection = async (
     slug: string,
     updates: Partial<Omit<CollectionSchema, 'id' | 'createdAt' | 'updatedAt'>>
   ): Promise<CollectionSchema> => {
-    setLoading(true);
-    try {
-      const updatedCollection = await collectionService.updateCollection(slug, updates);
-      setCollections(
-        collections.map(c => c.slug === slug ? updatedCollection : c)
-      );
-      if (currentCollection?.slug === slug) {
-        setCurrentCollection(updatedCollection);
+    return withLoading(async () => {
+      try {
+        const updatedCollection = await collectionService.updateCollection(slug, updates);
+        setCollections(
+          collections.map(c => c.slug === slug ? updatedCollection : c)
+        );
+        if (currentCollection?.slug === slug) {
+          setCurrentCollection(updatedCollection);
+        }
+        toast({
+          title: "Success",
+          description: `Collection "${updatedCollection.name}" updated successfully`,
+        });
+        return updatedCollection;
+      } catch (err) {
+        handleApiError('update collection', err, setError, toast);
       }
-      toast({
-        title: "Success",
-        description: `Collection "${updatedCollection.name}" updated successfully`,
-      });
-      return updatedCollection;
-    } catch (err) {
-      setError('Failed to update collection');
-      toast({
-        title: "Error",
-        description: "Failed to update collection",
-        variant: "destructive",
-      });
-      throw err;
-    } finally {
-      setLoading(false);
-    }
+    }, setLoading);
   };
 
   const deleteCollection = async (slug: string): Promise<void> => {
-    setLoading(true);
-    try {
-      await collectionService.deleteCollection(slug);
-      setCollections(collections.filter(c => c.slug !== slug));
-      if (currentCollection?.slug === slug) {
-        setCurrentCollection(null);
+    return withLoading(async () => {
+      try {
+        await collectionService.deleteCollection(slug);
+        setCollections(collections.filter(c => c.slug !== slug));
+        if (currentCollection?.slug === slug) {
+          setCurrentCollection(null);
+        }
+        toast({
+          title: "Success",
+          description: "Collection deleted successfully",
+        });
+      } catch (err) {
+        handleApiError('delete collection', err, setError, toast);
       }
-      toast({
-        title: "Success",
-        description: "Collection deleted successfully",
-      });
-    } catch (err) {
-      setError('Failed to delete collection');
-      toast({
-        title: "Error",
-        description: "Failed to delete collection",
-        variant: "destructive",
-      });
-      throw err;
-    } finally {
-      setLoading(false);
-    }
+    }, setLoading);
   };
 
   const createRecord = async (slug: string, data: RecordData): Promise<CollectionRecord> => {
-    setLoading(true);
-    try {
-      const newRecord = await collectionService.createRecord(slug, data);
-      setRecords([...records, newRecord]);
-      toast({
-        title: "Success",
-        description: "Record created successfully",
-      });
-      return newRecord;
-    } catch (err) {
-      setError('Failed to create record');
-      toast({
-        title: "Error",
-        description: "Failed to create record",
-        variant: "destructive",
-      });
-      throw err;
-    } finally {
-      setLoading(false);
-    }
+    return withLoading(async () => {
+      try {
+        const newRecord = await collectionService.createRecord(slug, data);
+        setRecords([...records, newRecord]);
+        toast({
+          title: "Success",
+          description: "Record created successfully",
+        });
+        return newRecord;
+      } catch (err) {
+        handleApiError('create record', err, setError, toast);
+      }
+    }, setLoading);
   };
 
   const updateRecord = async (slug: string, recordId: string, data: RecordData): Promise<CollectionRecord> => {
-    setLoading(true);
-    try {
-      const updatedRecord = await collectionService.updateRecord(slug, recordId, data);
-      setRecords(
-        records.map(r => r.id === recordId ? updatedRecord : r)
-      );
-      toast({
-        title: "Success",
-        description: "Record updated successfully",
-      });
-      return updatedRecord;
-    } catch (err) {
-      setError('Failed to update record');
-      toast({
-        title: "Error",
-        description: "Failed to update record",
-        variant: "destructive",
-      });
-      throw err;
-    } finally {
-      setLoading(false);
-    }
+    return withLoading(async () => {
+      try {
+        const updatedRecord = await collectionService.updateRecord(slug, recordId, data);
+        setRecords(
+          records.map(r => r.id === recordId ? updatedRecord : r)
+        );
+        toast({
+          title: "Success",
+          description: "Record updated successfully",
+        });
+        return updatedRecord;
+      } catch (err) {
+        handleApiError('update record', err, setError, toast);
+      }
+    }, setLoading);
   };
 
   const deleteRecord = async (slug: string, recordId: string): Promise<void> => {
-    setLoading(true);
-    try {
-      await collectionService.deleteRecord(slug, recordId);
-      setRecords(records.filter(r => r.id !== recordId));
-      toast({
-        title: "Success",
-        description: "Record deleted successfully",
-      });
-    } catch (err) {
-      setError('Failed to delete record');
-      toast({
-        title: "Error",
-        description: "Failed to delete record",
-        variant: "destructive",
-      });
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const validateRecord = (data: RecordData, fields: FieldDefinition[]): string[] => {
-    const errors: string[] = [];
-
-    fields.forEach(field => {
-      // Check required fields
-      if (field.required && (data[field.name] === undefined || data[field.name] === null || data[field.name] === '')) {
-        errors.push(`${field.name} is required`);
-        return;
+    return withLoading(async () => {
+      try {
+        await collectionService.deleteRecord(slug, recordId);
+        setRecords(records.filter(r => r.id !== recordId));
+        toast({
+          title: "Success",
+          description: "Record deleted successfully",
+        });
+      } catch (err) {
+        handleApiError('delete record', err, setError, toast);
       }
-
-      // Skip validation if value is empty and not required
-      if (data[field.name] === undefined || data[field.name] === null || data[field.name] === '') {
-        return;
-      }
-
-      // Type validations
-      switch (field.type) {
-        case 'number':
-          if (isNaN(Number(data[field.name]))) {
-            errors.push(`${field.name} must be a number`);
-          }
-          break;
-        case 'email':
-          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-          if (!emailRegex.test(String(data[field.name]))) {
-            errors.push(`${field.name} must be a valid email`);
-          }
-          break;
-        case 'url':
-          try {
-            new URL(String(data[field.name]));
-          } catch (e) {
-            errors.push(`${field.name} must be a valid URL`);
-          }
-          break;
-        case 'date':
-          const date = new Date(data[field.name]);
-          if (isNaN(date.getTime())) {
-            errors.push(`${field.name} must be a valid date`);
-          }
-          break;
-        case 'select':
-          if (field.options && !field.options.includes(String(data[field.name]))) {
-            errors.push(`${field.name} must be one of the available options`);
-          }
-          break;
-      }
-    });
-
-    return errors;
+    }, setLoading);
   };
 
   return (
@@ -340,7 +234,7 @@ export const CollectionProvider = ({ children }: { children: ReactNode }) => {
       createRecord,
       updateRecord,
       deleteRecord,
-      validateRecord
+      validateRecord: validateRecord
     }}>
       {children}
     </CollectionContext.Provider>

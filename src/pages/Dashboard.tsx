@@ -1,11 +1,7 @@
 import { useEffect, useState } from "react";
 import { useCollection } from "@/contexts/CollectionContext";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Sidebar } from "@/components/layout/Sidebar";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Plus, Eye, FileJson, Pencil } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
@@ -29,6 +25,7 @@ import { PrimaryHeader } from "@/components/common/PrimaryHeader";
 import { SecondaryHeader } from "@/components/common/SecondaryHeader";
 import NoResults from "@/components/common/NoResults";
 import { getDataUrl } from "@/lib/utils";
+import { NewCollectionDialog, CollectionFormData } from '@/components/common/CollectionForm';
 
 const Dashboard = () => {
   const { collections, fetchCollections, loading, createCollection } = useCollection();
@@ -50,37 +47,16 @@ const Dashboard = () => {
     setSearchTerm(value);
   };
 
-  const handleCreateCollection = async (e: React.FormEvent) => {
-    e.preventDefault();
-    await createCollection({
-      ...newCollection,
-      fields: []
-    });
-    setNewCollection({
-      id: `col-${Date.now()}`,
-      name: "",
-      slug: "",
-      description: "",
-      fields: []
-    });
-    setIsCreateDialogOpen(false);
-  };
-
-  const generateSlug = (name: string) => {
-    return name.toLowerCase()
-      .replace(/\s+/g, '-')
-      .replace(/[^\w-]+/g, '')
-      .replace(/--+/g, '-')
-      .replace(/^-+/, '')
-      .replace(/-+$/, '');
-  };
-
-  const handleNameChange = (value: string) => {
-    setNewCollection({
-      ...newCollection,
-      name: value,
-      slug: generateSlug(value)
-    });
+  const handleCreateCollectionSubmit = async (data: CollectionFormData) => {
+    try {
+      await createCollection({
+        ...data,
+        fields: data.fields || []
+      });
+      setIsCreateDialogOpen(false);
+    } catch (error) {
+      console.error('Failed to create collection:', error);
+    }
   };
 
   const filteredCollections = collections.filter(collection => {
@@ -100,54 +76,11 @@ const Dashboard = () => {
           title="Collections"
         >
           {/* New Collection Button */}
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-            <DialogTrigger asChild>
-              <Button size="sm" className="h-8 text-sm">
-                <Plus className="mr-1 h-3.5 w-3.5" />
-                New Collection
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="bg-card border-border">
-              <DialogHeader>
-                <DialogTitle className="text-base">Create New Collection</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleCreateCollection} className="space-y-4">
-                <div>
-                  <Label htmlFor="name" className="text-xs">Name</Label>
-                  <Input
-                    id="name"
-                    value={newCollection.name}
-                    onChange={(e) => handleNameChange(e.target.value)}
-                    required
-                    className="saas-input text-xs h-8"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="slug" className="text-xs">Slug (URL identifier)</Label>
-                  <Input
-                    id="slug"
-                    value={newCollection.slug}
-                    onChange={(e) => setNewCollection({ ...newCollection, slug: e.target.value })}
-                    required
-                    className="saas-input text-xs h-8"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="description" className="text-xs">Description</Label>
-                  <Textarea
-                    id="description"
-                    value={newCollection.description}
-                    onChange={(e) => setNewCollection({ ...newCollection, description: e.target.value })}
-                    className="saas-input text-xs"
-                    rows={3}
-                  />
-                </div>
-                <div className="flex justify-end pt-2">
-                  <Button type="submit" className="text-xs h-7">Create Collection</Button>
-                </div>
-              </form>
-            </DialogContent>
-          </Dialog>
+          <NewCollectionDialog
+            onSubmit={handleCreateCollectionSubmit}
+            isOpen={isCreateDialogOpen}
+            onOpenChange={setIsCreateDialogOpen}
+          />
         </PrimaryHeader>
         <SecondaryHeader
           description="Manage your data collections and schemas"

@@ -82,14 +82,3 @@
     @apply text-base;
   }
 }
-
-/* SaaS UI-inspired global styles */
-@layer components {
-  .saas-button-primary {
-    @apply bg-primary text-primary-foreground hover:bg-primary/90;
-  }
-
-  .saas-input {
-    @apply bg-secondary text-foreground border-0 rounded-md;
-  }
-}
