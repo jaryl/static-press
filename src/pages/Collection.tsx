@@ -9,8 +9,8 @@ import { PrimaryHeader } from "@/components/common/PrimaryHeader";
 import { SecondaryHeader } from "@/components/common/SecondaryHeader";
 import { Badge } from "@/components/ui/badge";
 import { Edit, Plus, FileJson } from "lucide-react";
-import { useRecordForm } from "@/hooks/useRecordForm";
-import { useRecordFilter } from "@/hooks/useRecordFilter";
+import { useRecordForm } from "@/hooks/use-record-form";
+import { useRecordFilter } from "@/hooks/use-record-filter";
 import { getDataUrl } from "@/lib/utils";
 
 const Collection = () => {

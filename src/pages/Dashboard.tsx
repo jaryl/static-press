@@ -27,7 +27,7 @@ import Container from "@/components/common/Container";
 import { Spinner } from "@/components/ui/spinner";
 import { PrimaryHeader } from "@/components/common/PrimaryHeader";
 import { SecondaryHeader } from "@/components/common/SecondaryHeader";
-import NoResults from "@/components/collections/NoResults";
+import NoResults from "@/components/common/NoResults";
 import { getDataUrl } from "@/lib/utils";
 
 const Dashboard = () => {

@@ -6,10 +6,10 @@ import { Spinner } from "@/components/ui/spinner";
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import RecordRow from "./RecordRow";
 import NewRecordRow from "./NewRecordRow";
-import EmptyState from "./EmptyState";
-import NoResults from "./NoResults";
+import EmptyState from "@/components/common/EmptyState";
+import NoResults from "@/components/common/NoResults";
 import ErrorDisplay from "@/components/ui/ErrorDisplay";
-import { useRecordForm } from "@/hooks/useRecordForm";
+import { useRecordForm } from "@/hooks/use-record-form";
 import { CollectionRecord } from "@/services/collectionService";
 
 interface CollectionContentProps {
