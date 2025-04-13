@@ -2,7 +2,8 @@ import { memo } from "react";
 import { TableRow, TableCell } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Save, X } from "lucide-react";
-import { RecordData, FieldDefinition, CollectionSchema } from "@/services/collectionService";
+import { FieldDefinition, CollectionSchema } from "@/services/schemaService";
+import { RecordData } from "@/services/collectionService";
 import FieldInput from "./FieldInput";
 
 // Component for a new record row

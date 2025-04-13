@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { v4 as uuidv4 } from 'uuid';
-import { RecordData, FieldDefinition, CollectionSchema } from "@/services/collectionService";
+import { RecordData } from "@/services/collectionService";
+import { CollectionSchema, FieldDefinition } from "@/services/schemaService";
 
 type RecordFormProps = {
   validateRecord: (data: RecordData, fields: FieldDefinition[]) => string[];

@@ -1,7 +1,7 @@
 import {
-  RecordData,
-  FieldDefinition
-} from '../services/collectionService';
+  RecordData
+} from '@/services/collectionService';
+import { FieldDefinition } from '@/services/schemaService';
 
 /**
  * Validates record data against field definitions

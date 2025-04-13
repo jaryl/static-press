@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { FieldDefinition } from "@/services/collectionService";
+import { FieldDefinition } from "@/services/schemaService";
 import ImagePreview from "./ImagePreview";
 import { getImageLoadStrategy } from "@/lib/utils";
 
