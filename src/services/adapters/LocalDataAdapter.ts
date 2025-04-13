@@ -1,76 +1,82 @@
-export class LocalDataAdapter {
-  private loadedCollections: Record<string, any> = {};
+import { DataAdapter } from './index';
+import type { CollectionSchema, FieldDefinition } from '../schemaService';
+import type { CollectionRecord } from '../collectionService';
 
-  async getSchema(): Promise<any[]> {
+export class LocalDataAdapter implements DataAdapter {
+  private loadedCollections: Record<string, CollectionRecord[]> = {};
+
+  async getSchema(): Promise<CollectionSchema[]> {
     try {
-      const schema = await import('@/data/schema.json');
-      if (!Array.isArray(schema.default)) {
-        throw new Error('Invalid schema format - expected array');
+      const schemaModule = await import('@/data/schema.json');
+      const schema = schemaModule.default;
+
+      if (!Array.isArray(schema)) {
+        throw new Error('Invalid schema format in schema.json - expected array');
       }
-      return [...schema.default];
+      return schema as CollectionSchema[];
     } catch (error) {
-      console.error('Failed to load schema.json', error);
-      throw error;
+      console.error('Failed to load local schema.json', error);
+      throw new Error(`Failed to load local schema.json: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
-  async getCollectionData(slug: string): Promise<any[]> {
-    if (!this.loadedCollections[slug]) {
-      const collections = await this.getSchema();
-      const collection = collections.find(c => c.slug === slug);
+  async getCollectionData(slug: string): Promise<CollectionRecord[]> {
+    if (this.loadedCollections[slug]) {
+      return [...this.loadedCollections[slug]];
+    }
 
-      if (!collection) {
-        const error = new Error(`Collection ${slug} not found in schema`);
-        console.error(error);
-        throw error;
+    const collections = await this.getSchema();
+    const collectionSchema = collections.find(c => c.slug === slug);
+
+    if (!collectionSchema) {
+      console.warn(`LocalDataAdapter: Collection schema not found for slug: ${slug}`);
+      return [];
+    }
+
+    try {
+      const dataModule = await import(`@/data/${slug}.json`);
+      const data = dataModule.default;
+
+      if (!Array.isArray(data)) {
+        throw new Error(`Invalid data format in ${slug}.json - expected array`);
       }
 
-      try {
-        const data = await import(`@/data/${slug}.json`);
+      const requiredFields = collectionSchema.fields.filter(f => f.required).map(f => f.name);
+      const hasInvalidRecords = data.some((item: any) => {
+        if (!item || typeof item.data !== 'object' || item.data === null) return true;
+        return requiredFields.some(fieldName =>
+          !(fieldName in item.data) || item.data[fieldName] === null || item.data[fieldName] === undefined || item.data[fieldName] === ''
+        );
+      });
 
-        // Validate data format
-        if (!Array.isArray(data.default)) {
-          throw new Error(`Invalid data format for ${slug}.json - expected array`);
-        }
+      if (hasInvalidRecords) {
+        console.error(`Malformed data in ${slug}.json - some records are missing required fields.`);
+        throw new Error(`Malformed data in ${slug}.json - some records are missing required fields`);
+      }
 
-        // Check if any required fields are missing in the data
-        const hasInvalidRecords = data.default.some((item: any) => {
-          // Check for missing required fields based on schema
-          return collection.fields
-            .filter((field: any) => field.required)
-            .some((field: any) => {
-              const fieldExists = Object.prototype.hasOwnProperty.call(item.data, field.name);
-              const fieldHasValue = item.data[field.name] !== null && item.data[field.name] !== undefined && item.data[field.name] !== '';
-              return !fieldExists || !fieldHasValue;
-            });
-        });
+      const records = data as CollectionRecord[];
+      this.loadedCollections[slug] = records;
+      return [...records];
 
-        if (hasInvalidRecords) {
-          throw new Error(`Malformed data in ${slug}.json - some records are missing required fields`);
-        }
-
-        // Format the raw data into the expected record shape
-        this.loadedCollections[slug] = Array.isArray(data.default)
-          ? data.default.map((item: any) => {
-            // If the item already has the expected shape, return it as is
-            if (item && item.id) {
-              return item;
-            }
-
-            // Otherwise, transform it to the expected shape
-            return {
-              id: item.id,
-              data: item.data.default,
-              createdAt: item.createdAt,
-              updatedAt: item.updatedAt
-            };
-          })
-          : [];
-      } catch (error) {
-        console.error(`Failed to load ${slug}.json`, error);
-        throw error; // Re-throw the error instead of returning empty array
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('Failed to fetch dynamically imported module')) {
+        this.loadedCollections[slug] = [];
+        return [];
+      } else {
+        console.error(`Failed to load local ${slug}.json`, error);
+        throw new Error(`Failed to load local ${slug}.json: ${error instanceof Error ? error.message : String(error)}`);
       }
     }
-    return [...this.loadedCollections[slug]];
+  }
+
+  async updateSchema(schemaData: CollectionSchema[]): Promise<void> {
+    console.warn('LocalDataAdapter: updateSchema called - Mock update, no file persistence.');
+    return Promise.resolve();
+  }
+
+  async updateCollectionData(slug: string, records: CollectionRecord[]): Promise<void> {
+    console.warn(`LocalDataAdapter: updateCollectionData called for slug ${slug} - Mock update, no file persistence.`);
+    this.loadedCollections[slug] = JSON.parse(JSON.stringify(records));
+    return Promise.resolve();
   }
 }

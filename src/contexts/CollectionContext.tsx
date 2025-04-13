@@ -1,12 +1,9 @@
 import { createContext, ReactNode, useContext, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import {
-  collectionService,
-  CollectionSchema,
-  CollectionRecord,
-  RecordData,
-  FieldDefinition
-} from '../services/collectionService';
+import { collectionService } from '../services/collectionService';
+import type { CollectionRecord, RecordData } from '../services/collectionService';
+import { schemaService } from '../services/schemaService';
+import type { CollectionSchema, FieldDefinition } from '../services/schemaService';
 import { useToast } from '@/hooks/use-toast';
 import { validateRecord } from '../lib/validation';
 import { handleApiError, withLoading } from '../lib/utils';
@@ -42,7 +39,7 @@ export const CollectionProvider = ({ children }: { children: ReactNode }) => {
   const fetchCollections = async (): Promise<void> => {
     return withLoading(async () => {
       try {
-        const data = await collectionService.getCollections();
+        const data = await schemaService.getCollections();
         setCollections(data);
         setError(null);
       } catch (err) {
@@ -54,7 +51,7 @@ export const CollectionProvider = ({ children }: { children: ReactNode }) => {
   const fetchCollection = async (id: string): Promise<CollectionSchema | null> => {
     return withLoading(async () => {
       try {
-        const collection = await collectionService.getCollection(id);
+        const collection = await schemaService.getCollection(id);
         setCurrentCollection(collection);
         setError(null);
         return collection;
@@ -68,28 +65,23 @@ export const CollectionProvider = ({ children }: { children: ReactNode }) => {
   const fetchRecords = async (slug: string): Promise<CollectionRecord[]> => {
     return withLoading(async () => {
       try {
-        // First ensure we have the collection data
-        const collection = await collectionService.getCollection(slug);
+        const collection = await schemaService.getCollection(slug);
         if (!collection) {
-          throw new Error('Collection not found');
+          throw new Error(`Collection with slug '${slug}' not found.`);
         }
 
-        // Then fetch the records - this will trigger lazy loading if needed
         const data = await collectionService.getRecords(slug);
         setRecords(data);
         setError(null);
         return data;
       } catch (err) {
-        // Determine if this is a data format error that should be propagated
         const errorMessage = err instanceof Error ? err.message : 'Failed to fetch records';
         const isDataFormatError = errorMessage.includes('Malformed data') ||
           errorMessage.includes('Invalid data format') ||
           errorMessage.includes('missing required fields');
 
-        // Set error state regardless
         setError(errorMessage);
 
-        // Show toast for network/general errors, but let data format errors propagate
         if (!isDataFormatError) {
           toast({
             title: "Error",
@@ -99,7 +91,6 @@ export const CollectionProvider = ({ children }: { children: ReactNode }) => {
           return []; // Return empty array for non-data format errors
         }
 
-        // Re-throw data format errors so they can be caught by the error boundary
         throw err;
       }
     }, setLoading);
@@ -108,14 +99,13 @@ export const CollectionProvider = ({ children }: { children: ReactNode }) => {
   const createCollection = async (collection: Omit<CollectionSchema, 'id' | 'createdAt' | 'updatedAt'>): Promise<CollectionSchema> => {
     return withLoading(async () => {
       try {
-        // Generate a UUID for the new collection
         const collectionWithSlug = {
           ...collection,
-          id: crypto.randomUUID(), // Add id field to match collectionService expectations
+          id: uuidv4(),
           slug: `${collection.name.toLowerCase().replace(/\s+/g, '-')}`
         };
 
-        const newCollection = await collectionService.createCollection(collectionWithSlug);
+        const newCollection = await schemaService.createCollection(collectionWithSlug);
         setCollections([...collections, newCollection]);
         toast({
           title: "Success",
@@ -134,7 +124,7 @@ export const CollectionProvider = ({ children }: { children: ReactNode }) => {
   ): Promise<CollectionSchema> => {
     return withLoading(async () => {
       try {
-        const updatedCollection = await collectionService.updateCollection(slug, updates);
+        const updatedCollection = await schemaService.updateCollection(slug, updates);
         setCollections(
           collections.map(c => c.slug === slug ? updatedCollection : c)
         );
@@ -155,7 +145,7 @@ export const CollectionProvider = ({ children }: { children: ReactNode }) => {
   const deleteCollection = async (slug: string): Promise<void> => {
     return withLoading(async () => {
       try {
-        await collectionService.deleteCollection(slug);
+        await schemaService.deleteCollection(slug);
         setCollections(collections.filter(c => c.slug !== slug));
         if (currentCollection?.slug === slug) {
           setCurrentCollection(null);
