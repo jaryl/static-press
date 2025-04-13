@@ -111,6 +111,7 @@ export const CollectionProvider = ({ children }: { children: ReactNode }) => {
         // Generate a UUID for the new collection
         const collectionWithSlug = {
           ...collection,
+          id: crypto.randomUUID(), // Add id field to match collectionService expectations
           slug: `${collection.name.toLowerCase().replace(/\s+/g, '-')}`
         };
 
