@@ -1,14 +1,14 @@
-import { s3Client, bucketName } from '../../lib/s3Client';
-import { PutObjectCommand } from '@aws-sdk/client-s3';
 import type { DataAdapter } from './index';
 import type { CollectionSchema } from '../schemaService';
 import type { CollectionRecord } from '../collectionService';
 
 export class RemoteDataAdapter implements DataAdapter {
   private baseUrl: string;
+  private apiBaseUrl: string;
 
   constructor() {
     this.baseUrl = import.meta.env.VITE_DATA_URL || '';
+    this.apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api';
     if (!this.baseUrl) {
       console.warn('VITE_DATA_URL is not set. GET operations might fail if schema/data are not in S3.');
     }
@@ -50,40 +50,46 @@ export class RemoteDataAdapter implements DataAdapter {
   }
 
   async updateSchema(schemaData: CollectionSchema[]): Promise<void> {
-    if (!bucketName) {
-      throw new Error('S3 bucket name is not configured.');
-    }
-    const command = new PutObjectCommand({
-      Bucket: bucketName,
-      Key: 'schema.json',
-      Body: JSON.stringify(schemaData, null, 2),
-      ContentType: 'application/json',
-    });
-
+    console.log(`[RemoteDataAdapter] Sending schema update to ${this.apiBaseUrl}/schema`);
     try {
-      await s3Client.send(command);
+      const response = await fetch(`${this.apiBaseUrl}/schema`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(schemaData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(`API error! status: ${response.status} - ${errorData.message || 'Failed to update schema'}`);
+      }
+      console.log('[RemoteDataAdapter] Schema update successful (via API)');
     } catch (error) {
-      console.error('Error updating schema.json in S3:', error);
+      console.error('Error updating schema via API:', error);
       throw error;
     }
   }
 
   async updateCollectionData(slug: string, records: CollectionRecord[]): Promise<void> {
-    if (!bucketName) {
-      throw new Error('S3 bucket name is not configured.');
-    }
-    const key = `${slug}.json`;
-    const command = new PutObjectCommand({
-      Bucket: bucketName,
-      Key: key,
-      Body: JSON.stringify(records, null, 2),
-      ContentType: 'application/json',
-    });
-
+    const url = `${this.apiBaseUrl}/collections/${slug}`;
+    console.log(`[RemoteDataAdapter] Sending collection data update to ${url}`);
     try {
-      await s3Client.send(command);
+      const response = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(records),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(`API error! status: ${response.status} - ${errorData.message || `Failed to update collection ${slug}`}`);
+      }
+      console.log(`[RemoteDataAdapter] Collection '${slug}' update successful (via API)`);
     } catch (error) {
-      console.error(`Error updating ${key} in S3:`, error);
+      console.error(`Error updating collection ${slug} via API:`, error);
       throw error;
     }
   }

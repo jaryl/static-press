@@ -1,28 +1,31 @@
 import { S3Client } from "@aws-sdk/client-s3";
 
-const region = import.meta.env.S3_REGION;
-const endpoint = import.meta.env.S3_ENDPOINT_URL; // Optional: for S3-compatible storage
-const accessKeyId = import.meta.env.S3_ACCESS_KEY_ID;
-const secretAccessKey = import.meta.env.S3_SECRET_ACCESS_KEY;
-const bucketName = import.meta.env.S3_BUCKET_NAME;
+const region = process.env.S3_REGION;
+const endpoint = process.env.S3_ENDPOINT_URL;
+const accessKeyId = process.env.S3_ACCESS_KEY_ID;
+const secretAccessKey = process.env.S3_SECRET_ACCESS_KEY;
+const bucketName = process.env.S3_BUCKET_NAME;
 
 if (!region || !accessKeyId || !secretAccessKey || !bucketName) {
-  // Log a warning but allow the app to run if adapter type isn't 'remote'
-  // Operations requiring S3 will fail later if adapter is 'remote'
-  console.warn(
-    "AWS S3 configuration (region, bucket, credentials) not fully set in environment variables. Remote operations will fail if attempted."
+  console.error(
+    "FATAL ERROR: AWS S3 configuration (S3_REGION, S3_BUCKET_NAME, S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY) must be available in process.env."
   );
+  throw new Error("Missing required S3 configuration for API server.");
+} else {
+  console.log("[s3Client] S3 configuration loaded successfully for API server.");
+  console.log(`[s3Client]   Region: ${region}`);
+  console.log(`[s3Client]   Bucket: ${bucketName}`);
+  console.log(`[s3Client]   Endpoint: ${endpoint || 'Default AWS'}`);
 }
 
-// Basic configuration
 const s3Client = new S3Client({
   region: region,
-  endpoint: endpoint, // SDK handles undefined endpoint correctly for AWS S3
+  endpoint: endpoint,
   credentials: {
-    accessKeyId: accessKeyId || "", // Provide defaults to satisfy types
-    secretAccessKey: secretAccessKey || "",
+    accessKeyId: accessKeyId!,
+    secretAccessKey: secretAccessKey!,
   },
-  forcePathStyle: !!endpoint, // Often needed for S3-compatible storage
+  forcePathStyle: !!endpoint,
 });
 
 export { s3Client, bucketName };

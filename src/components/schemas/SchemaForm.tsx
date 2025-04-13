@@ -20,7 +20,7 @@ interface SchemaFormProps {
   collection: Collection;
 }
 
-const FIELD_TYPES: Field['type'][] = ['text', 'number', 'boolean', 'date', 'datetime', 'email', 'url', 'select'];
+const FIELD_TYPES: Field['type'][] = ['text', 'number', 'boolean', 'date', 'datetime', 'email', 'url', 'select', 'image'];
 
 interface SortableFieldProps {
   field: Field;
