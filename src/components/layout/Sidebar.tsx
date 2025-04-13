@@ -8,7 +8,6 @@ import { SidebarSearch } from "./SidebarSearch";
 import { SidebarNavLinks } from "./SidebarNavLinks";
 import { SidebarCollections } from "./SidebarCollections";
 import { SidebarFooter } from "./SidebarFooter";
-import { CollectionSchema } from "@/services/collectionService";
 
 export function Sidebar() {
   const { collections, fetchCollections, createCollection } = useCollection();

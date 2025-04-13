@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { FieldDefinition } from "@/services/collectionService";
+import { FieldDefinition } from "@/services/schemaService";
 import ImagePreview from "./ImagePreview";
 
 // Component to render a field input based on its type
@@ -124,6 +124,23 @@ const FieldInput = memo(({
           </SelectContent>
         </Select>
       );
+    case 'array': {
+      // Display array as comma-separated string
+      const displayValue = Array.isArray(safeValue) ? safeValue.join(', ') : safeValue;
+      return (
+        <Textarea
+          value={displayValue}
+          onChange={(e) => {
+            // Parse comma-separated string into an array of strings
+            const inputString = e.target.value;
+            const parsedArray = inputString.split(',').map(item => item.trim()).filter(item => item !== '');
+            onChange(field, parsedArray);
+          }}
+          placeholder="Enter values separated by commas"
+          className="text-xs min-h-0 h-8 py-1.5 resize-none w-full"
+        />
+      );
+    }
     default:
       return (
         <Textarea

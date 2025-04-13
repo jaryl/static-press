@@ -20,7 +20,7 @@ interface SchemaFormProps {
   collection: Collection;
 }
 
-const FIELD_TYPES: Field['type'][] = ['text', 'number', 'boolean', 'date', 'datetime', 'email', 'url', 'select', 'image'];
+const FIELD_TYPES: Field['type'][] = ['text', 'number', 'boolean', 'date', 'datetime', 'email', 'url', 'select', 'image', 'array'];
 
 interface SortableFieldProps {
   field: Field;
@@ -117,19 +117,34 @@ const SortableField = ({ field, index, onFieldChange, onRemoveField }: SortableF
 
             {renderFieldOptions()}
 
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id={`field-required-${index}`}
-                checked={field.required}
-                onCheckedChange={(checked) => onFieldChange(index, { required: !!checked })}
-              />
-              <Label
-                htmlFor={`field-required-${index}`}
-                className="cursor-pointer text-xs"
-              >
-                Required field
-              </Label>
+            <div className="flex items-center space-x-6 pt-2">
+              {/* Required Checkbox */}
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id={`field-required-${index}`}
+                  checked={field.required}
+                  onCheckedChange={(checked) => onFieldChange(index, { required: !!checked })}
+                />
+                <Label htmlFor={`field-required-${index}`} className="text-xs cursor-pointer font-normal">
+                  Required
+                </Label>
+              </div>
+
+              {/* Timezone Aware Checkbox (only for datetime) */}
+              {field.type === 'datetime' && (
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`field-timezone-${index}`}
+                    checked={field.timezoneAware}
+                    onCheckedChange={(checked) => onFieldChange(index, { timezoneAware: !!checked })}
+                  />
+                  <Label htmlFor={`field-timezone-${index}`} className="text-xs cursor-pointer font-normal">
+                    Timezone Aware
+                  </Label>
+                </div>
+              )}
             </div>
+
           </div>
 
           <div className="absolute bottom-2 right-2">

@@ -2,12 +2,9 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Database, PlusCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { CollectionSchema } from "@/services/collectionService";
+import { CollectionSchema } from "@/services/schemaService";
 import { CollectionForm, CollectionFormData } from '@/components/common/CollectionForm';
 
 interface SidebarCollectionsProps {

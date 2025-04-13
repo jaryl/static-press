@@ -1,9 +1,10 @@
 export interface Field {
   id: string;
   name: string;
-  type: 'text' | 'number' | 'boolean' | 'date' | 'datetime' | 'email' | 'url' | 'select' | 'image';
+  type: 'text' | 'number' | 'boolean' | 'date' | 'datetime' | 'email' | 'url' | 'select' | 'image' | 'array';
   required: boolean;
   options?: string[];
+  timezoneAware?: boolean; // Added for datetime fields
 }
 
 export interface Collection {

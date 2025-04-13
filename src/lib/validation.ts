@@ -14,7 +14,12 @@ export const validateRecord = (data: RecordData, fields: FieldDefinition[]): str
 
   fields.forEach(field => {
     // Check required fields
-    if (field.required && (data[field.name] === undefined || data[field.name] === null || data[field.name] === '')) {
+    if (field.required && (
+      data[field.name] === undefined ||
+      data[field.name] === null ||
+      data[field.name] === '' ||
+      (Array.isArray(data[field.name]) && data[field.name].length === 0)
+    )) {
       errors.push(`${field.name} is required`);
       return;
     }
@@ -76,6 +81,12 @@ export const validateRecord = (data: RecordData, fields: FieldDefinition[]): str
       case 'select':
         if (field.options && !field.options.includes(String(data[field.name]))) {
           errors.push(`${field.name} must be one of the available options`);
+        }
+        break;
+      case 'array':
+        // Value should be an array if it's present (already handled empty required check above)
+        if (!Array.isArray(data[field.name])) {
+          errors.push(`${field.name} must be an array`);
         }
         break;
     }

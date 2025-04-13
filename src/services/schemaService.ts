@@ -4,9 +4,10 @@ import { createDataAdapter } from './adapters';
 export interface FieldDefinition {
   id: string;
   name: string;
-  type: 'text' | 'number' | 'boolean' | 'date' | 'datetime' | 'email' | 'url' | 'select' | 'image';
+  type: 'text' | 'number' | 'boolean' | 'date' | 'datetime' | 'email' | 'url' | 'select' | 'image' | 'array';
   required: boolean;
   options?: string[]; // For select field types
+  timezoneAware?: boolean; // For datetime fields
 }
 
 export interface CollectionSchema {

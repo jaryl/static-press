@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Eye, ExternalLink, ImageOff } from "lucide-react";
+import { Eye, ExternalLink, ImageOff, Image as ImageIcon } from "lucide-react";
 import { getImageUrl } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -75,11 +75,12 @@ const ImagePreview = ({
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
-        <div className="flex items-center gap-2 cursor-pointer">
-          <div className="text-xs truncate max-w-[200px] text-muted-foreground">
+        <div className="group flex items-center gap-2 cursor-pointer">
+          {/* Filename text */}
+          <div className="text-xs truncate max-w-[200px] text-muted-foreground group-hover:text-foreground">
             {filename}
             {!lazyLoad && metadata.loaded && showMetadata && (
-              <span className="ml-1 text-xs text-muted-foreground">
+              <span className="ml-1 text-xs text-muted-foreground group-hover:text-foreground">
                 ({metadata.width}×{metadata.height})
               </span>
             )}
@@ -90,7 +91,7 @@ const ImagePreview = ({
             <Button
               variant="ghost"
               size="sm"
-              className="h-6 w-6 p-0"
+              className="h-6 w-6 p-0 text-muted-foreground group-hover:text-foreground"
               title="View image"
             >
               <Eye size={14} />
@@ -101,7 +102,8 @@ const ImagePreview = ({
 
       <DialogContent className="max-w-3xl p-0 overflow-hidden">
         {/* Header with filename - always show this */}
-        <div className="bg-primary p-3 text-primary-foreground">
+        <div className="bg-primary p-3 text-primary-foreground flex items-center gap-2">
+          <ImageIcon size={16} />
           <h3 className="font-bold text-sm truncate">{filename}</h3>
         </div>
 
