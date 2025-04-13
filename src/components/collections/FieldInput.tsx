@@ -4,6 +4,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FieldDefinition } from "@/services/collectionService";
+import ImagePreview from "./ImagePreview";
 
 // Component to render a field input based on its type
 const FieldInput = memo(({
@@ -85,6 +86,18 @@ const FieldInput = memo(({
           onChange={(e) => onChange(field, e.target.value)}
           className="h-8 text-xs py-0 w-full"
         />
+      );
+    case 'image':
+      return (
+        <div className="flex flex-col gap-2">
+          <Input
+            type="text"
+            value={safeValue}
+            onChange={(e) => onChange(field, e.target.value)}
+            placeholder="Enter image path"
+            className="h-8 text-xs py-0 w-full"
+          />
+        </div>
       );
     case 'boolean':
       return (

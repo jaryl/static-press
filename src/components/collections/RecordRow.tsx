@@ -55,7 +55,6 @@ const RecordRow = memo(({
             <FieldDisplay
               field={field}
               value={record.data[field.name]}
-              collection={collection}
             />
           )}
         </TableCell>

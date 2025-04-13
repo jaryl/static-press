@@ -6,7 +6,9 @@
       "content": "React is a popular JavaScript library for building user interfaces...",
       "author": "Jane Smith",
       "publishDate": "2024-01-20",
-      "featured": true
+      "featured": true,
+      "featuredImage": "/images/blog/react-featured.jpg",
+      "thumbnailImage": "/images/blog/react-thumbnail.jpg"
     },
     "createdAt": "2024-01-20T08:30:00Z",
     "updatedAt": "2024-01-20T08:30:00Z"
@@ -18,7 +20,9 @@
       "content": "TypeScript offers many advanced features that can improve your code...",
       "author": "John Doe",
       "publishDate": "2024-01-25",
-      "featured": false
+      "featured": false,
+      "featuredImage": "/images/blog/typescript-featured.jpg",
+      "thumbnailImage": "/images/blog/typescript-thumbnail.jpg"
     },
     "createdAt": "2024-01-25T09:45:00Z",
     "updatedAt": "2024-01-25T09:45:00Z"
@@ -30,7 +34,9 @@
       "content": "CSS Grid is a powerful layout system that allows for complex designs...",
       "author": "Emma Wilson",
       "publishDate": "2024-02-05",
-      "featured": true
+      "featured": true,
+      "featuredImage": "/images/blog/css-grid-featured.jpg",
+      "thumbnailImage": "/images/blog/css-grid-thumbnail.jpg"
     },
     "createdAt": "2024-02-05T11:20:00Z",
     "updatedAt": "2024-02-05T11:20:00Z"

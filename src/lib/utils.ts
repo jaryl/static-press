@@ -79,3 +79,39 @@ export const generateSlug = (str: string): string => {
     // Remove leading and trailing dashes
     .replace(/^-|-$/g, '');
 };
+
+/**
+ * Determines the appropriate image loading strategy based on environment variables
+ * @returns 'remote' if VITE_DATA_URL is set, otherwise 'local'
+ */
+export function getImageLoadStrategy(): 'local' | 'remote' {
+  return import.meta.env.VITE_DATA_URL ? 'remote' : 'local';
+}
+
+/**
+ * Constructs the full image URL based on the loading strategy
+ * @param imagePath The path to the image
+ * @param loadStrategy The strategy to use ('local' or 'remote')
+ * @returns The full URL to the image
+ */
+export function getImageUrl(imagePath: string, loadStrategy: 'local' | 'remote'): string {
+  if (!imagePath) return '';
+
+  // If it's already a full URL, return it as is
+  if (imagePath.startsWith('http')) {
+    return imagePath;
+  }
+
+  // Remove leading slash if present for consistency
+  const normalizedPath = imagePath.startsWith('/') ? imagePath.substring(1) : imagePath;
+
+  if (loadStrategy === 'local') {
+    // For local strategy, assume the path is relative to src/data
+    return `/src/data/${normalizedPath}`;
+  } else {
+    // For remote strategy, use the data URL from environment variables
+    const dataUrl = import.meta.env.VITE_DATA_URL || '';
+    // Ensure dataUrl doesn't end with a slash and normalizedPath doesn't start with one
+    return `${dataUrl}${dataUrl.endsWith('/') ? '' : '/'}${normalizedPath}`;
+  }
+}

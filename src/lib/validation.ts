@@ -44,6 +44,12 @@ export const validateRecord = (data: RecordData, fields: FieldDefinition[]): str
           errors.push(`${field.name} must be a valid URL`);
         }
         break;
+      case 'image':
+        // Basic validation for image path - should be a non-empty string
+        if (typeof data[field.name] !== 'string' || data[field.name].trim() === '') {
+          errors.push(`${field.name} must be a valid image path`);
+        }
+        break;
       case 'date':
         const date = new Date(data[field.name]);
         if (isNaN(date.getTime())) {

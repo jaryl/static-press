@@ -1,5 +1,7 @@
 import { memo } from "react";
 import { FieldDefinition } from "@/services/collectionService";
+import ImagePreview from "./ImagePreview";
+import { getImageLoadStrategy } from "@/lib/utils";
 
 // Component to format a field value for display
 const FieldDisplay = memo(({
@@ -9,6 +11,8 @@ const FieldDisplay = memo(({
   field: FieldDefinition;
   value: any;
 }) => {
+  const loadStrategy = getImageLoadStrategy();
+
   if (value === undefined || value === null) {
     return <span className="text-gray-400">—</span>;
   }
@@ -29,6 +33,8 @@ const FieldDisplay = memo(({
       } catch (e) {
         return <>{String(value)}</>;
       }
+    case 'image':
+      return <ImagePreview imagePath={String(value)} showMetadata={true} loadStrategy={loadStrategy} lazyLoad={true} />;
     default:
       return <>{String(value)}</>;
   }

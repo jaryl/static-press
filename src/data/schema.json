@@ -21,6 +21,12 @@
         "name": "inStock",
         "type": "boolean",
         "required": true
+      },
+      {
+        "id": "1-4",
+        "name": "productImage",
+        "type": "image",
+        "required": false
       }
     ],
     "createdAt": "2023-12-10T15:30:00Z",
@@ -87,6 +93,18 @@
         "name": "featured",
         "type": "boolean",
         "required": false
+      },
+      {
+        "id": "3-6",
+        "name": "featuredImage",
+        "type": "image",
+        "required": false
+      },
+      {
+        "id": "3-7",
+        "name": "thumbnailImage",
+        "type": "image",
+        "required": false
       }
     ],
     "createdAt": "2024-01-15T08:30:00Z",
@@ -138,6 +156,12 @@
           "Meetup",
           "Webinar"
         ]
+      },
+      {
+        "id": "4-7",
+        "name": "eventBanner",
+        "type": "image",
+        "required": false
       }
     ],
     "createdAt": "2024-02-05T13:45:00Z",

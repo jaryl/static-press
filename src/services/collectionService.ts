@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 export interface FieldDefinition {
   id: string;
   name: string;
-  type: 'text' | 'number' | 'boolean' | 'date' | 'datetime' | 'email' | 'url' | 'select';
+  type: 'text' | 'number' | 'boolean' | 'date' | 'datetime' | 'email' | 'url' | 'select' | 'image';
   required: boolean;
   options?: string[]; // For select field types
 }
