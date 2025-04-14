@@ -1,5 +1,4 @@
-import { createContext, ReactNode, useContext, useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
+import { createContext, ReactNode, useContext, useState, useCallback } from 'react';
 import { collectionService } from '../services/collectionService';
 import type { CollectionRecord, RecordData } from '../services/collectionService';
 import { schemaService } from '../services/schemaService';
@@ -37,7 +36,7 @@ export const CollectionProvider = ({ children }: { children: ReactNode }) => {
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const fetchCollections = async (): Promise<void> => {
+  const fetchCollections = useCallback(async (): Promise<void> => {
     return withLoading(async () => {
       try {
         const data = await schemaService.getCollections();
@@ -47,30 +46,40 @@ export const CollectionProvider = ({ children }: { children: ReactNode }) => {
         handleApiError('fetch collections', err, setError, toast, false);
       }
     }, setLoading);
-  };
+  }, [toast, setLoading]);
 
-  const fetchCollection = async (id: string): Promise<CollectionSchema | null> => {
+  const fetchCollection = useCallback(async (id: string): Promise<CollectionSchema | null> => {
     return withLoading(async () => {
+      let collection: CollectionSchema | null = null;
       try {
-        const collection = await schemaService.getCollection(id);
-        setCurrentCollection(collection);
-        setError(null);
-        return collection;
+        collection = await schemaService.getCollection(id);
+
+        if (!collection) {
+          setCurrentCollection(null);
+          setError(`Collection schema '${id}' not found.`);
+          return null;
+        } else {
+          setCurrentCollection(collection);
+          setError(null);
+          return collection;
+        }
       } catch (err) {
+        setCurrentCollection(null);
         handleApiError('fetch collection', err, setError, toast, false);
         return null;
       }
     }, setLoading);
-  };
+  }, [toast, setLoading]);
 
-  const fetchRecords = async (slug: string): Promise<CollectionRecord[]> => {
+  const fetchRecords = useCallback(async (slug: string): Promise<CollectionRecord[]> => {
     return withLoading(async () => {
       try {
         const collection = await schemaService.getCollection(slug);
         if (!collection) {
-          throw new Error(`Collection with slug '${slug}' not found.`);
+          setError(`Collection schema '${slug}' not found.`);
+          setRecords([]);
+          return [];
         }
-
         const data = await collectionService.getRecords(slug);
         setRecords(data);
         setError(null);
@@ -95,144 +104,121 @@ export const CollectionProvider = ({ children }: { children: ReactNode }) => {
         throw err;
       }
     }, setLoading);
-  };
+  }, [toast, setLoading]);
 
-  const createCollection = async (collection: Omit<CollectionSchema, 'id' | 'createdAt' | 'updatedAt'>): Promise<CollectionSchema> => {
+  const createCollection = useCallback(async (collectionData: Omit<CollectionSchema, 'id' | 'createdAt' | 'updatedAt'>): Promise<CollectionSchema> => {
     return withLoading(async () => {
       try {
-        const collectionWithSlug = {
-          ...collection,
-          id: uuidv4(),
-          slug: `${collection.name.toLowerCase().replace(/\s+/g, '-')}`
-        };
-
-        const newCollection = await schemaService.createCollection(collectionWithSlug);
-        setCollections([...collections, newCollection]);
-        toast({
-          title: "Success",
-          description: `Collection "${newCollection.name}" created successfully`,
-        });
+        const newCollection = await schemaService.createCollection(collectionData);
+        // Refetch collections list to include the new one
+        await fetchCollections();
         return newCollection;
       } catch (err) {
-        handleApiError('create collection', err, setError, toast);
+        handleApiError('create collection', err, setError, toast); // Default rethrow=true
+        throw err; // Rethrow after handling
       }
     }, setLoading);
-  };
+  }, [fetchCollections, toast, setLoading]);
 
-  const updateCollection = async (
-    slug: string,
-    updates: Partial<Omit<CollectionSchema, 'id' | 'createdAt' | 'updatedAt'>>
-  ): Promise<CollectionSchema> => {
+  const updateCollection = useCallback(async (slug: string, updates: Partial<Omit<CollectionSchema, 'id' | 'createdAt' | 'updatedAt'>>): Promise<CollectionSchema> => {
     return withLoading(async () => {
       try {
         const updatedCollection = await schemaService.updateCollection(slug, updates);
-        setCollections(
-          collections.map(c => c.slug === slug ? updatedCollection : c)
-        );
+        // Update the list and potentially currentCollection
+        setCollections(prev => prev.map(c => c.slug === slug ? updatedCollection : c));
         if (currentCollection?.slug === slug) {
           setCurrentCollection(updatedCollection);
         }
-        toast({
-          title: "Success",
-          description: `Collection "${updatedCollection.name}" updated successfully`,
-        });
         return updatedCollection;
       } catch (err) {
         handleApiError('update collection', err, setError, toast);
+        throw err;
       }
     }, setLoading);
-  };
+  }, [currentCollection, toast, setLoading]);
 
-  const deleteCollection = async (slug: string): Promise<void> => {
+  const deleteCollection = useCallback(async (slug: string): Promise<void> => {
     return withLoading(async () => {
       try {
         await schemaService.deleteCollection(slug);
-        setCollections(collections.filter(c => c.slug !== slug));
+        // Update the list and potentially currentCollection
+        setCollections(prev => prev.filter(c => c.slug !== slug));
         if (currentCollection?.slug === slug) {
-          setCurrentCollection(null);
+          setCurrentCollection(null); // Clear current if it was deleted
         }
-        toast({
-          title: "Success",
-          description: "Collection deleted successfully",
-        });
       } catch (err) {
         handleApiError('delete collection', err, setError, toast);
+        throw err;
       }
     }, setLoading);
-  };
+  }, [currentCollection, toast, setLoading]);
 
-  const createRecord = async (slug: string, data: RecordData): Promise<CollectionRecord> => {
+  const createRecord = useCallback(async (slug: string, data: RecordData): Promise<CollectionRecord> => {
     return withLoading(async () => {
       try {
         const newRecord = await collectionService.createRecord(slug, data);
-        setRecords([...records, newRecord]);
-        toast({
-          title: "Success",
-          description: "Record created successfully",
-        });
+        // Optimistically update or refetch? Refetch for simplicity for now.
+        await fetchRecords(slug);
         return newRecord;
       } catch (err) {
         handleApiError('create record', err, setError, toast);
+        throw err;
       }
     }, setLoading);
-  };
+  }, [fetchRecords, toast, setLoading]);
 
-  const updateRecord = async (slug: string, recordId: string, data: RecordData): Promise<CollectionRecord> => {
+  const updateRecord = useCallback(async (slug: string, recordId: string, data: RecordData): Promise<CollectionRecord> => {
     return withLoading(async () => {
       try {
         const updatedRecord = await collectionService.updateRecord(slug, recordId, data);
-        setRecords(
-          records.map(r => r.id === recordId ? updatedRecord : r)
-        );
-        toast({
-          title: "Success",
-          description: "Record updated successfully",
-        });
+        // Optimistically update or refetch? Refetch for simplicity.
+        await fetchRecords(slug);
         return updatedRecord;
       } catch (err) {
         handleApiError('update record', err, setError, toast);
+        throw err;
       }
     }, setLoading);
-  };
+  }, [fetchRecords, toast, setLoading]);
 
-  const deleteRecord = async (slug: string, recordId: string): Promise<void> => {
+  const deleteRecord = useCallback(async (slug: string, recordId: string): Promise<void> => {
     return withLoading(async () => {
       try {
         await collectionService.deleteRecord(slug, recordId);
-        setRecords(records.filter(r => r.id !== recordId));
-        toast({
-          title: "Success",
-          description: "Record deleted successfully",
-        });
+        // Optimistically update or refetch? Refetch for simplicity.
+        await fetchRecords(slug);
       } catch (err) {
         handleApiError('delete record', err, setError, toast);
+        throw err;
       }
     }, setLoading);
-  };
+  }, [fetchRecords, toast, setLoading]);
 
-  const getRawCollectionUrl = (slug: string): string => {
+  const getRawCollectionUrl = useCallback((slug: string): string => {
     return collectionService.getRawCollectionDataUrl(slug);
+  }, []); // No dependencies
+
+  const value = {
+    collections,
+    currentCollection,
+    records,
+    loading,
+    error,
+    fetchCollections,
+    fetchCollection,
+    fetchRecords,
+    createCollection,
+    updateCollection,
+    deleteCollection,
+    createRecord,
+    updateRecord,
+    deleteRecord,
+    validateRecord,
+    getRawCollectionUrl
   };
 
   return (
-    <CollectionContext.Provider value={{
-      collections,
-      currentCollection,
-      records,
-      loading,
-      error,
-      fetchCollections,
-      fetchCollection,
-      fetchRecords,
-      createCollection,
-      updateCollection,
-      deleteCollection,
-      createRecord,
-      updateRecord,
-      deleteRecord,
-      validateRecord,
-      getRawCollectionUrl
-    }}>
+    <CollectionContext.Provider value={value}>
       {children}
     </CollectionContext.Provider>
   );

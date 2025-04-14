@@ -1,5 +1,6 @@
 // This service manages collection schemas
 import { createDataAdapter } from './adapters';
+import { v4 as uuidv4 } from 'uuid';
 
 export interface FieldDefinition {
   id: string;
@@ -49,9 +50,10 @@ export const schemaService = {
     return collection ? { ...collection } : null;
   },
 
-  async createCollection(data: Omit<CollectionSchema, 'createdAt' | 'updatedAt'>): Promise<CollectionSchema> {
+  async createCollection(data: Omit<CollectionSchema, 'id' | 'createdAt' | 'updatedAt'>): Promise<CollectionSchema> {
     await delay(500);
     const newCollection: CollectionSchema = {
+      id: uuidv4(),
       ...data,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()

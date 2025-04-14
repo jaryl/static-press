@@ -14,12 +14,13 @@ const SchemaEditor = () => {
   const {
     fetchCollection,
     currentCollection,
-    loading
+    loading,
+    error
   } = useCollection();
 
   useEffect(() => {
-    fetchCollection(slug);
-  }, [slug]);
+    if (slug) fetchCollection(slug);
+  }, [slug, fetchCollection]);
 
   if (loading && !currentCollection) {
     return (
@@ -29,13 +30,33 @@ const SchemaEditor = () => {
     );
   }
 
-  if (!currentCollection) {
+  if (!loading && !currentCollection) {
     return (
       <Container>
         <Sidebar />
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <p className="text-xl font-medium">Collection not found</p>
+            {/* Optionally display context error message here? */}
+            <Link to="/dashboard">
+              <Button variant="link" className="mt-2">
+                Back to Dashboard
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </Container>
+    );
+  }
+
+  if (!currentCollection) {
+    console.error("SchemaEditor: Reached rendering stage but currentCollection is null.");
+    return (
+      <Container>
+        <Sidebar />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <p className="text-xl font-medium text-destructive">Error loading collection schema.</p>
             <Link to="/dashboard">
               <Button variant="link" className="mt-2">
                 Back to Dashboard
