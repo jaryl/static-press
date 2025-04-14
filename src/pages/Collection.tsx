@@ -1,4 +1,5 @@
 import { useParams, Link } from "react-router-dom";
+import { useEffect, useRef } from "react";
 import { useCollection } from "@/contexts/CollectionContext";
 import { Sidebar } from "@/components/layout/Sidebar";
 import Container from "@/components/common/Container";
@@ -23,26 +24,41 @@ const Collection = () => {
     updateRecord
   } = useCollection();
 
-  // Use custom hooks for form and filtering
   const form = useRecordForm({ validateRecord, createRecord, updateRecord });
   const filter = useRecordFilter(records);
 
-  // Derived state
+  const prevSlugRef = useRef(slug);
+
+  useEffect(() => {
+    if (prevSlugRef.current && prevSlugRef.current !== slug) {
+      if (form.isEditing) {
+        form.cancelEditing();
+      }
+    }
+
+    prevSlugRef.current = slug;
+  }, [slug, form]);
+
   const hasNewRecord = !!form.newRecordId;
   const hasAnyRecords = records.length > 0 || hasNewRecord;
 
   const handleCreateRecord = () => {
     if (currentCollection) {
-      // Create a new record with the current collection schema
       form.createNewRecord(currentCollection);
 
-      // Scroll to the table if needed
       setTimeout(() => {
-        const tableElement = document.querySelector('.collection-table');
+        const tableElement = document.querySelector('.collection-table') as HTMLElement;
+        const scrollContainer = document.querySelector('.flex-1.overflow-y-auto') as HTMLElement;
+
         if (tableElement) {
-          tableElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          if (scrollContainer) {
+            const headerOffset = 80;
+            scrollContainer.scrollTop = tableElement.offsetTop - headerOffset;
+          } else {
+            tableElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
         }
-      }, 100);
+      }, 0);
     }
   };
 

@@ -81,4 +81,10 @@
   h6 {
     @apply text-base;
   }
+
+  [role="dialog"] button {
+    outline: none !important;
+    box-shadow: none !important;
+    /* Overrides ring */
+  }
 }
