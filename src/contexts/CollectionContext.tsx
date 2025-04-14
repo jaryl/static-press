@@ -74,15 +74,9 @@ export const CollectionProvider = ({ children }: { children: ReactNode }) => {
   const fetchRecords = useCallback(async (slug: string): Promise<CollectionRecord[]> => {
     return withLoading(async () => {
       try {
-        const collection = await schemaService.getCollection(slug);
-        if (!collection) {
-          setError(`Collection schema '${slug}' not found.`);
-          setRecords([]);
-          return [];
-        }
         const data = await collectionService.getRecords(slug);
         setRecords(data);
-        setError(null);
+        setError(null); // Clear error on successful record fetch
         return data;
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Failed to fetch records';
