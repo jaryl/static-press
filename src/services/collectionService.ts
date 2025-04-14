@@ -98,5 +98,10 @@ export const collectionService = {
     }
 
     await dataAdapter.updateCollectionData(slug, recordsCache[slug]);
+  },
+
+  // New function to get the raw data URL from the adapter
+  getRawCollectionDataUrl(slug: string): string {
+    return dataAdapter.getRawDataUrl(slug);
   }
 };

@@ -9,6 +9,7 @@ export interface DataAdapter {
   getCollectionData(slug: string): Promise<CollectionRecord[]>;
   updateSchema(schemaData: CollectionSchema[]): Promise<void>;
   updateCollectionData(slug: string, records: CollectionRecord[]): Promise<void>;
+  getRawDataUrl(slug: string): string;
 }
 
 export function createDataAdapter(): DataAdapter {

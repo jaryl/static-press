@@ -24,6 +24,7 @@ interface CollectionContextType {
   updateRecord: (slug: string, recordId: string, data: RecordData) => Promise<CollectionRecord>;
   deleteRecord: (slug: string, recordId: string) => Promise<void>;
   validateRecord: (data: RecordData, fields: FieldDefinition[]) => string[];
+  getRawCollectionUrl: (slug: string) => string;
 }
 
 const CollectionContext = createContext<CollectionContextType | undefined>(undefined);
@@ -209,6 +210,10 @@ export const CollectionProvider = ({ children }: { children: ReactNode }) => {
     }, setLoading);
   };
 
+  const getRawCollectionUrl = (slug: string): string => {
+    return collectionService.getRawCollectionDataUrl(slug);
+  };
+
   return (
     <CollectionContext.Provider value={{
       collections,
@@ -225,7 +230,8 @@ export const CollectionProvider = ({ children }: { children: ReactNode }) => {
       createRecord,
       updateRecord,
       deleteRecord,
-      validateRecord: validateRecord
+      validateRecord,
+      getRawCollectionUrl
     }}>
       {children}
     </CollectionContext.Provider>

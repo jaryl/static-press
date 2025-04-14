@@ -1,15 +1,9 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
-import { type ToastProps } from "@/components/ui/toast";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
-
-export const getDataUrl = (slug: string): string => {
-  const baseUrl = import.meta.env.VITE_DATA_URL;
-  return baseUrl ? `${baseUrl}/${slug}.json` : `/api/collections/${slug}/json`;
-};
 
 /**
  * Handle API errors with consistent error messages and toast notifications

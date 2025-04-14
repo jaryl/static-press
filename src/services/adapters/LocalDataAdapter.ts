@@ -79,4 +79,9 @@ export class LocalDataAdapter implements DataAdapter {
     this.loadedCollections[slug] = JSON.parse(JSON.stringify(records));
     return Promise.resolve();
   }
+
+  getRawDataUrl(slug: string): string {
+    // For local data, the raw JSON is served via our API endpoint
+    return `/api/collections/${slug}/json`;
+  }
 }

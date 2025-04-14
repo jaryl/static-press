@@ -12,7 +12,6 @@ import { Badge } from "@/components/ui/badge";
 import { Edit, Plus, FileJson } from "lucide-react";
 import { useRecordForm } from "@/hooks/use-record-form";
 import { useRecordFilter } from "@/hooks/use-record-filter";
-import { getDataUrl } from "@/lib/utils";
 
 const Collection = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -21,7 +20,8 @@ const Collection = () => {
     records,
     validateRecord,
     createRecord,
-    updateRecord
+    updateRecord,
+    getRawCollectionUrl
   } = useCollection();
 
   const form = useRecordForm({ validateRecord, createRecord, updateRecord });
@@ -101,10 +101,10 @@ const Collection = () => {
                 </Button>
               </Link>
 
-              <a href={getDataUrl(slug)} target="_blank" rel="noopener noreferrer">
+              <a href={getRawCollectionUrl(slug)} target="_blank" rel="noopener noreferrer">
                 <Button variant="outline" size="sm" className="h-8 text-xs">
                   <FileJson className="mr-1 h-3.5 w-3.5" />
-                  View JSON
+                  View raw data
                 </Button>
               </a>
 

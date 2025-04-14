@@ -93,4 +93,14 @@ export class RemoteDataAdapter implements DataAdapter {
       throw error;
     }
   }
+
+  getRawDataUrl(slug: string): string {
+    if (!this.baseUrl) {
+      // If VITE_DATA_URL isn't set, we can't provide a direct link to remote raw data.
+      // Return an empty string or handle this case as appropriate for the UI.
+      console.warn('RemoteDataAdapter: VITE_DATA_URL not set, cannot generate raw data URL.');
+      return '';
+    }
+    return `${this.baseUrl}/${slug}.json`;
+  }
 }

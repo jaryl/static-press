@@ -5,13 +5,15 @@ import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Eye, Pencil, ExternalLink } from 'lucide-react';
 import { Collection } from '@/types';
-import { getDataUrl } from '@/lib/utils';
+import { useCollection } from '@/contexts/CollectionContext';
 
 interface CollectionTableProps {
   collections: Collection[];
 }
 
 export const CollectionTable: React.FC<CollectionTableProps> = ({ collections }) => {
+  const { getRawCollectionUrl } = useCollection();
+
   return (
     <Table>
       <TableHeader>
@@ -36,7 +38,7 @@ export const CollectionTable: React.FC<CollectionTableProps> = ({ collections })
             </TableCell>
             <TableCell className="text-xs font-mono py-3">
               <a
-                href={getDataUrl(collection.slug)}
+                href={getRawCollectionUrl(collection.slug)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group inline-flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors duration-150"
