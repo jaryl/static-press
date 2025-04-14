@@ -6,9 +6,9 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { InfoIcon } from "lucide-react";
 import { ExternalLink } from 'lucide-react';
 import { LogOut } from 'lucide-react';
-import Container from "@/components/common/Container";
-import { PrimaryHeader } from "@/components/common/PrimaryHeader";
-import { SecondaryHeader } from "@/components/common/SecondaryHeader";
+import Container from "@/components/layout/Container";
+import { PrimaryHeader } from "@/components/layout/PrimaryHeader";
+import { SecondaryHeader } from "@/components/layout/SecondaryHeader";
 
 const Settings = () => {
   const { user, logout } = useAuth();

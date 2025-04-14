@@ -5,7 +5,7 @@ import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Database, PlusCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CollectionSchema } from "@/services/schemaService";
-import { CollectionForm, CollectionFormData } from '@/components/common/CollectionForm';
+import { CollectionForm, CollectionFormData } from '@/components/layout/CollectionForm';
 
 interface SidebarCollectionsProps {
   isOpen: boolean;

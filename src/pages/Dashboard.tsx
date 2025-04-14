@@ -3,12 +3,12 @@ import { useCollection } from "@/contexts/CollectionContext";
 import { Button } from "@/components/ui/button";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Plus } from "lucide-react";
-import Container from '@/components/common/Container';
+import Container from '@/components/layout/Container';
 import { Spinner } from "@/components/ui/spinner";
-import { PrimaryHeader } from "@/components/common/PrimaryHeader";
-import { SecondaryHeader } from "@/components/common/SecondaryHeader";
-import NoResults from "@/components/common/NoResults";
-import { NewCollectionDialog, CollectionFormData } from '@/components/common/CollectionForm';
+import { PrimaryHeader } from "@/components/layout/PrimaryHeader";
+import { SecondaryHeader } from "@/components/layout/SecondaryHeader";
+import NoResults from "@/components/layout/NoResults";
+import { NewCollectionDialog, CollectionFormData } from '@/components/layout/CollectionForm';
 import { CollectionTable } from '@/components/dashboard/CollectionTable';
 import { Card } from "@/components/ui/card";
 

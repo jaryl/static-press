@@ -5,9 +5,9 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { SchemaForm } from "@/components/schemas/SchemaForm";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import Container from "@/components/common/Container";
-import { PrimaryHeader } from "@/components/common/PrimaryHeader";
-import { SecondaryHeader } from "@/components/common/SecondaryHeader";
+import Container from "@/components/layout/Container";
+import { PrimaryHeader } from "@/components/layout/PrimaryHeader";
+import { SecondaryHeader } from "@/components/layout/SecondaryHeader";
 
 const SchemaEditor = () => {
   const { slug } = useParams<{ slug: string }>();
