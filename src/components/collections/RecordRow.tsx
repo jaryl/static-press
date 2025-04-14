@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Edit, Trash2, Save, X } from "lucide-react";
 import { RecordData, CollectionRecord } from "@/services/collectionService";
 import { FieldDefinition, CollectionSchema } from "@/services/schemaService";
-import FieldInput from "./FieldInput";
-import FieldDisplay from "./FieldDisplay";
+import FieldInput from "./field-input";
+import FieldDisplay from "./field-display";
 import {
   AlertDialog,
   AlertDialogAction,

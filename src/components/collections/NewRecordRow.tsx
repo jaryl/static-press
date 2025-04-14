@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Save, X } from "lucide-react";
 import { FieldDefinition, CollectionSchema } from "@/services/schemaService";
 import { RecordData } from "@/services/collectionService";
-import FieldInput from "./FieldInput";
+import FieldInput from "./field-input";
 
 // Component for a new record row
 const NewRecordRow = memo(({

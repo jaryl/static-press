@@ -23,7 +23,7 @@ interface ImagePreviewProps {
 const ImagePreview = ({
   imagePath,
   showMetadata = true,
-  loadStrategy = 'remote',
+  loadStrategy,
   lazyLoad = true
 }: ImagePreviewProps) => {
   const [metadata, setMetadata] = useState<ImageMetadata>({
@@ -33,7 +33,7 @@ const ImagePreview = ({
   const [dialogOpen, setDialogOpen] = useState(false);
 
   // Use the utility function to get the full image URL
-  const imageUrl = getImageUrl(imagePath, loadStrategy);
+  const imageUrl = getImageUrl(imagePath);
 
   // Extract just the filename and extension from the path
   const getFilenameFromPath = (path: string) => {
@@ -139,7 +139,7 @@ const ImagePreview = ({
                   metadata.error && "text-destructive"
                 )}
               >
-                {loadStrategy.toUpperCase()}
+                {imageUrl.startsWith('http') ? 'REMOTE' : 'LOCAL'}
               </Badge>
               <span
                 className={cn("truncate max-w-[300px]", metadata.error && "text-destructive")}

@@ -81,20 +81,11 @@ export const generateSlug = (str: string): string => {
 };
 
 /**
- * Determines the appropriate image loading strategy based on environment variables
- * @returns 'remote' if VITE_DATA_URL is set, otherwise 'local'
- */
-export function getImageLoadStrategy(): 'local' | 'remote' {
-  return import.meta.env.VITE_DATA_URL ? 'remote' : 'local';
-}
-
-/**
  * Constructs the full image URL based on the loading strategy
  * @param imagePath The path to the image
- * @param loadStrategy The strategy to use ('local' or 'remote')
  * @returns The full URL to the image
  */
-export function getImageUrl(imagePath: string, loadStrategy: 'local' | 'remote'): string {
+export function getImageUrl(imagePath: string): string {
   if (!imagePath) return '';
 
   // If it's already a full URL, return it as is
@@ -105,7 +96,10 @@ export function getImageUrl(imagePath: string, loadStrategy: 'local' | 'remote')
   // Remove leading slash if present for consistency
   const normalizedPath = imagePath.startsWith('/') ? imagePath.substring(1) : imagePath;
 
-  if (loadStrategy === 'local') {
+  // Determine the effective strategy if not provided
+  const effectiveStrategy = import.meta.env.VITE_DATA_URL ? 'remote' : 'local';
+
+  if (effectiveStrategy === 'local') {
     // For local strategy, assume the path is relative to src/data
     return `/src/data/${normalizedPath}`;
   } else {
