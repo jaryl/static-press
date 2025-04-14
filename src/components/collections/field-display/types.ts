@@ -1,6 +1,4 @@
 import { FieldDefinition } from "@/services/schemaService";
-// Import types from the actual ImagePreview component
-export type ImageLoadStrategy = 'local' | 'remote';
 
 export interface FieldDisplayProps {
   field: FieldDefinition;

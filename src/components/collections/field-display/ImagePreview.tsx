@@ -16,12 +16,14 @@ interface ImageMetadata {
 interface ImagePreviewProps {
   imagePath: string;
   showMetadata?: boolean;
+  loadStrategy?: 'local' | 'remote';
   lazyLoad?: boolean;
 }
 
 const ImagePreview = ({
   imagePath,
   showMetadata = true,
+  loadStrategy,
   lazyLoad = true
 }: ImagePreviewProps) => {
   const [metadata, setMetadata] = useState<ImageMetadata>({
@@ -37,7 +39,7 @@ const ImagePreview = ({
   const getFilenameFromPath = (path: string) => {
     if (!path) return '';
     // Handle both URL and file path formats
-    const parts = path.split(/[\/\\]/);
+    const parts = path.split(/[/\\]/);
     return parts[parts.length - 1];
   };
 

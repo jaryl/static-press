@@ -1,8 +1,8 @@
-import React from 'react';
-import ImagePreview from '../../collections/ImagePreview';
+import React, { FC } from 'react';
+import ImagePreview from './ImagePreview';
 import { ImageFieldDisplayProps } from './types';
 
-const ImageFieldDisplay: React.FC<ImageFieldDisplayProps> = ({
+const ImageFieldDisplay: FC<ImageFieldDisplayProps> = ({
   imagePath,
   showMetadata = true,
   lazyLoad = true
