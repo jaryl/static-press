@@ -128,11 +128,11 @@ export function SchemaForm({ collection }: SchemaFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8">
+    <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
       {/* Collection Details */}
-      <div className="space-y-6">
-        <h2 className="text-base font-medium">Collection Details</h2>
-        <div className="space-y-5">
+      <div className="space-y-4 sm:space-y-6">
+        <h2 className="text-sm sm:text-base font-medium">Collection Details</h2>
+        <div className="space-y-4 sm:space-y-5">
           <div>
             <Label htmlFor="name" className="text-xs cursor-pointer mb-2 block">Name</Label>
             <Input
@@ -183,16 +183,16 @@ export function SchemaForm({ collection }: SchemaFormProps) {
         onAddField={handleAddField}
       />
 
-      <div className="flex justify-end pt-4">
+      <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:gap-0 pt-3 sm:pt-4">
         <Button
           type="button"
           variant="outline"
-          className="mr-2"
+          className="sm:mr-2"
           onClick={() => navigate(`/collections/${schema.id}`)}
         >
           Cancel
         </Button>
-        <Button type="submit">Save Schema</Button>
+        <Button type="submit" className="mb-1 sm:mb-0">Save Schema</Button>
       </div>
     </form>
   );

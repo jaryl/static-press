@@ -83,7 +83,7 @@ const SchemaEditor = () => {
         </SecondaryHeader>
 
         <div className="flex-1 overflow-auto">
-          <div className="container max-w-7xl mx-auto py-6">
+          <div className="container max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
             <SchemaForm
               collection={{
                 id: currentCollection.slug,

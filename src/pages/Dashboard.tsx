@@ -73,7 +73,7 @@ const Dashboard = () => {
             <Spinner />
           </div>
         ) : filteredCollections.length > 0 ? (
-          <Card className="bg-card border-border overflow-hidden shadow-sm m-6">
+          <Card className="bg-card border-border overflow-hidden shadow-sm mx-3 my-4 sm:m-6">
             <CollectionTable collections={filteredCollections} />
           </Card>
         ) : searchTerm ? (

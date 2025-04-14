@@ -9,15 +9,31 @@ import SidebarNavLinks from './SidebarNavLinks';
 import SidebarCollections from './SidebarCollections';
 import SidebarFooter from './SidebarFooter';
 
+// Key for storing sidebar state in localStorage
+const SIDEBAR_STATE_KEY = 'static-press-sidebar-open';
+
 export function Sidebar() {
   const { collections, fetchCollections, createCollection } = useCollection();
   const { logout } = useAuth();
-  const [isOpen, setIsOpen] = useState(true);
+  // Initialize from localStorage, defaulting to true if not found
+  const [isOpen, setIsOpen] = useState(() => {
+    // Only access localStorage after component mounts (to avoid SSR issues)
+    if (typeof window !== 'undefined') {
+      const savedState = localStorage.getItem(SIDEBAR_STATE_KEY);
+      return savedState === null ? true : savedState === 'true';
+    }
+    return true;
+  });
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     fetchCollections();
   }, [fetchCollections]);
+
+  // Save sidebar state to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem(SIDEBAR_STATE_KEY, String(isOpen));
+  }, [isOpen]);
 
   const handleToggleSidebar = () => {
     setIsOpen(!isOpen);

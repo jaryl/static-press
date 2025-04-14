@@ -104,7 +104,7 @@ const Collection = () => {
               <a href={getRawCollectionUrl(slug)} target="_blank" rel="noopener noreferrer">
                 <Button variant="outline" size="sm" className="h-8 text-xs">
                   <FileJson className="mr-1 h-3.5 w-3.5" />
-                  View raw data
+                  View JSON
                 </Button>
               </a>
 

@@ -18,25 +18,25 @@ export const CollectionTable: React.FC<CollectionTableProps> = ({ collections })
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead className="w-[70%]">Name</TableHead>
-          <TableHead className="w-[30%]">Slug</TableHead>
-          <TableHead className="w-[20%] text-right">Actions</TableHead>
+          <TableHead className="w-[60%] sm:w-[70%] px-3 sm:px-4">Name</TableHead>
+          <TableHead className="hidden sm:table-cell w-[30%] px-3 sm:px-4">Slug</TableHead>
+          <TableHead className="w-[40%] sm:w-[20%] text-right px-3 sm:px-4">Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {collections.map((collection) => (
           <TableRow key={collection.slug}>
-            <TableCell className="font-medium py-3">
+            <TableCell className="font-medium py-2 sm:py-3 px-3 sm:px-4">
               <div className="flex flex-col">
                 <Link to={`/collections/${collection.slug}`} className="hover:underline text-sm">
                   {collection.name}
                 </Link>
-                <span className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
+                <span className="text-xs text-muted-foreground mt-0.5 line-clamp-1 pr-2">
                   {collection.description || 'No description'}
                 </span>
               </div>
             </TableCell>
-            <TableCell className="text-xs font-mono py-3">
+            <TableCell className="hidden sm:table-cell text-xs font-mono py-2 sm:py-3 px-3 sm:px-4">
               <a
                 href={getRawCollectionUrl(collection.slug)}
                 target="_blank"
@@ -47,7 +47,7 @@ export const CollectionTable: React.FC<CollectionTableProps> = ({ collections })
                 <ExternalLink className="h-3 w-3" />
               </a>
             </TableCell>
-            <TableCell className="text-right">
+            <TableCell className="text-right py-2 sm:py-3 px-3 sm:px-4">
               <TooltipProvider delayDuration={200}>
                 <div className="flex items-center justify-end space-x-1">
                   <Tooltip>
