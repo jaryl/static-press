@@ -6,7 +6,7 @@ import BooleanInput from './BooleanInput';
 import SelectInput from './SelectInput';
 import ImageInput from './ImageInput';
 import CoordinateInput from './CoordinateInput';
-import ArrayInput from './ArrayInput';
+import ArrayInput from './array-input';
 import { FieldInputProps } from './types';
 
 const FieldInput: React.FC<FieldInputProps> = ({ field, value, onChange }) => {
