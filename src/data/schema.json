@@ -27,6 +27,18 @@
         "name": "productImage",
         "type": "image",
         "required": false
+      },
+      {
+        "id": "1-5",
+        "name": "thumbnailImage",
+        "type": "image",
+        "required": false
+      },
+      {
+        "id": "1-6",
+        "name": "tags",
+        "type": "array",
+        "required": false
       }
     ],
     "createdAt": "2023-12-10T15:30:00Z",
@@ -104,6 +116,12 @@
         "id": "3-7",
         "name": "thumbnailImage",
         "type": "image",
+        "required": false
+      },
+      {
+        "id": "3-8",
+        "name": "tags",
+        "type": "array",
         "required": false
       }
     ],

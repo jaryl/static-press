@@ -8,7 +8,12 @@
       "publishDate": "2024-01-20",
       "featured": true,
       "featuredImage": "/images/blog/react-featured.jpg",
-      "thumbnailImage": "/images/blog/react-thumbnail.jpg"
+      "thumbnailImage": "/images/blog/react-thumbnail.jpg",
+      "tags": [
+        "React",
+        "JavaScript",
+        "Front-end"
+      ]
     },
     "createdAt": "2024-01-20T08:30:00Z",
     "updatedAt": "2024-01-20T08:30:00Z"
@@ -22,7 +27,12 @@
       "publishDate": "2024-01-25",
       "featured": false,
       "featuredImage": "/images/blog/typescript-featured.jpg",
-      "thumbnailImage": "/images/blog/typescript-thumbnail.jpg"
+      "thumbnailImage": "/images/blog/typescript-thumbnail.jpg",
+      "tags": [
+        "TypeScript",
+        "JavaScript",
+        "Development"
+      ]
     },
     "createdAt": "2024-01-25T09:45:00Z",
     "updatedAt": "2024-01-25T09:45:00Z"
@@ -36,7 +46,12 @@
       "publishDate": "2024-02-05",
       "featured": true,
       "featuredImage": "/images/blog/css-grid-featured.jpg",
-      "thumbnailImage": "/images/blog/css-grid-thumbnail.jpg"
+      "thumbnailImage": "/images/blog/css-grid-thumbnail.jpg",
+      "tags": [
+        "CSS",
+        "Grid",
+        "Layout"
+      ]
     },
     "createdAt": "2024-02-05T11:20:00Z",
     "updatedAt": "2024-02-05T11:20:00Z"
