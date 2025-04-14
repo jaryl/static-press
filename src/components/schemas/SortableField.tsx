@@ -10,7 +10,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
 // Available field types - consider moving to a shared constants file if used elsewhere
-const FIELD_TYPES: Field['type'][] = ['text', 'number', 'boolean', 'date', 'datetime', 'email', 'url', 'select', 'image', 'array'];
+const FIELD_TYPES: Field['type'][] = ['text', 'number', 'boolean', 'date', 'datetime', 'email', 'url', 'select', 'image', 'array', 'coordinates'];
 
 export interface SortableFieldProps {
   field: Field;

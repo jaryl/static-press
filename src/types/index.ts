@@ -1,10 +1,24 @@
+// Define available field types
+export type FieldType =
+  | 'text'
+  | 'number'
+  | 'boolean'
+  | 'date'
+  | 'datetime'
+  | 'email'
+  | 'url'
+  | 'select'
+  | 'image'
+  | 'array'
+  | 'coordinates';
+
 export interface Field {
   id: string;
   name: string;
-  type: 'text' | 'number' | 'boolean' | 'date' | 'datetime' | 'email' | 'url' | 'select' | 'image' | 'array';
+  type: FieldType;
   required: boolean;
   options?: string[];
-  timezoneAware?: boolean; // Added for datetime fields
+  timezoneAware?: boolean;
 }
 
 export interface Collection {

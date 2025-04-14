@@ -4,7 +4,7 @@ import { createDataAdapter } from './adapters';
 export interface FieldDefinition {
   id: string;
   name: string;
-  type: 'text' | 'number' | 'boolean' | 'date' | 'datetime' | 'email' | 'url' | 'select' | 'image' | 'array';
+  type: 'text' | 'number' | 'boolean' | 'date' | 'datetime' | 'email' | 'url' | 'select' | 'image' | 'array' | 'coordinates';
   required: boolean;
   options?: string[]; // For select field types
   timezoneAware?: boolean; // For datetime fields

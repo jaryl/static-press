@@ -2,7 +2,7 @@ import { memo, useState, useRef, useEffect } from "react";
 import { FieldDefinition } from "@/services/schemaService";
 import ImagePreview from "./ImagePreview";
 import { getImageLoadStrategy } from "@/lib/utils";
-import { List } from 'lucide-react';
+import { List, MapPin } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -136,6 +136,35 @@ const ArrayFieldDisplay = ({ field, value }: { field: FieldDefinition; value: an
   );
 };
 
+// Component for displaying coordinate fields
+const CoordinateFieldDisplay = ({ value }: { value: any }) => {
+  if (typeof value === 'object' && value !== null && typeof value.lat === 'number' && typeof value.lng === 'number') {
+    // Construct Google Maps URL
+    // Using q=lat,lng should work well for prompting OS map apps
+    const mapUrl = `https://maps.google.com/?q=${value.lat},${value.lng}`;
+
+    return (
+      <a
+        href={mapUrl}
+        target="_blank" // Open in new tab
+        rel="noopener noreferrer" // Security measure
+        title={`View on Map: ${value.lat}, ${value.lng}`}
+        className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground cursor-pointer transition-colors duration-150"
+      >
+        <MapPin className="h-3.5 w-3.5 flex-shrink-0" /> {/* Color inherited from parent <a> */}
+        {value.lat.toFixed(6)}, {value.lng.toFixed(6)}
+      </a>
+    );
+  }
+  // Handle null or undefined value gracefully (e.g., for the 'Online' event)
+  if (value === null || value === undefined) {
+    return <span className="text-muted-foreground text-xs italic">N/A</span>;
+  }
+
+  // Invalid or empty format
+  return <span className="text-red-500 text-xs italic">Invalid Coordinates</span>;
+};
+
 // --- Main Component --- //
 
 // Component to format a field value for display
@@ -162,10 +191,10 @@ const FieldDisplay = memo(({
     case 'image':
       return <ImagePreview imagePath={String(value)} showMetadata={true} loadStrategy={loadStrategy} lazyLoad={true} />;
     case 'array':
-      // Use the dedicated component
       return <ArrayFieldDisplay field={field} value={value} />;
+    case 'coordinates':
+      return <CoordinateFieldDisplay value={value} />;
     default:
-      // Use the helper component for default text display
       return <TruncatedTextWithTooltip text={String(value)} />;
   }
 });

@@ -124,8 +124,8 @@
       {
         "id": "4-2",
         "name": "location",
-        "type": "text",
-        "required": true
+        "type": "coordinates",
+        "required": false
       },
       {
         "id": "4-3",
