@@ -13,7 +13,7 @@ interface SidebarNavLinksProps {
   isOpen: boolean;
 }
 
-export function SidebarNavLinks({ isOpen }: SidebarNavLinksProps) {
+export default function SidebarNavLinks({ isOpen }: SidebarNavLinksProps) {
   const location = useLocation();
 
   const sidebarLinks: NavLink[] = [

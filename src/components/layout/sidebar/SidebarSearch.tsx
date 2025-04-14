@@ -6,7 +6,7 @@ interface SidebarSearchProps {
   onSearchChange: (value: string) => void;
 }
 
-export function SidebarSearch({ searchTerm, onSearchChange }: SidebarSearchProps) {
+export default function SidebarSearch({ searchTerm, onSearchChange }: SidebarSearchProps) {
   return (
     <div className="px-3 pb-4">
       <div className="relative flex items-center">

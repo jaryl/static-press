@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useCollection } from "@/contexts/CollectionContext";
 import { Button } from "@/components/ui/button";
-import { Sidebar } from "@/components/layout/Sidebar";
+import { Sidebar } from "@/components/layout/sidebar";
 import { Plus } from "lucide-react";
 import Container from '@/components/common/Container';
 import { Spinner } from "@/components/ui/spinner";

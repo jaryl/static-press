@@ -13,7 +13,7 @@ interface SidebarCollectionsProps {
   createCollection: (collection: Omit<CollectionSchema, "id" | "createdAt" | "updatedAt">) => Promise<CollectionSchema>;
 }
 
-export function SidebarCollections({ isOpen, collections, createCollection }: SidebarCollectionsProps) {
+export default function SidebarCollections({ isOpen, collections, createCollection }: SidebarCollectionsProps) {
   const [isNewCollectionOpen, setIsNewCollectionOpen] = useState(false);
   const location = useLocation();
 

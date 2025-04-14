@@ -1,7 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useRef } from "react";
 import { useCollection } from "@/contexts/CollectionContext";
-import { Sidebar } from "@/components/layout/Sidebar";
+import { Sidebar } from "@/components/layout/sidebar";
 import Container from "@/components/common/Container";
 import CollectionErrorBoundary from "@/components/collections/CollectionErrorBoundary";
 import CollectionContent from "@/components/collections/CollectionContent";

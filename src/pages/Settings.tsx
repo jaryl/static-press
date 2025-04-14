@@ -1,5 +1,5 @@
 import { useAuth } from "@/contexts/AuthContext";
-import { Sidebar } from "@/components/layout/Sidebar";
+import { Sidebar } from "@/components/layout/sidebar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";

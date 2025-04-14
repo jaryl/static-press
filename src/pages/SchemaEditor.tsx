@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useCollection } from "@/contexts/CollectionContext";
-import { Sidebar } from "@/components/layout/Sidebar";
+import { Sidebar } from "@/components/layout/sidebar";
 import { SchemaForm } from "@/components/schemas/SchemaForm";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";

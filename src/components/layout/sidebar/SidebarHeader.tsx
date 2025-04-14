@@ -7,7 +7,7 @@ interface SidebarHeaderProps {
   onToggle: () => void;
 }
 
-export function SidebarHeader({ isOpen, onToggle }: SidebarHeaderProps) {
+export default function SidebarHeader({ isOpen, onToggle }: SidebarHeaderProps) {
   // Expanded view
   if (isOpen) {
     return (

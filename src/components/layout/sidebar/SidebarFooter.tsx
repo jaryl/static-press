@@ -7,7 +7,7 @@ interface SidebarFooterProps {
   onLogout: () => void;
 }
 
-export function SidebarFooter({ isOpen, onLogout }: SidebarFooterProps) {
+export default function SidebarFooter({ isOpen, onLogout }: SidebarFooterProps) {
   return (
     <div className={`mt-auto p-2 flex ${isOpen ? 'justify-between' : 'justify-center'}`}>
       <Link to="/settings">

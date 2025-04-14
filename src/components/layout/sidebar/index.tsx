@@ -3,11 +3,11 @@ import { useCollection } from "@/contexts/CollectionContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { SidebarHeader } from "./SidebarHeader";
-import { SidebarSearch } from "./SidebarSearch";
-import { SidebarNavLinks } from "./SidebarNavLinks";
-import { SidebarCollections } from "./SidebarCollections";
-import { SidebarFooter } from "./SidebarFooter";
+import SidebarHeader from './SidebarHeader';
+import SidebarSearch from './SidebarSearch';
+import SidebarNavLinks from './SidebarNavLinks';
+import SidebarCollections from './SidebarCollections';
+import SidebarFooter from './SidebarFooter';
 
 export function Sidebar() {
   const { collections, fetchCollections, createCollection } = useCollection();
@@ -37,7 +37,7 @@ export function Sidebar() {
       <Separator className="bg-border/50" />
 
       <ScrollArea className="flex-1">
-        <div className="py-2 flex flex-col justify-between">
+        <div className="py-2 flex flex-col justify-start h-full">
           <SidebarNavLinks isOpen={isOpen} />
 
           <SidebarCollections
@@ -50,7 +50,7 @@ export function Sidebar() {
 
       <Separator className="bg-border/50" />
 
-      <SidebarFooter isOpen={isOpen} onLogout={logout} />
+      {isOpen && <SidebarFooter isOpen={isOpen} onLogout={logout} />}
     </div>
   );
 }
