@@ -11,7 +11,6 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Plus, Lock } from 'lucide-react';
-import { CollectionSchema } from '@/services/collectionService';
 import { generateSlug } from '@/lib/utils';
 
 export interface CollectionFormData {
