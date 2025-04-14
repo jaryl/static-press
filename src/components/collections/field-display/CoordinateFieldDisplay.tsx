@@ -11,9 +11,9 @@ const CoordinateFieldDisplay: React.FC<CoordinateFieldDisplayProps> = ({ value }
         href={`https://www.google.com/maps/search/?api=1&query=${value.lat},${value.lng}`}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 hover:underline"
+        className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors"
       >
-        <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
+        <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground group-hover:text-foreground" />
         {value.lat.toFixed(6)}, {value.lng.toFixed(6)}
       </a>
     );

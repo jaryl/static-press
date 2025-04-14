@@ -21,7 +21,7 @@ const NewRecordRow = memo(({
   onCancel: () => void;
 }) => {
   return (
-    <TableRow className="bg-primary/5">
+    <TableRow className="bg-secondary">
       {collection.fields.map((field) => (
         <TableCell key={`new-${field.id}`} className="text-xs p-2">
           <FieldInput
@@ -31,7 +31,7 @@ const NewRecordRow = memo(({
           />
         </TableCell>
       ))}
-      <TableCell className="text-right space-x-1 p-2">
+      <TableCell className="text-right space-x-1 p-2 sticky right-0 z-10 bg-secondary">
         <Button
           size="sm"
           variant="ghost"

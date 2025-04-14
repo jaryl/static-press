@@ -1,5 +1,5 @@
 import React from 'react';
-import DataDisplayModal from '@/components/ui/DataDisplayModal';
+import DataDisplayModal from './DataDisplayModal';
 import { Button } from '@/components/ui/button';
 import { Maximize2 } from 'lucide-react';
 import {

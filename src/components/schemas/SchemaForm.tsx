@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Collection, Field } from "@/types";
 import { useCollection } from "@/contexts/CollectionContext";
-import { Plus, Lock } from "lucide-react";
+import { Lock, ClipboardList } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
@@ -129,9 +129,11 @@ export function SchemaForm({ collection }: SchemaFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
-      {/* Collection Details */}
       <div className="space-y-4 sm:space-y-6">
-        <h2 className="text-sm sm:text-base font-medium">Collection Details</h2>
+        <h2 className="text-sm sm:text-base font-medium flex items-center gap-2">
+          <ClipboardList className="h-4 w-4 text-primary" />
+          Collection Details
+        </h2>
         <div className="space-y-4 sm:space-y-5">
           <div>
             <Label htmlFor="name" className="text-xs cursor-pointer mb-2 block">Name</Label>
@@ -183,16 +185,16 @@ export function SchemaForm({ collection }: SchemaFormProps) {
         onAddField={handleAddField}
       />
 
-      <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:gap-0 pt-3 sm:pt-4">
+      <div className="flex flex-row justify-end gap-2 pt-3 sm:pt-4">
         <Button
           type="button"
           variant="outline"
-          className="sm:mr-2"
+          className="mr-2"
           onClick={() => navigate(`/collections/${schema.id}`)}
         >
           Cancel
         </Button>
-        <Button type="submit" className="mb-1 sm:mb-0">Save Schema</Button>
+        <Button type="submit">Save Schema</Button>
       </div>
     </form>
   );

@@ -3,14 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { Plus, Lock } from 'lucide-react';
+import StandardDialog from '@/components/ui/standard-dialog';
+import { Plus, Lock, Database } from 'lucide-react';
 import { generateSlug } from '@/lib/utils';
 
 export interface CollectionFormData {
@@ -109,15 +103,16 @@ export const CollectionForm: React.FC<CollectionFormProps> = ({
 
   // Otherwise, wrap in a dialog
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      {triggerButton && <DialogTrigger asChild>{triggerButton}</DialogTrigger>}
-      <DialogContent className="bg-card border-border">
-        <DialogHeader>
-          <DialogTitle className="text-base">{title}</DialogTitle>
-        </DialogHeader>
-        {formContent}
-      </DialogContent>
-    </Dialog>
+    <StandardDialog
+      open={isOpen}
+      onOpenChange={onOpenChange}
+      trigger={triggerButton}
+      title={title}
+      icon={Database}
+      maxWidth="sm"
+    >
+      {formContent}
+    </StandardDialog>
   );
 };
 

@@ -3,15 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { MapPin } from 'lucide-react';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import StandardDialog from "@/components/ui/standard-dialog";
 import { FieldInputProps } from "./types";
 
 const CoordinateInput = ({ field, value, onChange }: FieldInputProps) => {
@@ -61,28 +53,41 @@ const CoordinateInput = ({ field, value, onChange }: FieldInputProps) => {
     }
   };
 
+  // Create the trigger element
+  const trigger = (
+    <Button variant="outline" size="sm" className="text-xs h-8 w-full justify-start font-normal">
+      {lat !== '' && lng !== '' ? (
+        <span className="inline-flex items-center gap-1">
+          <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" />
+          {`${Number(lat).toFixed(6)}, ${Number(lng).toFixed(6)}`}
+        </span>
+      ) : (
+        "Set Coordinates"
+      )}
+    </Button>
+  );
+
+  // Create the footer buttons
+  const footer = (
+    <>
+      <Button variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
+      <Button type="button" onClick={handleSave}>Save Changes</Button>
+    </>
+  );
+
   return (
-    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="text-xs h-8 w-full justify-start font-normal">
-          {lat !== '' && lng !== '' ? (
-            <span className="inline-flex items-center gap-1">
-              <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" />
-              {`${Number(lat).toFixed(6)}, ${Number(lng).toFixed(6)}`}
-            </span>
-          ) : (
-            "Set Coordinates"
-          )}
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Edit Coordinates</DialogTitle>
-          <DialogDescription>
-            Enter the latitude and longitude values.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="space-y-1">
+    <StandardDialog
+      trigger={trigger}
+      title="Edit Coordinates"
+      description="Enter the latitude and longitude values."
+      icon={MapPin}
+      footer={footer}
+      open={isOpen}
+      onOpenChange={handleOpenChange}
+      maxWidth="sm"
+    >
+      <div className="flex flex-col space-y-4">
+        <div className="space-y-2">
           <Label htmlFor={`${field.id}-lat-dialog`} className="text-xs">
             Latitude
           </Label>
@@ -94,7 +99,7 @@ const CoordinateInput = ({ field, value, onChange }: FieldInputProps) => {
             placeholder="e.g., 40.7128"
           />
         </div>
-        <div className="space-y-1">
+        <div className="space-y-2">
           <Label htmlFor={`${field.id}-lng-dialog`} className="text-xs">
             Longitude
           </Label>
@@ -106,12 +111,8 @@ const CoordinateInput = ({ field, value, onChange }: FieldInputProps) => {
             placeholder="e.g., -74.0060"
           />
         </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
-          <Button type="button" onClick={handleSave}>Save Changes</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </StandardDialog>
   );
 };
 

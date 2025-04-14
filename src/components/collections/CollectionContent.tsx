@@ -8,7 +8,7 @@ import RecordRow from "./RecordRow";
 import NewRecordRow from "./NewRecordRow";
 import EmptyState from "@/components/layout/EmptyState";
 import NoResults from "@/components/layout/NoResults";
-import ErrorDisplay from "@/components/ui/ErrorDisplay";
+import ErrorDisplay from "@/components/layout/ErrorDisplay";
 import { CollectionRecord, RecordData } from "@/services/collectionService";
 import { FieldDefinition, CollectionSchema } from "@/services/schemaService";
 
