@@ -7,6 +7,8 @@ const storageAdapter = createStorageAdapter();
 let recordsCache: Record<string, CollectionRecord[]> = {};
 
 export const collectionService = {
+  adapter: storageAdapter,
+
   async getCollectionRecords(slug: string): Promise<CollectionRecord[]> {
     const collectionExists = await schemaService.getCollection(slug);
     if (!collectionExists) {
@@ -83,16 +85,29 @@ export const collectionService = {
     await storageAdapter.saveCollectionData(slug, recordsCache[slug]);
   },
 
+  /**
+   * Gets the raw data URL for a collection
+   * @param slug The collection slug
+   * @returns The URL to the raw JSON data
+   */
   getRawCollectionDataUrl(slug: string): string {
-    return storageAdapter.getRawDataUrl(slug);
+    return this.adapter.getRawDataUrl(slug);
   },
 
   /**
-   * Gets the full URL for an image path based on the current storage adapter's strategy
+   * Gets the full URL for an image path based on the active adapter's storage strategy
    * @param imagePath The path to the image
-   * @returns The full URL to the image
+   * @returns The full URL to the image (may be a Promise if using local storage)
    */
-  getImageUrl(imagePath: string): string {
-    return storageAdapter.getImageUrl(imagePath);
+  getImageUrl(imagePath: string): string | Promise<string> {
+    return this.adapter.getImageUrl(imagePath);
+  },
+
+  /**
+   * Checks if the active adapter is using remote storage
+   * @returns True if using remote storage, false if using local storage
+   */
+  isRemoteStorage(): boolean {
+    return this.adapter.isRemoteStorage();
   }
 };

@@ -31,9 +31,9 @@ const ImagePreview = ({
     error: false
   });
   const [dialogOpen, setDialogOpen] = useState(false);
-
-  // Use the collection service to get the full image URL
-  const imageUrl = collectionService.getImageUrl(imagePath);
+  const [imageUrl, setImageUrl] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(true);
+  const isRemote = collectionService.isRemoteStorage();
 
   // Extract just the filename and extension from the path
   const getFilenameFromPath = (path: string) => {
@@ -45,9 +45,43 @@ const ImagePreview = ({
 
   const filename = getFilenameFromPath(imagePath);
 
+  // Load the image URL when the component mounts or imagePath changes
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadImageUrl = async () => {
+      if (!imagePath) {
+        setImageUrl('');
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        const url = await collectionService.getImageUrl(imagePath);
+        if (isMounted) {
+          setImageUrl(url);
+          setIsLoading(false);
+        }
+      } catch (error) {
+        console.error('Error loading image URL:', error);
+        if (isMounted) {
+          setImageUrl('');
+          setIsLoading(false);
+        }
+      }
+    };
+
+    loadImageUrl();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [imagePath]);
+
   // Load image metadata only when the dialog is opened or lazyLoad is false
   useEffect(() => {
-    if (!imagePath || (lazyLoad && !dialogOpen)) return;
+    if (!imagePath || !imageUrl || (lazyLoad && !dialogOpen) || isLoading) return;
 
     const img = new Image();
     img.onload = () => {
@@ -70,7 +104,7 @@ const ImagePreview = ({
       img.onload = null;
       img.onerror = null;
     };
-  }, [imagePath, imageUrl, dialogOpen, lazyLoad]);
+  }, [imagePath, imageUrl, dialogOpen, lazyLoad, isLoading]);
 
   // Create trigger element
   const trigger = (
@@ -110,7 +144,7 @@ const ImagePreview = ({
             metadata.error && "text-destructive"
           )}
         >
-          {imageUrl.startsWith('http') ? 'REMOTE' : 'LOCAL'}
+          {isRemote ? 'REMOTE' : 'LOCAL'}
         </Badge>
         <span
           className={cn("truncate max-w-[300px] text-xs", metadata.error && "text-destructive")}
@@ -124,7 +158,7 @@ const ImagePreview = ({
           </>
         )}
       </div>
-      {!metadata.error && (
+      {!metadata.error && imageUrl && (
         <Button
           variant="ghost"
           size="sm"
@@ -149,8 +183,16 @@ const ImagePreview = ({
       maxWidth="xl"
       className="p-0 overflow-hidden"
     >
-      {/* Image container or error state */}
-      {metadata.error ? (
+      {/* Loading state */}
+      {isLoading ? (
+        <div className="flex flex-col items-center justify-center px-6 py-12">
+          <div className="bg-muted/20 p-4 rounded-full mb-4 animate-pulse">
+            <ImageIcon className="h-10 w-10 text-muted/70" />
+          </div>
+          <h3 className="text-base font-medium mb-2">Loading image...</h3>
+        </div>
+      ) : metadata.error || !imageUrl ? (
+        /* Error state */
         <div className="flex flex-col items-center justify-center px-6 py-12">
           <div className="bg-destructive/10 p-4 rounded-full mb-4">
             <ImageOff className="h-10 w-10 text-destructive/70" />
@@ -161,6 +203,7 @@ const ImagePreview = ({
           </p>
         </div>
       ) : (
+        /* Image display */
         <div className="flex items-center justify-center bg-black/5">
           <img
             src={imageUrl}

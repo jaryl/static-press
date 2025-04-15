@@ -20,4 +20,6 @@ export default defineConfig(({ mode }) => ({
       "@sample": path.resolve(__dirname, "./sample"),
     },
   },
+  // Configure how assets are handled
+  assetsInclude: ['**/*.jpg', '**/*.png', '**/*.gif', '**/*.svg'],
 }));

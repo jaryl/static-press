@@ -11,16 +11,22 @@ export interface StorageAdapter {
   getCollectionData(slug: string): Promise<CollectionRecord[]>;
 
   // Write operations
-  saveCollectionData(slug: string, data: CollectionRecord[]): Promise<void>;
   updateSchema(schemaData: CollectionSchema[]): Promise<void>;
+  saveCollectionData(slug: string, records: CollectionRecord[]): Promise<void>;
 
-  // Utility methods
+  // URL operations
   getRawDataUrl(slug: string): string;
 
   /**
-   * Gets the full URL for an image path based on the adapter's storage strategy
+   * Gets the full URL for an image path based on the storage strategy
    * @param imagePath The path to the image
    * @returns The full URL to the image
    */
-  getImageUrl(imagePath: string): string;
+  getImageUrl(imagePath: string): string | Promise<string>;
+
+  /**
+   * Checks if the adapter is using remote storage
+   * @returns True if the adapter is using remote storage, false otherwise
+   */
+  isRemoteStorage(): boolean;
 }

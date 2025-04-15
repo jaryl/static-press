@@ -184,4 +184,12 @@ export class ApiStorageAdapter implements StorageAdapter {
     // Construct the image URL using the base URL and the images directory
     return `${baseUrlWithoutData}/images/${normalizedPath}`;
   }
+
+  /**
+   * Checks if the adapter is using remote storage
+   * @returns True if the adapter has a valid baseUrl, false otherwise
+   */
+  isRemoteStorage(): boolean {
+    return !!this.baseUrl;
+  }
 }

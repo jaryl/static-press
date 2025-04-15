@@ -1,6 +1,7 @@
 import type { StorageAdapter } from './StorageAdapter';
 import type { CollectionSchema } from '../../shared/types/schema';
 import type { CollectionRecord } from '../../shared/types/collection';
+import { importImage } from '@/lib/imageLoader';
 
 const validFieldTypes = [
   'text', 'number', 'boolean', 'date', 'datetime',
@@ -99,9 +100,9 @@ export class LocalStorageAdapter implements StorageAdapter {
   /**
    * Gets the full URL for an image path based on the local storage strategy
    * @param imagePath The path to the image
-   * @returns The full URL to the image
+   * @returns A promise that resolves to the image URL
    */
-  getImageUrl(imagePath: string): string {
+  async getImageUrl(imagePath: string): Promise<string> {
     if (!imagePath) {
       return '';
     }
@@ -109,7 +110,20 @@ export class LocalStorageAdapter implements StorageAdapter {
     // Remove leading slash if present for consistency
     const normalizedPath = imagePath.startsWith('/') ? imagePath.substring(1) : imagePath;
 
-    // For local strategy, assume the path is relative to the sample/images directory
-    return `/sample/images/${normalizedPath}`;
+    // For local strategy, use the dynamic import mechanism
+    try {
+      return await importImage(normalizedPath);
+    } catch (error) {
+      console.error(`[LocalStorageAdapter] Failed to load image: ${normalizedPath}`, error);
+      return '';
+    }
+  }
+
+  /**
+   * Checks if the adapter is using remote storage
+   * @returns Always false for LocalStorageAdapter
+   */
+  isRemoteStorage(): boolean {
+    return false;
   }
 }
