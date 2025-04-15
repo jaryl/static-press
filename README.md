@@ -1,56 +1,38 @@
-# Welcome to your Lovable project
+# Static Press
 
-## Project info
+A modern headless CMS with a clean React UI and serverless API functions.
 
-**URL**: https://lovable.dev/projects/240e7548-79c3-4c92-82ac-7063af19deb2
+## Features
 
-## How can I edit this code?
+- React-based admin interface with Tailwind CSS and shadcn/ui
+- Serverless API functions for schema and collection management
+- S3 storage backend for data persistence
+- Responsive table interface with horizontal scrolling support
+- DigitalOcean App Platform deployment support
 
-There are several ways of editing your application.
+## Getting Started
 
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/240e7548-79c3-4c92-82ac-7063af19deb2) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Prerequisites
 
 The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
 
-Follow these steps:
+### Installation
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+# Step 1: Clone the repository
+git clone https://github.com/jaryl/static-press.git
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# Step 2: Navigate to the project directory
+cd static-press
 
-# Step 3: Install the necessary dependencies.
-npm i
+# Step 3: Install the necessary dependencies
+npm install
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Step 4: Start the development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
+## Project Structure
 
 This project is built with:
 
@@ -59,14 +41,14 @@ This project is built with:
 - React
 - shadcn-ui
 - Tailwind CSS
+- Express.js (development server)
+- DigitalOcean Functions (production)
 
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/240e7548-79c3-4c92-82ac-7063af19deb2) and click on Share -> Publish.
+## Deployment Options
 
 ### Deploy to DigitalOcean
 
-You can also deploy this project to DigitalOcean App Platform with a single click:
+You can deploy this project to DigitalOcean App Platform with a single click:
 
 [![Deploy to DO](https://www.deploytodo.com/do-btn-blue.svg)](https://cloud.digitalocean.com/apps/new?repo=https://github.com/jaryl/static-press/tree/main&refcode=3eb491dbdfc1)
 
@@ -75,10 +57,6 @@ This will:
 - Deploy the serverless functions for API endpoints
 - Prompt you to configure your S3 credentials
 
-## Can I connect a custom domain to my Lovable project?
+## License
 
-Yes it is!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+This project is licensed under the GNU General Public License v3.0 - see the LICENSE file for details.
