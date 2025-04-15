@@ -1,6 +1,6 @@
 <div align="center">
   <h1>Static Press</h1>
-  <p>A modern headless CMS with a clean React UI and serverless API functions</p>
+  <p>A modern headless CMS that deploys as a static site - no traditional backend required</p>
 
   <p>
     <a href="https://github.com/jaryl/static-press/blob/main/LICENSE">
@@ -9,8 +9,33 @@
     <a href="https://cloud.digitalocean.com/apps/new?repo=https://github.com/jaryl/static-press/tree/main&refcode=3eb491dbdfc1">
       <img src="https://img.shields.io/badge/DigitalOcean-Deploy-0080FF?logo=digitalocean" alt="Deploy to DigitalOcean">
     </a>
+    <small><i>(Referral link - supports project development)</i></small>
   </p>
 </div>
+
+## Why Static Press?
+
+Traditional content management systems typically require a backend server with a database, leading to ongoing hosting costs and maintenance overhead. Static Press takes a different approach:
+
+- **Cost-Effective**: Deploy as a static site with serverless functions - pay only for what you use
+- **Simple Architecture**: Uses S3-compatible storage instead of traditional databases
+- **Non-Technical User Friendly**: Clean, intuitive interface for content editors
+- **Perfect For**: Marketing sites, corporate websites, and other content-focused sites that need occasional updates
+
+Static Press is designed for teams who need a lightweight CMS solution for mostly static websites that require periodic content updates by non-technical users, without the complexity and cost of traditional CMS platforms.
+
+## Static Press vs Headless CMS or Static Site Generators
+
+**Static Site Generators** (like Gatsby, Hugo, Jekyll) build websites at deploy time, converting source files into static HTML, CSS, and JavaScript. They're great for developers but typically lack user-friendly interfaces for content editors.
+
+**Traditional Headless CMS** platforms (like Contentful, Strapi) provide content management interfaces and APIs but still require running and maintaining backend servers and databases, which means ongoing infrastructure costs.
+
+**Static Press** takes a different approach:
+- **Complementary to Static Site Generators**: Static Press manages content as JSON files that can be consumed by any static site generator
+- **Like Headless CMS**: Provides a user-friendly interface for non-technical users to manage content
+- **Unlike Traditional CMS**: Uses serverless functions and S3 storage for content management operations, eliminating the need for always-on servers while maintaining content editing capabilities
+
+This approach gives you the flexibility to use your preferred static site generator while providing a simple, cost-effective way for non-technical users to manage content without the overhead of traditional server infrastructure.
 
 ## ✨ Features
 
@@ -28,6 +53,8 @@
 - [Environment Variables](#-environment-variables)
 - [Contributing](#-contributing)
 - [License](#-license)
+- [Integration Examples](#-integration-examples)
+- [Acknowledgements](#-acknowledgements)
 
 ## 🚀 Quick Start
 
@@ -114,3 +141,49 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## 📄 License
 
 This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
+
+## 🔌 Integration Examples
+
+Static Press generates JSON content that is stored in your S3 bucket and can be easily consumed by any static site generator. There's no direct dependency between your static site and Static Press - the integration boundary is simply JSON files in your bucket:
+
+```javascript
+// Example: Fetching Static Press content in a Next.js page
+export async function getStaticProps() {
+  const res = await fetch('https://your-space-name.sgp.digitaloceanspaces.com/collections/blog.json')
+  const posts = await res.json()
+
+  return {
+    props: { posts },
+    revalidate: 60 // Revalidate at most once per minute
+  }
+}
+```
+
+```javascript
+// Example: Using Static Press content in a Gatsby site
+exports.createPages = async ({ actions }) => {
+  const { createPage } = actions
+  const response = await fetch('https://your-space-name.sgp.digitaloceanspaces.com/collections/products.json')
+  const products = await response.json()
+
+  products.forEach(product => {
+    createPage({
+      path: `/product/${product.slug}`,
+      component: require.resolve('./src/templates/product.js'),
+      context: { product },
+    })
+  })
+}
+```
+
+## 🙏 Acknowledgements
+
+Static Press stands on the shoulders of giants:
+
+- [React](https://reactjs.org/) - UI library
+- [Tailwind CSS](https://tailwindcss.com/) - Styling
+- [shadcn/ui](https://ui.shadcn.com/) - UI components
+- [AWS S3](https://aws.amazon.com/s3/) / [DigitalOcean Spaces](https://www.digitalocean.com/products/spaces/) - Storage
+- [Express](https://expressjs.com/) - Development server
+- [lovable.dev](https://lovable.dev) - Development inspiration
+- [Windsurf](https://windsurf.com/refer?referral_code=91db5694eb) - Deployment platform *(Referral link - supports project development)*
