@@ -6,10 +6,10 @@ export { ApiStorageAdapter } from './ApiStorageAdapter';
 
 export function createStorageAdapter(): StorageAdapter {
   try {
-    const dataUrl = import.meta.env.VITE_DATA_URL;
-    const hasValidDataUrl = !!dataUrl && dataUrl.trim() !== '';
+    const useRemoteData = import.meta.env.VITE_USE_REMOTE_DATA;
+    const shouldUseRemoteData = useRemoteData === 'true' || useRemoteData === true;
 
-    if (hasValidDataUrl) {
+    if (shouldUseRemoteData) {
       console.log('[Backend] Using ApiStorageAdapter with remote data source');
       return new ApiStorageAdapter();
     } else {

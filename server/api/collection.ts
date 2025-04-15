@@ -2,10 +2,11 @@
 import { Router, Request, Response } from 'express';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { s3Client, bucketName } from '../../src/lib/s3Client'; // Adjusted path
-import path from 'path';
 
 const router = Router();
-const s3BasePath = process.env.S3_BASE_PATH || ''; // Re-read base path
+
+// Collections are always in the data directory
+const getCollectionKey = (slug: string) => `data/${slug}.json`;
 
 // PUT collection data
 router.put('/:slug', async (req: Request, res: Response) => {
@@ -24,14 +25,15 @@ router.put('/:slug', async (req: Request, res: Response) => {
     return;
   }
 
-  const key = path.join(s3BasePath, `${slug}.json`).replace(/\\/g, '/');
+  const key = getCollectionKey(slug);
+  console.log(`[API Server] Attempting to update collection in S3 at key: ${key}`);
 
   const command = new PutObjectCommand({
     Bucket: bucketName,
     Key: key,
     Body: JSON.stringify(recordsData, null, 2),
     ContentType: 'application/json',
-    ACL: 'public-read',
+    ACL: 'public-read', // Collections remain public
   });
 
   try {

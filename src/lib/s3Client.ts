@@ -1,10 +1,11 @@
 import { S3Client } from "@aws-sdk/client-s3";
 
+// Server-side S3 configuration (not prefixed with VITE_)
 const region = process.env.S3_REGION;
-const endpoint = process.env.S3_ENDPOINT_URL;
+const endpoint = process.env.S3_ENDPOINT_URL || process.env.VITE_S3_ENDPOINT_URL;
 const accessKeyId = process.env.S3_ACCESS_KEY_ID;
 const secretAccessKey = process.env.S3_SECRET_ACCESS_KEY;
-const bucketName = process.env.S3_BUCKET_NAME;
+const bucketName = process.env.S3_BUCKET_NAME || process.env.VITE_S3_BUCKET_NAME;
 
 if (!region || !accessKeyId || !secretAccessKey || !bucketName) {
   console.error(

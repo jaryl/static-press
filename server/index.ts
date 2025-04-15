@@ -8,7 +8,6 @@ const app = express();
 const port = process.env.API_PORT || 3001;
 const viteDevServerUrl = process.env.VITE_DEV_SERVER_URL;
 const bucketName = process.env.S3_BUCKET_NAME;
-const s3BasePath = process.env.S3_BASE_PATH;
 
 // Middleware
 app.use(cors({ origin: viteDevServerUrl })); // Allow requests from Vite dev server
@@ -33,6 +32,4 @@ app.listen(port, () => {
   } else {
     console.error(`[API Server] S3 Bucket Name is NOT configured. API will fail S3 operations.`);
   }
-
-  console.log(`[API Server] Configured S3 Base Path: ${s3BasePath || '[root]'}`);
 });
