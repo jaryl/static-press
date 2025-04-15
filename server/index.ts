@@ -7,7 +7,7 @@ import collectionRoutes from './api/collection';
 const app = express();
 const port = process.env.API_PORT || 3001;
 const viteDevServerUrl = process.env.VITE_DEV_SERVER_URL;
-const bucketName = process.env.S3_BUCKET_NAME;
+const bucketName = process.env.VITE_S3_BUCKET_NAME;
 
 // Middleware
 app.use(cors({ origin: viteDevServerUrl })); // Allow requests from Vite dev server

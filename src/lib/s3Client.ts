@@ -1,17 +1,17 @@
 import { S3Client } from "@aws-sdk/client-s3";
 
-// Server-side S3 configuration (not prefixed with VITE_)
+const endpoint = process.env.VITE_S3_ENDPOINT_URL;
+const bucketName = process.env.VITE_S3_BUCKET_NAME;
+
 const region = process.env.S3_REGION;
-const endpoint = process.env.S3_ENDPOINT_URL || process.env.VITE_S3_ENDPOINT_URL;
 const accessKeyId = process.env.S3_ACCESS_KEY_ID;
 const secretAccessKey = process.env.S3_SECRET_ACCESS_KEY;
-const bucketName = process.env.S3_BUCKET_NAME || process.env.VITE_S3_BUCKET_NAME;
 
 if (!region || !accessKeyId || !secretAccessKey || !bucketName) {
   console.error(
-    "FATAL ERROR: AWS S3 configuration (S3_REGION, S3_BUCKET_NAME, S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY) must be available in process.env."
+    "FATAL ERROR: AWS S3 configuration (VITE_S3_REGION, VITE_S3_BUCKET_NAME, VITE_S3_ACCESS_KEY_ID, VITE_S3_SECRET_ACCESS_KEY) must be available in process.env."
   );
-  throw new Error("Missing required S3 configuration for API server.");
+  console.log("[s3Client] S3 Bucket Name is NOT configured. API will fail S3 operations.");
 } else {
   console.log("[s3Client] S3 configuration loaded successfully for API server.");
   console.log(`[s3Client]   Region: ${region}`);

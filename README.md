@@ -64,6 +64,17 @@ This project is built with:
 
 Simply open [Lovable](https://lovable.dev/projects/240e7548-79c3-4c92-82ac-7063af19deb2) and click on Share -> Publish.
 
+### Deploy to DigitalOcean
+
+You can also deploy this project to DigitalOcean App Platform with a single click:
+
+[![Deploy to DO](https://www.deploytodo.com/do-btn-blue.svg)](https://cloud.digitalocean.com/apps/new?repo=https://github.com/jaryl/static-press/tree/main&refcode=3eb491dbdfc1)
+
+This will:
+- Deploy the frontend as a static site
+- Deploy the serverless functions for API endpoints
+- Prompt you to configure your S3 credentials
+
 ## Can I connect a custom domain to my Lovable project?
 
 Yes it is!

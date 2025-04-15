@@ -1,0 +1,50 @@
+spec:
+  name: static-press
+
+  # Static site for the frontend
+  static_sites:
+    - name: static-press-frontend
+      github:
+        repo: ${_self}
+        branch: main
+        deploy_on_push: true
+      build_command: npm run build
+      output_dir: dist
+      routes:
+        - path: /
+      envs:
+        - key: VITE_USE_REMOTE_DATA
+          scope: BUILD_TIME
+          value: true
+        - key: VITE_API_BASE_URL
+          scope: BUILD_TIME
+          value: "${_self.HOSTNAME}/api"
+        - key: VITE_S3_ENDPOINT_URL
+          scope: BUILD_TIME
+        - key: VITE_S3_BUCKET_NAME
+          scope: BUILD_TIME
+
+  # Serverless functions
+  functions:
+    - name: static-press-api
+      github:
+        repo: ${_self}
+        branch: main
+        deploy_on_push: true
+      source_dir: packages
+      envs:
+        - key: VITE_S3_ENDPOINT_URL
+          scope: RUN_TIME
+        - key: VITE_S3_BUCKET_NAME
+          scope: RUN_TIME
+        - key: S3_REGION
+          scope: RUN_TIME
+          value: us-east-1
+        - key: S3_ACCESS_KEY_ID
+          scope: RUN_TIME
+        - key: S3_SECRET_ACCESS_KEY
+          type: SECRET
+          scope: RUN_TIME
+        - key: NODE_ENV
+          value: production
+          scope: RUN_TIME
