@@ -1,14 +1,9 @@
 FROM node:20-bullseye
 
 # Install basic development tools
-RUN apt update -o Acquire::Check-Valid-Until=false -o Acquire::Check-Date=false && apt install -y less git procps
-
-# Install Bun (since bun.lockb is present in the project)
-RUN curl -fsSL https://bun.sh/install | bash
-
-# Ensure bun is available in PATH
-ENV PATH="/root/.bun/bin:${PATH}"
-ENV PATH="/home/node/.bun/bin:${PATH}"
+RUN apt update -o Acquire::Check-Valid-Until=false -o Acquire::Check-Date=false && \
+    apt install -y --no-install-recommends less git procps && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /workspaces/app
