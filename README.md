@@ -31,7 +31,7 @@ Static Press is designed for teams who need a lightweight CMS solution for mostl
 **Traditional Headless CMS** platforms (like Contentful, Strapi) provide content management interfaces and APIs but still require running and maintaining backend servers and databases, which means ongoing infrastructure costs.
 
 **Static Press** takes a different approach:
-- **Complementary to Static Site Generators**: Static Press manages content as JSON files that can be consumed by any static site generator
+- **Complementary to Static Site Generators**: Static Press manages content as JSON files that can be consumed by any website
 - **Like Headless CMS**: Provides a user-friendly interface for non-technical users to manage content
 - **Unlike Traditional CMS**: Uses serverless functions and S3 storage for content management operations, eliminating the need for always-on servers while maintaining content editing capabilities
 
@@ -199,5 +199,5 @@ Static Press stands on the shoulders of giants:
 - [shadcn/ui](https://ui.shadcn.com/) - UI components
 - [AWS S3](https://aws.amazon.com/s3/) / [DigitalOcean Spaces](https://www.digitalocean.com/products/spaces/) - Storage
 - [Express](https://expressjs.com/) - Development server
-- [lovable.dev](https://lovable.dev) - Development inspiration
+- [lovable.dev](https://lovable.dev) - UI generation and development platform
 - [Windsurf](https://windsurf.com/refer?referral_code=91db5694eb) - Deployment platform *(Referral link - supports project development)*
