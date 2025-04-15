@@ -9,8 +9,8 @@ import NewRecordRow from "./NewRecordRow";
 import EmptyState from "@/components/layout/EmptyState";
 import NoResults from "@/components/layout/NoResults";
 import ErrorDisplay from "@/components/layout/ErrorDisplay";
-import { CollectionRecord, RecordData } from "@/services/collectionService";
-import { FieldDefinition, CollectionSchema } from "@/services/schemaService";
+import { CollectionRecord, RecordData } from "@/services/shared/types/collection";
+import { FieldDefinition, CollectionSchema } from "@/services/shared/types/schema";
 
 interface CollectionContentProps {
   id: string;

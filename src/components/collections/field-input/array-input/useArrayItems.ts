@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { FieldDefinition } from "@/services/schemaService";
+import { useState } from "react";
+import { FieldDefinition } from "@/services/shared/types/schema";
 
 export interface UseArrayItemsProps {
   initialValue: string[];

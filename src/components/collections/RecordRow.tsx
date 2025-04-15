@@ -2,8 +2,8 @@ import { memo } from "react";
 import { TableRow, TableCell } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Edit, Trash2, Save, X } from "lucide-react";
-import { RecordData, CollectionRecord } from "@/services/collectionService";
-import { FieldDefinition, CollectionSchema } from "@/services/schemaService";
+import { RecordData, CollectionRecord } from "@/services/shared/types/collection";
+import { FieldDefinition, CollectionSchema } from "@/services/shared/types/schema";
 import FieldInput from "./field-input";
 import FieldDisplay from "./field-display";
 import {

@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { CollectionRecord } from "@/services/collectionService";
+import { CollectionRecord } from "@/services/shared/types/collection";
 
 export function useRecordFilter(records: CollectionRecord[]) {
   const [searchTerm, setSearchTerm] = useState("");

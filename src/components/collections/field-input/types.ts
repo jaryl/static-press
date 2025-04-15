@@ -1,4 +1,4 @@
-import { FieldDefinition } from "@/services/schemaService";
+import { FieldDefinition } from "@/services/shared/types/schema";
 
 export interface FieldInputProps {
   field: FieldDefinition;

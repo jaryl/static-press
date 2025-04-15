@@ -8,6 +8,7 @@ export interface FieldDefinition {
 }
 
 export interface CollectionSchema {
+  id: string; // Required to maintain compatibility with existing code
   name: string;
   slug: string;
   description: string;
