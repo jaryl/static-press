@@ -1,21 +1,23 @@
-import type { DataAdapter } from './index';
-import type { CollectionSchema } from '../schemaService';
-import type { CollectionRecord } from '../collectionService';
+import type { StorageAdapter } from './StorageAdapter';
+import type { CollectionSchema } from '../../shared/types/schema';
+import type { CollectionRecord } from '../../shared/types/collection';
 
-export class RemoteDataAdapter implements DataAdapter {
+export class ApiStorageAdapter implements StorageAdapter {
   private baseUrl: string;
   private apiBaseUrl: string;
 
   constructor() {
     this.baseUrl = import.meta.env.VITE_DATA_URL || '';
     this.apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api';
+
     if (!this.baseUrl) {
       console.warn('VITE_DATA_URL is not set. GET operations might fail if schema/data are not in S3.');
     }
   }
 
+  // Read operations (same as PublicContentAdapter)
   async getSchema(): Promise<CollectionSchema[]> {
-    if (!this.baseUrl) throw new Error('VITE_DATA_URL must be set to fetch initial schema.');
+    if (!this.baseUrl) throw new Error('VITE_DATA_URL must be set to fetch schema.');
     try {
       const response = await fetch(`${this.baseUrl}/schema.json`);
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status} fetching schema.json`);
@@ -25,13 +27,13 @@ export class RemoteDataAdapter implements DataAdapter {
       }
       return schema as CollectionSchema[];
     } catch (error) {
-      console.error('Failed to load remote schema.json', error);
+      console.error('Failed to load schema.json', error);
       throw error;
     }
   }
 
   async getCollectionData(slug: string): Promise<CollectionRecord[]> {
-    if (!this.baseUrl) throw new Error(`VITE_DATA_URL must be set to fetch initial data for ${slug}.`);
+    if (!this.baseUrl) throw new Error(`VITE_DATA_URL must be set to fetch data for ${slug}.`);
     try {
       const response = await fetch(`${this.baseUrl}/${slug}.json`);
       if (response.status === 404) {
@@ -44,13 +46,14 @@ export class RemoteDataAdapter implements DataAdapter {
       }
       return data as CollectionRecord[];
     } catch (error) {
-      console.error(`Failed to load remote ${slug}.json`, error);
+      console.error(`Failed to load ${slug}.json`, error);
       throw error;
     }
   }
 
+  // Write operations
   async updateSchema(schemaData: CollectionSchema[]): Promise<void> {
-    console.log(`[RemoteDataAdapter] Sending schema update to ${this.apiBaseUrl}/schema`);
+    console.log(`[ApiStorageAdapter] Sending schema update to ${this.apiBaseUrl}/schema`);
     try {
       const response = await fetch(`${this.apiBaseUrl}/schema`, {
         method: 'PUT',
@@ -64,7 +67,7 @@ export class RemoteDataAdapter implements DataAdapter {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(`API error! status: ${response.status} - ${errorData.message || 'Failed to update schema'}`);
       }
-      console.log('[RemoteDataAdapter] Schema update successful (via API)');
+      console.log('[ApiStorageAdapter] Schema update successful (via API)');
     } catch (error) {
       console.error('Error updating schema via API:', error);
       throw error;
@@ -73,7 +76,7 @@ export class RemoteDataAdapter implements DataAdapter {
 
   async saveCollectionData(slug: string, records: CollectionRecord[]): Promise<void> {
     const url = `${this.apiBaseUrl}/collections/${slug}`;
-    console.log(`[RemoteDataAdapter] Sending collection data update to ${url}`);
+    console.log(`[ApiStorageAdapter] Sending collection data update to ${url}`);
     try {
       const response = await fetch(url, {
         method: 'PUT',
@@ -87,7 +90,7 @@ export class RemoteDataAdapter implements DataAdapter {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(`API error! status: ${response.status} - ${errorData.message || `Failed to update collection ${slug}`}`);
       }
-      console.log(`[RemoteDataAdapter] Collection '${slug}' update successful (via API)`);
+      console.log(`[ApiStorageAdapter] Collection '${slug}' update successful (via API)`);
     } catch (error) {
       console.error(`Error updating collection ${slug} via API:`, error);
       throw error;
@@ -96,9 +99,7 @@ export class RemoteDataAdapter implements DataAdapter {
 
   getRawDataUrl(slug: string): string {
     if (!this.baseUrl) {
-      // If VITE_DATA_URL isn't set, we can't provide a direct link to remote raw data.
-      // Return an empty string or handle this case as appropriate for the UI.
-      console.warn('RemoteDataAdapter: VITE_DATA_URL not set, cannot generate raw data URL.');
+      console.warn('ApiStorageAdapter: VITE_DATA_URL not set, cannot generate raw data URL.');
       return '';
     }
     return `${this.baseUrl}/${slug}.json`;

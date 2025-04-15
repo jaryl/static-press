@@ -1,5 +1,5 @@
 import { DataAdapter } from './index';
-import type { CollectionSchema, FieldDefinition } from '../schemaService';
+import type { CollectionSchema } from '../schemaService';
 import type { CollectionRecord } from '../collectionService';
 
 export class LocalDataAdapter implements DataAdapter {
@@ -7,7 +7,7 @@ export class LocalDataAdapter implements DataAdapter {
 
   async getSchema(): Promise<CollectionSchema[]> {
     try {
-      const schemaModule = await import('@/data/schema.json');
+      const schemaModule = await import('@data/schema.json');
       const schema = schemaModule.default;
 
       if (!Array.isArray(schema)) {
@@ -34,7 +34,7 @@ export class LocalDataAdapter implements DataAdapter {
     }
 
     try {
-      const dataModule = await import(`@/data/${slug}.json`);
+      const dataModule = await import(`@data/${slug}.json`);
       const data = dataModule.default;
 
       if (!Array.isArray(data)) {
@@ -60,6 +60,8 @@ export class LocalDataAdapter implements DataAdapter {
 
     } catch (error) {
       if (error instanceof Error && error.message.includes('Failed to fetch dynamically imported module')) {
+        // Handle case where the specific data file doesn't exist (normal for local demo)
+        console.warn(`LocalDataAdapter: Data file not found for slug '${slug}'. Returning empty array.`);
         this.loadedCollections[slug] = [];
         return [];
       } else {
@@ -69,19 +71,26 @@ export class LocalDataAdapter implements DataAdapter {
     }
   }
 
-  async updateSchema(schemaData: CollectionSchema[]): Promise<void> {
-    console.warn('LocalDataAdapter: updateSchema called - Mock update, no file persistence.');
+  // --- Write Operations (Disabled for LocalDataAdapter) ---
+
+  async saveCollectionData(slug: string, data: CollectionRecord[]): Promise<void> {
+    console.warn(`LocalDataAdapter: Attempted to save collection '${slug}', but this adapter is read-only.`);
+    // Do nothing, as local data is read-only in demo mode
     return Promise.resolve();
   }
 
-  async updateCollectionData(slug: string, records: CollectionRecord[]): Promise<void> {
-    console.warn(`LocalDataAdapter: updateCollectionData called for slug ${slug} - Mock update, no file persistence.`);
-    this.loadedCollections[slug] = JSON.parse(JSON.stringify(records));
+  async updateSchema(schemaData: CollectionSchema[]): Promise<void> {
+    console.warn(`LocalDataAdapter: Attempted to update schema, but this adapter is read-only.`);
+    // Do nothing, as local data is read-only in demo mode
     return Promise.resolve();
   }
 
   getRawDataUrl(slug: string): string {
-    // For local data, the raw JSON is served via our API endpoint
-    return `/api/collections/${slug}/json`;
+    // Local adapter doesn't have a meaningful 'raw data URL' in the same way
+    // the remote one does (pointing to S3/CDN). Return empty or a placeholder.
+    console.warn(`LocalDataAdapter: getRawDataUrl called for slug '${slug}'. Returning empty string as local data is not served directly.`);
+    return '';
+    // Or maybe return a relative path for debugging? `/data/${slug}.json`?
+    // However, the consuming app shouldn't rely on this from LocalDataAdapter.
   }
 }

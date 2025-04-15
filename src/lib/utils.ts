@@ -94,8 +94,8 @@ export function getImageUrl(imagePath: string): string {
   const effectiveStrategy = import.meta.env.VITE_DATA_URL ? 'remote' : 'local';
 
   if (effectiveStrategy === 'local') {
-    // For local strategy, assume the path is relative to src/data
-    return `/src/data/${normalizedPath}`;
+    // For local strategy, assume the path is relative to the top-level data directory
+    return `/data/${normalizedPath}`;
   } else {
     // For remote strategy, use the data URL from environment variables
     const dataUrl = import.meta.env.VITE_DATA_URL || '';

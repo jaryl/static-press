@@ -7,8 +7,8 @@ import type { CollectionRecord } from '../collectionService';
 export interface DataAdapter {
   getSchema(): Promise<CollectionSchema[]>;
   getCollectionData(slug: string): Promise<CollectionRecord[]>;
+  saveCollectionData(slug: string, data: CollectionRecord[]): Promise<void>;
   updateSchema(schemaData: CollectionSchema[]): Promise<void>;
-  updateCollectionData(slug: string, records: CollectionRecord[]): Promise<void>;
   getRawDataUrl(slug: string): string;
 }
 

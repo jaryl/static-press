@@ -1,0 +1,9 @@
+{
+  "name": "@static-press/schema",
+  "version": "1.0.0",
+  "description": "Schema endpoint",
+  "main": "index.js",
+  "scripts": {},
+  "dependencies": {},
+  "devDependencies": {}
+}
