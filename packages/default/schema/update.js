@@ -1,17 +1,22 @@
-// packages/default/schema/index.js
-const { getSchema } = require('../../../core/handlers/schema');
+// packages/default/schema/update.js
+const { updateSchema } = require('../../../core/handlers/schema');
 
 /**
- * DigitalOcean Serverless Function for getting schema
+ * DigitalOcean Serverless Function for updating schema
  * @param {Object} args - Parameters passed to the function
  * @returns {Object} Response object with statusCode and body
  */
 async function main(args) {
-  console.log('[Schema] Received GET /api/schema');
+  console.log('[Schema] Received PUT /api/schema');
 
   try {
+    // Extract the schema data from the request body
+    const schemaData = typeof args.__ow_body === 'string'
+      ? JSON.parse(args.__ow_body)
+      : args.__ow_body;
+
     // Call the core handler
-    const result = await getSchema();
+    const result = await updateSchema(schemaData);
 
     // Return the result in the format expected by DigitalOcean Functions
     return {
@@ -22,7 +27,7 @@ async function main(args) {
       body: result.body
     };
   } catch (error) {
-    console.error('[Schema] Error in schema get function:', error);
+    console.error('[Schema] Error in schema update function:', error);
     return {
       statusCode: 500,
       headers: {
