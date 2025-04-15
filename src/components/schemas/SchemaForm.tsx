@@ -111,7 +111,7 @@ export function SchemaForm({ collection }: SchemaFormProps) {
     e.preventDefault();
 
     try {
-      await updateCollection(schema.id, {
+      await updateCollection(schema.slug, {
         name: schema.name,
         slug: schema.slug,
         description: schema.description,
@@ -121,7 +121,7 @@ export function SchemaForm({ collection }: SchemaFormProps) {
         }))
       });
 
-      navigate(`/collections/${schema.id}`);
+      navigate(`/collections/${schema.slug}`);
     } catch (error) {
       console.error("Error updating schema:", error);
     }
@@ -190,7 +190,7 @@ export function SchemaForm({ collection }: SchemaFormProps) {
           type="button"
           variant="outline"
           className="mr-2"
-          onClick={() => navigate(`/collections/${schema.id}`)}
+          onClick={() => navigate(`/collections/${schema.slug}`)}
         >
           Cancel
         </Button>

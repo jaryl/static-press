@@ -3,13 +3,13 @@ import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Database, PlusCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { CollectionSchema } from "@/services/schemaService";
+import { CollectionSchema } from "@/services/shared/types/schema";
 import { CollectionForm, CollectionFormData } from '@/components/layout/CollectionForm';
 
 interface SidebarCollectionsProps {
   isOpen: boolean;
   collections: CollectionSchema[];
-  createCollection: (collection: Omit<CollectionSchema, "id" | "createdAt" | "updatedAt">) => Promise<CollectionSchema>;
+  createCollection: (collection: Omit<CollectionSchema, "createdAt" | "updatedAt">) => Promise<CollectionSchema>;
 }
 
 export default function SidebarCollections({ isOpen, collections, createCollection }: SidebarCollectionsProps) {

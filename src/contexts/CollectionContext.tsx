@@ -14,10 +14,10 @@ interface CollectionContextType {
   loading: boolean;
   error: string | null;
   fetchCollections: () => Promise<void>;
-  fetchCollection: (id: string) => Promise<CollectionSchema | null>;
+  fetchCollection: (slug: string) => Promise<CollectionSchema | null>;
   fetchRecords: (slug: string) => Promise<CollectionRecord[]>;
-  createCollection: (collection: Omit<CollectionSchema, 'id' | 'createdAt' | 'updatedAt'>) => Promise<CollectionSchema>;
-  updateCollection: (slug: string, updates: Partial<Omit<CollectionSchema, 'id' | 'createdAt' | 'updatedAt'>>) => Promise<CollectionSchema>;
+  createCollection: (collection: Omit<CollectionSchema, 'createdAt' | 'updatedAt'>) => Promise<CollectionSchema>;
+  updateCollection: (slug: string, updates: Partial<Omit<CollectionSchema, 'createdAt' | 'updatedAt'>>) => Promise<CollectionSchema>;
   deleteCollection: (slug: string) => Promise<void>;
   createRecord: (slug: string, data: RecordData) => Promise<CollectionRecord>;
   updateRecord: (slug: string, recordId: string, data: RecordData) => Promise<CollectionRecord>;
@@ -100,7 +100,7 @@ export const CollectionProvider = ({ children }: { children: ReactNode }) => {
     }, setLoading);
   }, [toast, setLoading]);
 
-  const createCollection = useCallback(async (collectionData: Omit<CollectionSchema, 'id' | 'createdAt' | 'updatedAt'>): Promise<CollectionSchema> => {
+  const createCollection = useCallback(async (collectionData: Omit<CollectionSchema, 'createdAt' | 'updatedAt'>): Promise<CollectionSchema> => {
     return withLoading(async () => {
       try {
         const newCollection = await schemaService.createCollection(collectionData);
@@ -114,7 +114,7 @@ export const CollectionProvider = ({ children }: { children: ReactNode }) => {
     }, setLoading);
   }, [fetchCollections, toast, setLoading]);
 
-  const updateCollection = useCallback(async (slug: string, updates: Partial<Omit<CollectionSchema, 'id' | 'createdAt' | 'updatedAt'>>): Promise<CollectionSchema> => {
+  const updateCollection = useCallback(async (slug: string, updates: Partial<Omit<CollectionSchema, 'createdAt' | 'updatedAt'>>): Promise<CollectionSchema> => {
     return withLoading(async () => {
       try {
         const updatedCollection = await schemaService.updateCollection(slug, updates);

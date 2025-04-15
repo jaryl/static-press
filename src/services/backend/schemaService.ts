@@ -27,7 +27,7 @@ export const schemaService = {
     return collection ? { ...collection } : null;
   },
 
-  async createCollection(data: Omit<CollectionSchema, 'id' | 'createdAt' | 'updatedAt'>): Promise<CollectionSchema> {
+  async createCollection(data: Omit<CollectionSchema, 'createdAt' | 'updatedAt'>): Promise<CollectionSchema> {
     await delay(500);
     const newCollection: CollectionSchema = {
       ...data,
