@@ -84,6 +84,18 @@ cp .env.example .env.local
 npm run dev
 ```
 
+### Using DevContainer
+
+Static Press includes a DevContainer configuration for Visual Studio Code and GitHub Codespaces, making it easy to get started with a consistent development environment:
+
+1. Install the [Remote - Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension in VS Code
+2. Clone the repository and open it in VS Code
+3. When prompted, click "Reopen in Container" or use the command palette to select "Remote-Containers: Reopen in Container"
+4. The container will build with all dependencies pre-installed
+5. Once inside the container, run `npm run dev` to start the development server
+
+This approach ensures you have the correct Node.js version and all required dependencies without modifying your local environment.
+
 ## 🏗️ Project Structure
 
 ```
@@ -108,6 +120,8 @@ static-press/
 Deploy Static Press to DigitalOcean App Platform with a single click:
 
 [![Deploy to DigitalOcean](https://www.deploytodo.com/do-btn-blue.svg)](https://cloud.digitalocean.com/apps/new?repo=https://github.com/jaryl/static-press/tree/main&refcode=3eb491dbdfc1)
+
+> **Note**: This is a referral link that supports the development of Static Press. Using this link gives you the same DigitalOcean experience while also helping maintain this project.
 
 This will:
 - Deploy the frontend as a static site
@@ -144,7 +158,7 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 
 ## 🔌 Integration Examples
 
-Static Press generates JSON content that is stored in your S3 bucket and can be easily consumed by any static site generator. There's no direct dependency between your static site and Static Press - the integration boundary is simply JSON files in your bucket:
+Static Press generates JSON content that is stored in your S3 bucket and can be easily consumed by any website. There's no direct dependency between your website and Static Press - the integration boundary is simply JSON files in your bucket:
 
 ```javascript
 // Example: Fetching Static Press content in a Next.js page
