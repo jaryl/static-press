@@ -14,8 +14,8 @@
       "@/*": [
         "./src/*"
       ],
-      "@data/*": [
-        "./data/*"
+      "@sample/*": [
+        "./sample/*"
       ]
     },
     "resolveJsonModule": true,
@@ -26,7 +26,6 @@
     "noUnusedLocals": false,
     "strictNullChecks": false,
     "composite": true,
-    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
     "target": "ES2020",
     "useDefineForClassFields": true,
     "lib": [

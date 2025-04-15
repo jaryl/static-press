@@ -4,11 +4,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Eye, Pencil, ExternalLink } from 'lucide-react';
-import { Collection } from '@/types';
 import { useCollection } from '@/contexts/CollectionContext';
+import { CollectionSchema } from '@/services/shared/types/schema';
 
 interface CollectionTableProps {
-  collections: Collection[];
+  collections: CollectionSchema[];
 }
 
 export const CollectionTable: React.FC<CollectionTableProps> = ({ collections }) => {
@@ -37,15 +37,19 @@ export const CollectionTable: React.FC<CollectionTableProps> = ({ collections })
               </div>
             </TableCell>
             <TableCell className="hidden sm:table-cell text-xs font-mono py-2 sm:py-3 px-3 sm:px-4">
-              <a
-                href={getRawCollectionUrl(collection.slug)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group inline-flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors duration-150"
-              >
-                <span>{collection.slug}</span>
-                <ExternalLink className="h-3 w-3" />
-              </a>
+              {getRawCollectionUrl(collection.slug) ? (
+                <a
+                  href={getRawCollectionUrl(collection.slug)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group inline-flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors duration-150"
+                >
+                  <span>{collection.slug}</span>
+                  <ExternalLink className="h-3 w-3" />
+                </a>
+              ) : (
+                <span className="text-muted-foreground">{collection.slug}</span>
+              )}
             </TableCell>
             <TableCell className="text-right py-2 sm:py-3 px-3 sm:px-4">
               <TooltipProvider delayDuration={200}>

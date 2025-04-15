@@ -17,7 +17,7 @@ export class LocalStorageAdapter implements StorageAdapter {
     }
 
     try {
-      const schemaModule = await import('@data/schema.json');
+      const schemaModule = await import('@sample/schema.json');
       const rawSchema = schemaModule.default;
 
       if (!Array.isArray(rawSchema)) {
@@ -56,7 +56,7 @@ export class LocalStorageAdapter implements StorageAdapter {
     }
 
     try {
-      const dataModule = await import(`@data/${slug}.json`);
+      const dataModule = await import(`@sample/data/${slug}.json`);
       const data = dataModule.default;
 
       if (!Array.isArray(data)) {
@@ -92,7 +92,7 @@ export class LocalStorageAdapter implements StorageAdapter {
   }
 
   getRawDataUrl(slug: string): string {
-    console.warn(`[LocalStorageAdapter]  getRawDataUrl called for slug '${slug}'. Returning empty string as local data is not served directly.`);
+    console.warn(`[LocalStorageAdapter] getRawDataUrl called for slug '${slug}'. Returning empty string as local data is not served directly.`);
     return '';
   }
 
@@ -109,7 +109,7 @@ export class LocalStorageAdapter implements StorageAdapter {
     // Remove leading slash if present for consistency
     const normalizedPath = imagePath.startsWith('/') ? imagePath.substring(1) : imagePath;
 
-    // For local strategy, assume the path is relative to the top-level data directory
-    return `/data/${normalizedPath}`;
+    // For local strategy, assume the path is relative to the sample/images directory
+    return `/sample/images/${normalizedPath}`;
   }
 }

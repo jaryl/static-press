@@ -101,12 +101,19 @@ const Collection = () => {
                 </Button>
               </Link>
 
-              <a href={getRawCollectionUrl(slug)} target="_blank" rel="noopener noreferrer">
-                <Button variant="outline" size="sm" className="h-8 text-xs">
+              {getRawCollectionUrl(slug) ? (
+                <a href={getRawCollectionUrl(slug)} target="_blank" rel="noopener noreferrer">
+                  <Button variant="outline" size="sm" className="h-8 text-xs">
+                    <FileJson className="mr-1 h-3.5 w-3.5" />
+                    View JSON
+                  </Button>
+                </a>
+              ) : (
+                <Button variant="outline" size="sm" className="h-8 text-xs" disabled title="JSON view not available in local mode">
                   <FileJson className="mr-1 h-3.5 w-3.5" />
                   View JSON
                 </Button>
-              </a>
+              )}
 
               {hasAnyRecords && (
                 <Button

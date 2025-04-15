@@ -1,15 +1,34 @@
 import type { StorageAdapter } from './StorageAdapter';
 import type { CollectionSchema } from '../../shared/types/schema';
 import type { CollectionRecord } from '../../shared/types/collection';
-import { Alert } from '@/components/ui/alert';
 
 export class ApiStorageAdapter implements StorageAdapter {
   private baseUrl: string;
   private apiBaseUrl: string;
+  private schemaUrl: string;
 
   constructor() {
     const dataUrl = import.meta.env.VITE_DATA_URL;
     this.baseUrl = dataUrl && dataUrl.trim() !== '' ? dataUrl : '';
+
+    // Derive the schema URL from the data URL by going up one level
+    // If VITE_DATA_URL is https://example.com/data, schemaUrl becomes https://example.com/schema.json
+    if (this.baseUrl) {
+      const baseUrlWithoutTrailingSlash = this.baseUrl.endsWith('/')
+        ? this.baseUrl.slice(0, -1)
+        : this.baseUrl;
+
+      // Get the parent directory of the data URL
+      const lastSlashIndex = baseUrlWithoutTrailingSlash.lastIndexOf('/');
+      if (lastSlashIndex !== -1) {
+        this.schemaUrl = `${baseUrlWithoutTrailingSlash.substring(0, lastSlashIndex)}/schema.json`;
+      } else {
+        // Fallback if we can't determine the parent directory
+        this.schemaUrl = `${baseUrlWithoutTrailingSlash}/schema.json`;
+      }
+    } else {
+      this.schemaUrl = '';
+    }
 
     const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
     this.apiBaseUrl = apiBaseUrl && apiBaseUrl.trim() !== '' ? apiBaseUrl : 'http://localhost:3001/api';
@@ -21,12 +40,13 @@ export class ApiStorageAdapter implements StorageAdapter {
 
   // Read operations
   async getSchema(): Promise<CollectionSchema[]> {
-    if (!this.baseUrl) {
+    if (!this.schemaUrl) {
       throw new Error('[ApiStorageAdapter] VITE_DATA_URL is not set. Cannot fetch schema from remote source.');
     }
 
     try {
-      const response = await fetch(`${this.baseUrl}/schema.json`);
+      console.log(`[ApiStorageAdapter] Fetching schema from ${this.schemaUrl}`);
+      const response = await fetch(this.schemaUrl);
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status} fetching schema.json`);
       const schema = await response.json();
       if (!Array.isArray(schema)) {
@@ -45,8 +65,15 @@ export class ApiStorageAdapter implements StorageAdapter {
     }
 
     try {
-      console.log(`[ApiStorageAdapter] Fetching data from ${this.baseUrl}/${slug}.json`);
-      const response = await fetch(`${this.baseUrl}/${slug}.json`);
+      // Ensure the baseUrl doesn't end with a slash
+      const baseUrlWithoutTrailingSlash = this.baseUrl.endsWith('/')
+        ? this.baseUrl.slice(0, -1)
+        : this.baseUrl;
+
+      const dataUrl = `${baseUrlWithoutTrailingSlash}/${slug}.json`;
+      console.log(`[ApiStorageAdapter] Fetching data from ${dataUrl}`);
+
+      const response = await fetch(dataUrl);
       if (response.status === 404) {
         return [];
       }
@@ -113,7 +140,13 @@ export class ApiStorageAdapter implements StorageAdapter {
       console.warn('[ApiStorageAdapter] VITE_DATA_URL not set, cannot generate raw data URL.');
       return '';
     }
-    return `${this.baseUrl}/${slug}.json`;
+
+    // Ensure the baseUrl doesn't end with a slash
+    const baseUrlWithoutTrailingSlash = this.baseUrl.endsWith('/')
+      ? this.baseUrl.slice(0, -1)
+      : this.baseUrl;
+
+    return `${baseUrlWithoutTrailingSlash}/${slug}.json`;
   }
 
   /**
@@ -131,11 +164,24 @@ export class ApiStorageAdapter implements StorageAdapter {
       return imagePath;
     }
 
+    if (!this.baseUrl) {
+      return '';
+    }
+
     // Remove leading slash if present for consistency
     const normalizedPath = imagePath.startsWith('/') ? imagePath.substring(1) : imagePath;
 
-    // For remote strategy, use the data URL from environment variables
-    // Ensure baseUrl doesn't end with a slash and normalizedPath doesn't start with one
-    return `${this.baseUrl}${this.baseUrl.endsWith('/') ? '' : '/'}${normalizedPath}`;
+    // Extract the base URL without the 'data' part
+    const baseUrlWithoutTrailingSlash = this.baseUrl.endsWith('/')
+      ? this.baseUrl.slice(0, -1)
+      : this.baseUrl;
+
+    const lastSlashIndex = baseUrlWithoutTrailingSlash.lastIndexOf('/');
+    const baseUrlWithoutData = lastSlashIndex !== -1
+      ? baseUrlWithoutTrailingSlash.substring(0, lastSlashIndex)
+      : baseUrlWithoutTrailingSlash;
+
+    // Construct the image URL using the base URL and the images directory
+    return `${baseUrlWithoutData}/images/${normalizedPath}`;
   }
 }
