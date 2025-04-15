@@ -21,6 +21,7 @@ export class LocalStorageAdapter implements StorageAdapter {
       const rawSchema = schemaModule.default;
 
       if (!Array.isArray(rawSchema)) {
+        console.error('[LocalStorageAdapter] Invalid schema format:', rawSchema);
         throw new Error('Invalid schema format in schema.json - expected array');
       }
 
@@ -44,7 +45,7 @@ export class LocalStorageAdapter implements StorageAdapter {
 
       return [...this.schema];
     } catch (error) {
-      console.error('Failed to load local schema.json', error);
+      console.error('[LocalStorageAdapter] Failed to load local schema.json', error);
       throw new Error(`Failed to load local schema.json: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
@@ -59,6 +60,7 @@ export class LocalStorageAdapter implements StorageAdapter {
       const data = dataModule.default;
 
       if (!Array.isArray(data)) {
+        console.error(`[LocalStorageAdapter] Invalid data format for ${slug}:`, data);
         throw new Error(`Invalid data format in ${slug}.json - expected array`);
       }
 
@@ -67,11 +69,11 @@ export class LocalStorageAdapter implements StorageAdapter {
       return [...records];
     } catch (error) {
       if (error instanceof Error && error.message.includes('Failed to fetch dynamically imported module')) {
-        console.warn(`LocalStorageAdapter: Data file not found for slug '${slug}'. Returning empty array.`);
+        console.warn(`[LocalStorageAdapter] Data file not found for slug '${slug}'. Returning empty array.`);
         this.loadedCollections[slug] = [];
         return [];
       } else {
-        console.error(`Failed to load local ${slug}.json`, error);
+        console.error(`[LocalStorageAdapter] Failed to load local ${slug}.json`, error);
         throw new Error(`Failed to load local ${slug}.json: ${error instanceof Error ? error.message : String(error)}`);
       }
     }
@@ -90,7 +92,7 @@ export class LocalStorageAdapter implements StorageAdapter {
   }
 
   getRawDataUrl(slug: string): string {
-    console.warn(`LocalStorageAdapter: getRawDataUrl called for slug '${slug}'. Returning empty string as local data is not served directly.`);
+    console.warn(`[LocalStorageAdapter]  getRawDataUrl called for slug '${slug}'. Returning empty string as local data is not served directly.`);
     return '';
   }
 }

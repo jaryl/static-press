@@ -7,11 +7,16 @@ const delay = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, m
 
 export const schemaService = {
   async initialize(): Promise<void> {
-    collectionsCache = await storageAdapter.getSchema();
+    try {
+      collectionsCache = await storageAdapter.getSchema();
+    } catch (error) {
+      console.error('[schemaService] Error loading schema:', error);
+      throw error;
+    }
   },
 
   async getCollections(): Promise<CollectionSchema[]> {
-    await delay(300);
+    console.log('[schemaService] getCollections called'); await delay(300);
     if (collectionsCache.length === 0) {
       await this.initialize();
     }
@@ -50,7 +55,10 @@ export const schemaService = {
       return c;
     });
 
-    if (!updatedCollection) throw new Error("Collection not found for update");
+    if (!updatedCollection) {
+      console.error(`[schemaService] Collection not found for update: ${slug}`);
+      throw new Error("Collection not found for update");
+    }
     await storageAdapter.updateSchema(collectionsCache);
     return { ...updatedCollection };
   },
@@ -61,6 +69,7 @@ export const schemaService = {
     collectionsCache = collectionsCache.filter(c => c.slug !== slug);
 
     if (collectionsCache.length === initialLength) {
+      console.error(`[schemaService] Collection not found for delete: ${slug}`);
       throw new Error("Collection not found for delete");
     }
     await storageAdapter.updateSchema(collectionsCache);

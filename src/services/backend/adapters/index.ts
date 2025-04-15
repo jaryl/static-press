@@ -6,15 +6,18 @@ export { ApiStorageAdapter } from './ApiStorageAdapter';
 
 export function createStorageAdapter(): StorageAdapter {
   try {
-    // Use environment variable to decide which adapter to use
-    const useRemote = !!import.meta.env.VITE_API_BASE_URL;
+    const dataUrl = import.meta.env.VITE_DATA_URL;
+    const hasValidDataUrl = !!dataUrl && dataUrl.trim() !== '';
 
-    return useRemote
-      ? new ApiStorageAdapter()
-      : new LocalStorageAdapter();
+    if (hasValidDataUrl) {
+      console.log('[Backend] Using ApiStorageAdapter with remote data source');
+      return new ApiStorageAdapter();
+    } else {
+      console.log('[Backend] Using LocalStorageAdapter with local data source');
+      return new LocalStorageAdapter();
+    }
   } catch (error) {
     console.error('Failed to initialize storage adapter, falling back to local', error);
-    // Fallback to LocalStorageAdapter in case of error or missing env var
     return new LocalStorageAdapter();
   }
 }

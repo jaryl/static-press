@@ -1,23 +1,30 @@
 import type { StorageAdapter } from './StorageAdapter';
 import type { CollectionSchema } from '../../shared/types/schema';
 import type { CollectionRecord } from '../../shared/types/collection';
+import { Alert } from '@/components/ui/alert';
 
 export class ApiStorageAdapter implements StorageAdapter {
   private baseUrl: string;
   private apiBaseUrl: string;
 
   constructor() {
-    this.baseUrl = import.meta.env.VITE_DATA_URL || '';
-    this.apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api';
+    const dataUrl = import.meta.env.VITE_DATA_URL;
+    this.baseUrl = dataUrl && dataUrl.trim() !== '' ? dataUrl : '';
+
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+    this.apiBaseUrl = apiBaseUrl && apiBaseUrl.trim() !== '' ? apiBaseUrl : 'http://localhost:3001/api';
 
     if (!this.baseUrl) {
-      console.warn('VITE_DATA_URL is not set. GET operations might fail if schema/data are not in S3.');
+      console.error('[ApiStorageAdapter] VITE_DATA_URL is not set or empty. ApiStorageAdapter requires a valid data URL.');
     }
   }
 
-  // Read operations (same as PublicContentAdapter)
+  // Read operations
   async getSchema(): Promise<CollectionSchema[]> {
-    if (!this.baseUrl) throw new Error('VITE_DATA_URL must be set to fetch schema.');
+    if (!this.baseUrl) {
+      throw new Error('[ApiStorageAdapter] VITE_DATA_URL is not set. Cannot fetch schema from remote source.');
+    }
+
     try {
       const response = await fetch(`${this.baseUrl}/schema.json`);
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status} fetching schema.json`);
@@ -27,14 +34,18 @@ export class ApiStorageAdapter implements StorageAdapter {
       }
       return schema as CollectionSchema[];
     } catch (error) {
-      console.error('Failed to load schema.json', error);
+      console.error('[ApiStorageAdapter] Failed to load schema.json from remote', error);
       throw error;
     }
   }
 
   async getCollectionData(slug: string): Promise<CollectionRecord[]> {
-    if (!this.baseUrl) throw new Error(`VITE_DATA_URL must be set to fetch data for ${slug}.`);
+    if (!this.baseUrl) {
+      throw new Error(`[ApiStorageAdapter] VITE_DATA_URL is not set. Cannot fetch data for ${slug} from remote source.`);
+    }
+
     try {
+      console.log(`[ApiStorageAdapter] Fetching data from ${this.baseUrl}/${slug}.json`);
       const response = await fetch(`${this.baseUrl}/${slug}.json`);
       if (response.status === 404) {
         return [];
@@ -46,7 +57,7 @@ export class ApiStorageAdapter implements StorageAdapter {
       }
       return data as CollectionRecord[];
     } catch (error) {
-      console.error(`Failed to load ${slug}.json`, error);
+      console.error(`[ApiStorageAdapter] Failed to load ${slug}.json from remote`, error);
       throw error;
     }
   }
@@ -69,7 +80,7 @@ export class ApiStorageAdapter implements StorageAdapter {
       }
       console.log('[ApiStorageAdapter] Schema update successful (via API)');
     } catch (error) {
-      console.error('Error updating schema via API:', error);
+      console.error('[ApiStorageAdapter] Error updating schema via API:', error);
       throw error;
     }
   }
@@ -92,14 +103,14 @@ export class ApiStorageAdapter implements StorageAdapter {
       }
       console.log(`[ApiStorageAdapter] Collection '${slug}' update successful (via API)`);
     } catch (error) {
-      console.error(`Error updating collection ${slug} via API:`, error);
+      console.error(`[ApiStorageAdapter] Error updating collection ${slug} via API:`, error);
       throw error;
     }
   }
 
   getRawDataUrl(slug: string): string {
     if (!this.baseUrl) {
-      console.warn('ApiStorageAdapter: VITE_DATA_URL not set, cannot generate raw data URL.');
+      console.warn('[ApiStorageAdapter] VITE_DATA_URL not set, cannot generate raw data URL.');
       return '';
     }
     return `${this.baseUrl}/${slug}.json`;
