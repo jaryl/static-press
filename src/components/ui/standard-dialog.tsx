@@ -83,11 +83,11 @@ const StandardDialog: React.FC<StandardDialogProps> = ({
         {(footer || footerInfo) && (
           <DialogFooter className="border-t flex-row items-center py-4 px-5">
             {footerInfo && (
-              <div className="text-xs text-muted-foreground mr-auto flex items-center min-h-[28px]">
+              <div className="text-xs text-muted-foreground mr-auto flex items-center min-h-[28px] w-full">
                 {footerInfo}
               </div>
             )}
-            <div className="flex justify-end gap-2 items-center">
+            <div className="flex justify-end gap-2 items-center w-full">
               {footer}
             </div>
           </DialogFooter>

@@ -16,4 +16,11 @@ export interface StorageAdapter {
 
   // Utility methods
   getRawDataUrl(slug: string): string;
+
+  /**
+   * Gets the full URL for an image path based on the adapter's storage strategy
+   * @param imagePath The path to the image
+   * @returns The full URL to the image
+   */
+  getImageUrl(imagePath: string): string;
 }

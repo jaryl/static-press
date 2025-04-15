@@ -115,4 +115,27 @@ export class ApiStorageAdapter implements StorageAdapter {
     }
     return `${this.baseUrl}/${slug}.json`;
   }
+
+  /**
+   * Gets the full URL for an image path based on the remote storage strategy
+   * @param imagePath The path to the image
+   * @returns The full URL to the image
+   */
+  getImageUrl(imagePath: string): string {
+    if (!imagePath) {
+      return '';
+    }
+
+    // Handle absolute URLs (starting with http:// or https://)
+    if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+      return imagePath;
+    }
+
+    // Remove leading slash if present for consistency
+    const normalizedPath = imagePath.startsWith('/') ? imagePath.substring(1) : imagePath;
+
+    // For remote strategy, use the data URL from environment variables
+    // Ensure baseUrl doesn't end with a slash and normalizedPath doesn't start with one
+    return `${this.baseUrl}${this.baseUrl.endsWith('/') ? '' : '/'}${normalizedPath}`;
+  }
 }

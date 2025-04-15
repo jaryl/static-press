@@ -2,9 +2,9 @@ import { useState, useEffect } from "react";
 import StandardDialog from "@/components/ui/standard-dialog";
 import { Button } from "@/components/ui/button";
 import { Eye, ExternalLink, ImageOff, Image as ImageIcon } from "lucide-react";
-import { getImageUrl } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { collectionService } from "@/services/backend/collectionService";
 
 interface ImageMetadata {
   width?: number;
@@ -32,8 +32,8 @@ const ImagePreview = ({
   });
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  // Use the utility function to get the full image URL
-  const imageUrl = getImageUrl(imagePath);
+  // Use the collection service to get the full image URL
+  const imageUrl = collectionService.getImageUrl(imagePath);
 
   // Extract just the filename and extension from the path
   const getFilenameFromPath = (path: string) => {

@@ -95,4 +95,21 @@ export class LocalStorageAdapter implements StorageAdapter {
     console.warn(`[LocalStorageAdapter]  getRawDataUrl called for slug '${slug}'. Returning empty string as local data is not served directly.`);
     return '';
   }
+
+  /**
+   * Gets the full URL for an image path based on the local storage strategy
+   * @param imagePath The path to the image
+   * @returns The full URL to the image
+   */
+  getImageUrl(imagePath: string): string {
+    if (!imagePath) {
+      return '';
+    }
+
+    // Remove leading slash if present for consistency
+    const normalizedPath = imagePath.startsWith('/') ? imagePath.substring(1) : imagePath;
+
+    // For local strategy, assume the path is relative to the top-level data directory
+    return `/data/${normalizedPath}`;
+  }
 }

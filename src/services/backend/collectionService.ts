@@ -85,5 +85,14 @@ export const collectionService = {
 
   getRawCollectionDataUrl(slug: string): string {
     return storageAdapter.getRawDataUrl(slug);
+  },
+
+  /**
+   * Gets the full URL for an image path based on the current storage adapter's strategy
+   * @param imagePath The path to the image
+   * @returns The full URL to the image
+   */
+  getImageUrl(imagePath: string): string {
+    return storageAdapter.getImageUrl(imagePath);
   }
 };
