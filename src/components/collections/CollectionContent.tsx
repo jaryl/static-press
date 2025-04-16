@@ -122,8 +122,8 @@ const CollectionContent = ({
                 <Table className="collection-table">
                   <TableHeader>
                     <TableRow>
-                      {currentCollection.fields.map((field) => (
-                        <TableHead key={field.id} className="text-xs">
+                      {currentCollection.fields.map((field, index) => (
+                        <TableHead key={`header-${field.id}-${index}`} className="text-xs">
                           {field.name}
                           {field.required && <span className="text-destructive ml-1">*</span>}
                         </TableHead>
