@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { createStorageAdapter } from './adapters';
+import { ApiAdapterError } from './adapters/ApiStorageAdapter';
 import { schemaService } from './schemaService';
 import type { CollectionRecord, RecordData } from './shared/types/collection';
 
@@ -15,10 +16,22 @@ export const collectionService = {
       console.warn(`Collection with slug '${slug}' not found.`);
       return [];
     }
-    if (!recordsCache[slug]) {
-      recordsCache[slug] = await storageAdapter.getCollectionData(slug);
+
+    if (recordsCache[slug]) {
+      return [...recordsCache[slug]];
     }
-    return [...(recordsCache[slug] || [])];
+
+    try {
+      recordsCache[slug] = await storageAdapter.getCollectionData(slug);
+      return [...(recordsCache[slug] || [])];
+    } catch (error) {
+      console.error(`[collectionService] Error fetching collection data for ${slug}:`, error);
+      if (error instanceof ApiAdapterError) {
+        throw error;
+      } else {
+        throw new Error(`Failed to get collection records for ${slug}.`);
+      }
+    }
   },
 
   async getRecords(slug: string): Promise<CollectionRecord[]> {

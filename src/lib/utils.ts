@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
+import { ApiAdapterError } from '../services/adapters/ApiStorageAdapter';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -10,6 +11,7 @@ export function cn(...inputs: ClassValue[]) {
  * @param operation Description of the operation that failed
  * @param error The error that occurred
  * @param setError Function to set the error state
+ * @param setErrorType Optional function to set the error type
  * @param toast Toast function for displaying notifications
  * @param shouldRethrow Whether to rethrow the error (default: true)
  * @returns The original error for further handling if needed
@@ -17,12 +19,30 @@ export function cn(...inputs: ClassValue[]) {
 export const handleApiError = (
   operation: string,
   error: unknown,
-  setError: (error: string) => void,
-  toast: (props: { title: string; description: string; variant?: "destructive" }) => void,
+  setError: (error: string | null) => void,
+  toast: (props: { title: string; description: string; variant?: "destructive" | "default" }) => void,
+  setErrorType?: (type: string | null) => void,
   shouldRethrow = true
 ): unknown => {
-  const message = `Failed to ${operation}`;
+  let message = `Failed to ${operation}`;
+  let type: string | null = 'UNKNOWN_ERROR';
+
+  if (error instanceof ApiAdapterError) {
+    message = error.message;
+    type = error.errorType;
+    console.error(`[handleApiError] ApiAdapterError (${type}) during ${operation}:`, message);
+  } else if (error instanceof Error) {
+    message = error.message;
+    console.error(`[handleApiError] Error during ${operation}:`, message);
+  } else {
+    message = `An unknown error occurred during ${operation}.`;
+    console.error(`[handleApiError] Unknown error type during ${operation}:`, error);
+  }
+
   setError(message);
+  if (setErrorType) {
+    setErrorType(type);
+  }
 
   toast({
     title: "Error",

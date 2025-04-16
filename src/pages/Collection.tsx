@@ -9,9 +9,10 @@ import { Button } from "@/components/ui/button";
 import { PrimaryHeader } from "@/components/layout/PrimaryHeader";
 import { SecondaryHeader } from "@/components/layout/SecondaryHeader";
 import { Badge } from "@/components/ui/badge";
-import { Edit, Plus, FileJson } from "lucide-react";
+import { Edit, Plus, FileJson, AlertTriangle } from "lucide-react";
 import { useRecordForm } from "@/hooks/use-record-form";
 import { useRecordFilter } from "@/hooks/use-record-filter";
+import { Card } from "@/components/ui/card";
 
 const Collection = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -25,7 +26,8 @@ const Collection = () => {
     getRawCollectionUrl,
     fetchCollection,
     fetchRecords,
-    error
+    error,
+    errorType
   } = useCollection();
 
   const form = useRecordForm({ validateRecord, createRecord, updateRecord });
@@ -45,9 +47,7 @@ const Collection = () => {
         const loadCollection = async () => {
           const collection = await fetchCollection(slug);
           if (collection) {
-            fetchRecords(slug).catch(err => {
-              console.error("Error fetching records:", err);
-            });
+            fetchRecords(slug);
           }
         };
 
@@ -158,22 +158,48 @@ const Collection = () => {
           </>
         )}
 
-        <CollectionErrorBoundary onRetry={() => window.location.reload()} collectionId={slug}>
-          <CollectionContent
-            id={slug}
-            onCreateRecord={handleCreateRecord}
-            searchTerm={filter.searchTerm}
-            filteredRecords={filter.filteredRecords}
-            newRecordId={form.newRecordId}
-            formData={form.formData}
-            onFieldChange={form.handleFieldChange}
-            onSaveRecord={(id, collection) => form.saveRecord(id, collection)}
-            onCancelEdit={form.cancelEditing}
-            editingRecordId={form.editingRecordId}
-            onStartEdit={form.startEditing}
-            formErrors={form.errors}
-          />
-        </CollectionErrorBoundary>
+        {/* Render Error or Content based on context error state */}
+        {error && currentCollection ? (
+          // Render error message if collection loaded but records failed
+          <Card className="bg-destructive/10 border-destructive text-destructive-foreground p-4 m-6 text-center">
+            <AlertTriangle className="mx-auto h-6 w-6 mb-2" />
+            <p className="font-semibold">Error Loading Records</p>
+            <p className="text-sm mt-1">
+              {errorType === 'COLLECTION_DATA_NOT_FOUND'
+                ? `The data file (${slug}.json) for this collection could not be found.`
+                : errorType === 'COLLECTION_DATA_MALFORMED'
+                  ? `The data file (${slug}.json) appears to be corrupted or not valid JSON.`
+                  : error // Fallback to the generic error message
+              }
+            </p>
+            <Button variant="destructive" size="sm" className="mt-3" onClick={() => fetchRecords(slug!)}>Retry</Button>
+          </Card>
+        ) : currentCollection ? (
+          // Render content only if collection is loaded and no error exists
+          <CollectionErrorBoundary onRetry={() => window.location.reload()} >
+            <CollectionContent
+              id={slug}
+              onCreateRecord={handleCreateRecord}
+              searchTerm={filter.searchTerm}
+              filteredRecords={filter.filteredRecords}
+              newRecordId={form.newRecordId}
+              formData={form.formData}
+              onFieldChange={form.handleFieldChange}
+              onSaveRecord={(id, collection) => form.saveRecord(id, collection)}
+              onCancelEdit={form.cancelEditing}
+              editingRecordId={form.editingRecordId}
+              onStartEdit={form.startEditing}
+              formErrors={form.errors}
+            />
+          </CollectionErrorBoundary>
+        ) : (
+          // Handle case where currentCollection is null (likely loading or schema fetch error)
+          // The context provider or Dashboard usually handles the initial schema load error display
+          // This part might need refinement based on how initial load errors are presented
+          <div className="flex items-center justify-center h-64">
+            {/* Optionally show loading or a generic message if needed */}
+          </div>
+        )}
       </div>
     </Container>
   );

@@ -1,4 +1,5 @@
 import { createStorageAdapter } from './adapters';
+import { ApiAdapterError } from './adapters/ApiStorageAdapter';
 import type { CollectionSchema } from './shared/types/schema';
 
 const storageAdapter = createStorageAdapter();
@@ -11,7 +12,11 @@ export const schemaService = {
       collectionsCache = await storageAdapter.getSchema();
     } catch (error) {
       console.error('[schemaService] Error loading schema:', error);
-      throw error;
+      if (error instanceof ApiAdapterError) {
+        throw error;
+      } else {
+        throw new Error('Failed to initialize schema service.');
+      }
     }
   },
 

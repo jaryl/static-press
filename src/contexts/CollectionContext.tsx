@@ -13,6 +13,7 @@ interface CollectionContextType {
   records: CollectionRecord[];
   loading: boolean;
   error: string | null;
+  errorType: string | null;
   fetchCollections: () => Promise<void>;
   fetchCollection: (slug: string) => Promise<CollectionSchema | null>;
   fetchRecords: (slug: string) => Promise<CollectionRecord[]>;
@@ -34,6 +35,7 @@ export const CollectionProvider = ({ children }: { children: ReactNode }) => {
   const [records, setRecords] = useState<CollectionRecord[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [errorType, setErrorType] = useState<string | null>(null);
   const { toast } = useToast();
 
   const fetchCollections = useCallback(async (): Promise<void> => {
@@ -42,8 +44,9 @@ export const CollectionProvider = ({ children }: { children: ReactNode }) => {
         const data = await schemaService.getCollections();
         setCollections(data);
         setError(null);
+        setErrorType(null);
       } catch (err) {
-        handleApiError('fetch collections', err, setError, toast, false);
+        handleApiError('fetch collections', err, setError, toast, setErrorType, false);
       }
     }, setLoading);
   }, [toast, setLoading]);
@@ -57,15 +60,17 @@ export const CollectionProvider = ({ children }: { children: ReactNode }) => {
         if (!collection) {
           setCurrentCollection(null);
           setError(`Collection schema '${id}' not found.`);
+          setErrorType('SCHEMA_NOT_FOUND');
           return null;
         } else {
           setCurrentCollection(collection);
           setError(null);
+          setErrorType(null);
           return collection;
         }
       } catch (err) {
         setCurrentCollection(null);
-        handleApiError('fetch collection', err, setError, toast, false);
+        handleApiError('fetch collection', err, setError, toast, setErrorType, false);
         return null;
       }
     }, setLoading);
@@ -76,26 +81,28 @@ export const CollectionProvider = ({ children }: { children: ReactNode }) => {
       try {
         const data = await collectionService.getRecords(slug);
         setRecords(data);
-        setError(null); // Clear error on successful record fetch
+        setError(null);
+        setErrorType(null);
         return data;
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to fetch records';
-        const isDataFormatError = errorMessage.includes('Malformed data') ||
-          errorMessage.includes('Invalid data format') ||
-          errorMessage.includes('missing required fields');
+        let message = 'Failed to fetch records';
+        let type: string | null = 'UNKNOWN_ERROR';
 
-        setError(errorMessage);
-
-        if (!isDataFormatError) {
-          toast({
-            title: "Error",
-            description: "Failed to fetch collection records",
-            variant: "destructive",
-          });
-          return []; // Return empty array for non-data format errors
+        if (err instanceof Error) {
+          message = err.message;
         }
 
-        throw err;
+        setError(message);
+        setErrorType(type);
+
+        if (type !== 'COLLECTION_DATA_NOT_FOUND') {
+          toast({
+            title: "Error Fetching Records",
+            description: message,
+            variant: "destructive",
+          });
+        }
+        return [];
       }
     }, setLoading);
   }, [toast, setLoading]);
@@ -104,12 +111,11 @@ export const CollectionProvider = ({ children }: { children: ReactNode }) => {
     return withLoading(async () => {
       try {
         const newCollection = await schemaService.createCollection(collectionData);
-        // Refetch collections list to include the new one
         await fetchCollections();
         return newCollection;
       } catch (err) {
-        handleApiError('create collection', err, setError, toast); // Default rethrow=true
-        throw err; // Rethrow after handling
+        handleApiError('create collection', err, setError, toast, setErrorType);
+        throw err;
       }
     }, setLoading);
   }, [fetchCollections, toast, setLoading]);
@@ -118,14 +124,13 @@ export const CollectionProvider = ({ children }: { children: ReactNode }) => {
     return withLoading(async () => {
       try {
         const updatedCollection = await schemaService.updateCollection(slug, updates);
-        // Update the list and potentially currentCollection
         setCollections(prev => prev.map(c => c.slug === slug ? updatedCollection : c));
         if (currentCollection?.slug === slug) {
           setCurrentCollection(updatedCollection);
         }
         return updatedCollection;
       } catch (err) {
-        handleApiError('update collection', err, setError, toast);
+        handleApiError('update collection', err, setError, toast, setErrorType);
         throw err;
       }
     }, setLoading);
@@ -135,13 +140,12 @@ export const CollectionProvider = ({ children }: { children: ReactNode }) => {
     return withLoading(async () => {
       try {
         await schemaService.deleteCollection(slug);
-        // Update the list and potentially currentCollection
         setCollections(prev => prev.filter(c => c.slug !== slug));
         if (currentCollection?.slug === slug) {
-          setCurrentCollection(null); // Clear current if it was deleted
+          setCurrentCollection(null);
         }
       } catch (err) {
-        handleApiError('delete collection', err, setError, toast);
+        handleApiError('delete collection', err, setError, toast, setErrorType);
         throw err;
       }
     }, setLoading);
@@ -151,11 +155,10 @@ export const CollectionProvider = ({ children }: { children: ReactNode }) => {
     return withLoading(async () => {
       try {
         const newRecord = await collectionService.createRecord(slug, data);
-        // Optimistically update or refetch? Refetch for simplicity for now.
         await fetchRecords(slug);
         return newRecord;
       } catch (err) {
-        handleApiError('create record', err, setError, toast);
+        handleApiError('create record', err, setError, toast, setErrorType);
         throw err;
       }
     }, setLoading);
@@ -165,11 +168,10 @@ export const CollectionProvider = ({ children }: { children: ReactNode }) => {
     return withLoading(async () => {
       try {
         const updatedRecord = await collectionService.updateRecord(slug, recordId, data);
-        // Optimistically update or refetch? Refetch for simplicity.
         await fetchRecords(slug);
         return updatedRecord;
       } catch (err) {
-        handleApiError('update record', err, setError, toast);
+        handleApiError('update record', err, setError, toast, setErrorType);
         throw err;
       }
     }, setLoading);
@@ -179,10 +181,9 @@ export const CollectionProvider = ({ children }: { children: ReactNode }) => {
     return withLoading(async () => {
       try {
         await collectionService.deleteRecord(slug, recordId);
-        // Optimistically update or refetch? Refetch for simplicity.
         await fetchRecords(slug);
       } catch (err) {
-        handleApiError('delete record', err, setError, toast);
+        handleApiError('delete record', err, setError, toast, setErrorType);
         throw err;
       }
     }, setLoading);
@@ -190,7 +191,7 @@ export const CollectionProvider = ({ children }: { children: ReactNode }) => {
 
   const getRawCollectionUrl = useCallback((slug: string): string => {
     return collectionService.getRawCollectionDataUrl(slug);
-  }, []); // No dependencies
+  }, []);
 
   const value = {
     collections,
@@ -198,6 +199,7 @@ export const CollectionProvider = ({ children }: { children: ReactNode }) => {
     records,
     loading,
     error,
+    errorType,
     fetchCollections,
     fetchCollection,
     fetchRecords,

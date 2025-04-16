@@ -5,13 +5,13 @@ import { Readable } from 'stream';
 // Schema is always at the root level
 const SCHEMA_KEY = 'schema.json';
 
-// Helper function to stream S3 response to string
+// Helper function to convert stream to string
 async function streamToString(stream: Readable): Promise<string> {
   return new Promise((resolve, reject) => {
-    const chunks: Buffer[] = [];
-    stream.on('data', (chunk) => chunks.push(Buffer.from(chunk)));
+    const chunks: Uint8Array[] = [];
+    stream.on('data', (chunk) => chunks.push(chunk));
     stream.on('error', reject);
-    stream.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
+    stream.on('end', () => resolve(Buffer.concat(chunks).toString('utf-8')));
   });
 }
 
@@ -26,39 +26,75 @@ export async function getSchema() {
     console.error("[API Core] S3 bucket name is missing!");
     return {
       statusCode: 500,
-      body: { message: 'Server configuration error: S3 bucket name missing.' }
+      body: {
+        errorType: 'CONFIGURATION_ERROR', // Added errorType
+        message: 'Server configuration error: S3 bucket name missing.'
+      }
     };
   }
 
   console.log(`[API Core] Attempting to fetch schema from S3 at key: ${SCHEMA_KEY}`);
 
   try {
+    // Attempt to get the object
     const command = new GetObjectCommand({
       Bucket: bucketName,
       Key: SCHEMA_KEY,
     });
-
     const response = await s3Client.send(command);
 
     if (!response.Body) {
-      throw new Error('Empty response body');
+      // This case is unlikely but good to handle
+      throw new Error('Empty response body from S3');
     }
 
-    const bodyContents = await streamToString(response.Body as Readable);
-    const schemaData = JSON.parse(bodyContents);
+    // Attempt to parse the content
+    try {
+      const bodyContents = await streamToString(response.Body as Readable);
+      const schemaData = JSON.parse(bodyContents);
 
-    console.log(`[API Core] Successfully retrieved schema from S3: ${SCHEMA_KEY}`);
-    return {
-      statusCode: 200,
-      body: schemaData
-    };
-  } catch (error) {
+      console.log(`[API Core] Successfully retrieved and parsed schema from S3: ${SCHEMA_KEY}`);
+      return {
+        statusCode: 200,
+        body: schemaData
+      };
+    } catch (parseError) {
+      // Handle JSON parsing error specifically
+      if (parseError instanceof SyntaxError) {
+        console.error(`[API Core] Error parsing schema JSON from S3: ${SCHEMA_KEY}`, parseError);
+        return {
+          statusCode: 500,
+          body: {
+            errorType: 'SCHEMA_MALFORMED',
+            message: `Failed to parse schema file (schema.json): ${parseError.message}`
+          }
+        };
+      }
+      // Re-throw other stream/parsing errors to be caught below
+      throw parseError;
+    }
+  } catch (error: any) { // Use 'any' to access error.name
+    // Check for S3 Not Found error
+    if (error.name === 'NoSuchKey') {
+      console.warn(`[API Core] Schema file not found in S3: ${SCHEMA_KEY}`);
+      return {
+        statusCode: 404,
+        body: {
+          errorType: 'SCHEMA_FILE_NOT_FOUND',
+          message: 'Schema file (schema.json) not found in storage.'
+        }
+      };
+    }
+
+    // Handle other S3 or unexpected errors
     console.error(`[API Core] Error retrieving schema from S3: ${SCHEMA_KEY}`, error);
     return {
       statusCode: 500,
       body: {
-        message: `Failed to retrieve schema from S3`,
-        error: error instanceof Error ? error.message : String(error)
+        errorType: 'INTERNAL_ERROR',
+        message: `Failed to retrieve schema from S3 due to an internal error.`,
+        // Optionally include error details in dev mode, but be cautious in prod
+        // error: error instanceof Error ? error.message : String(error)
       }
     };
   }

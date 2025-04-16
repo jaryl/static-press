@@ -1,6 +1,19 @@
 import type { StorageAdapter } from './StorageAdapter';
-import type { CollectionSchema } from '../../shared/types/schema';
-import type { CollectionRecord } from '../../shared/types/collection';
+import type { CollectionSchema } from '../shared/types/schema';
+import type { CollectionRecord } from '../shared/types/collection';
+
+// Custom error class for adapter-specific issues
+export class ApiAdapterError extends Error {
+  errorType: string;
+  status?: number;
+
+  constructor(message: string, errorType: string, status?: number) {
+    super(message);
+    this.name = 'ApiAdapterError';
+    this.errorType = errorType;
+    this.status = status;
+  }
+}
 
 export class ApiStorageAdapter implements StorageAdapter {
   private baseUrl: string;
@@ -52,27 +65,69 @@ export class ApiStorageAdapter implements StorageAdapter {
 
   async getCollectionData(slug: string): Promise<CollectionRecord[]> {
     if (!this.baseUrl) {
-      throw new Error(`[ApiStorageAdapter] Base URL could not be constructed. Cannot fetch data for ${slug} from remote source.`);
+      // This is a configuration error, should ideally not happen if constructor runs ok
+      throw new ApiAdapterError(
+        `[ApiStorageAdapter] Base URL could not be constructed. Cannot fetch data for ${slug} from remote source.`,
+        'CONFIGURATION_ERROR'
+      );
     }
 
-    try {
-      // Collections are always in the data directory (already included in baseUrl)
-      const dataUrl = `${this.baseUrl}/${slug}.json`;
-      console.log(`[ApiStorageAdapter] Fetching data from ${dataUrl}`);
+    const dataUrl = `${this.baseUrl}/${slug}.json`;
+    console.log(`[ApiStorageAdapter] Fetching data from ${dataUrl}`);
 
+    try {
       const response = await fetch(dataUrl);
+
+      // Handle Not Found
       if (response.status === 404) {
-        return [];
+        console.warn(`[ApiStorageAdapter] Data file not found for ${slug} at ${dataUrl}`);
+        throw new ApiAdapterError(
+          `Collection data file (${slug}.json) not found.`,
+          'COLLECTION_DATA_NOT_FOUND',
+          404
+        );
       }
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status} fetching ${slug}.json`);
-      const data = await response.json();
-      if (!Array.isArray(data)) {
-        throw new Error(`Invalid data format for ${slug}.json - expected array`);
+
+      // Handle other non-successful responses
+      if (!response.ok) {
+        throw new ApiAdapterError(
+          `HTTP error fetching collection data for ${slug}. Status: ${response.status}`,
+          'FETCH_ERROR',
+          response.status
+        );
       }
-      return data as CollectionRecord[];
+
+      // Try parsing the JSON response
+      try {
+        const data = await response.json();
+        if (!Array.isArray(data)) {
+          // Treat non-array response as malformed data
+          throw new Error(`Invalid data format for ${slug}.json - expected array`);
+        }
+        return data as CollectionRecord[];
+      } catch (parseError) {
+        // Handle JSON parsing errors
+        console.error(`[ApiStorageAdapter] Failed to parse JSON for ${slug}.json from ${dataUrl}`, parseError);
+        throw new ApiAdapterError(
+          `Failed to parse collection data file (${slug}.json). It might be malformed.`,
+          'COLLECTION_DATA_MALFORMED',
+          response.status // Keep the original status if available
+        );
+      }
     } catch (error) {
-      console.error(`[ApiStorageAdapter] Failed to load ${slug}.json from remote`, error);
-      throw error;
+      // Catch fetch errors (network issues) or re-throw specific ApiAdapterErrors
+      if (error instanceof ApiAdapterError) {
+        // Re-throw the specific error we created
+        throw error;
+      } else {
+        // Catch generic fetch/network errors
+        console.error(`[ApiStorageAdapter] Network or unexpected error fetching ${slug}.json from remote`, error);
+        throw new ApiAdapterError(
+          `Failed to fetch collection data for ${slug} due to a network or unexpected error.`,
+          'FETCH_ERROR'
+          // No status code available here usually
+        );
+      }
     }
   }
 

@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
-import { schemaService, CollectionSchema } from '@/services/schemaService';
+import { schemaService } from '@/services/schemaService';
+import type { CollectionSchema } from '../services/shared/types/schema';
+import { ApiAdapterError } from '@/services/adapters/ApiStorageAdapter';
 
 interface UseSchemaLoaderReturn {
   schema: CollectionSchema | null;
   isLoading: boolean;
   error: string | null;
+  errorType: string | null;
 }
 
 /**
@@ -15,12 +18,14 @@ export const useSchemaLoader = (slug: string | undefined): UseSchemaLoaderReturn
   const [schema, setSchema] = useState<CollectionSchema | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [errorType, setErrorType] = useState<string | null>(null);
 
   useEffect(() => {
     // Reset state when slug changes or on initial mount
     setSchema(null);
     setIsLoading(true);
     setError(null);
+    setErrorType(null);
 
     if (!slug) {
       setError("No collection slug provided.");
@@ -38,12 +43,21 @@ export const useSchemaLoader = (slug: string | undefined): UseSchemaLoaderReturn
             setSchema(collectionData);
           } else {
             setError(`Collection schema '${slug}' not found.`);
+            setErrorType('COLLECTION_SCHEMA_NOT_FOUND');
           }
         }
       } catch (err) {
         if (isMounted) {
-          const message = err instanceof Error ? err.message : String(err);
-          setError(`Error fetching collection: ${message}`);
+          if (err instanceof ApiAdapterError) {
+            console.error(`[useSchemaLoader] ApiAdapterError (${err.errorType}):`, err.message);
+            setError(err.message);
+            setErrorType(err.errorType);
+          } else {
+            const message = err instanceof Error ? err.message : String(err);
+            console.error(`[useSchemaLoader] Generic error:`, message);
+            setError(`Error fetching collection: ${message}`);
+            setErrorType('UNKNOWN_ERROR');
+          }
         }
       } finally {
         if (isMounted) {
@@ -60,5 +74,5 @@ export const useSchemaLoader = (slug: string | undefined): UseSchemaLoaderReturn
     };
   }, [slug]); // Re-run effect if slug changes
 
-  return { schema, isLoading, error };
+  return { schema, isLoading, error, errorType };
 };

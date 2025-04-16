@@ -14,7 +14,14 @@ import { Card } from "@/components/ui/card";
 import { useCreateCollectionSubmit } from '@/hooks/useCreateCollectionSubmit';
 
 const Dashboard = () => {
-  const { collections, fetchCollections, loading, createCollection } = useCollection();
+  const {
+    collections,
+    fetchCollections,
+    loading,
+    createCollection,
+    error,
+    errorType
+  } = useCollection();
   const [searchTerm, setSearchTerm] = useState("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
@@ -45,6 +52,29 @@ const Dashboard = () => {
     );
   });
 
+  const renderError = () => {
+    if (!error) return null;
+
+    let title = "Error Loading Collections";
+    let description = error;
+
+    if (errorType === 'SCHEMA_FILE_NOT_FOUND') {
+      title = "Schema Not Found";
+      description = "The main schema file (schema.json) could not be found. Please check your storage configuration or initialize the schema.";
+    } else if (errorType === 'SCHEMA_MALFORMED') {
+      title = "Invalid Schema Format";
+      description = "The main schema file (schema.json) is not valid JSON. Please check the file content.";
+    }
+
+    return (
+      <Card className="bg-destructive/10 border-destructive text-destructive-foreground p-4 m-6 text-center">
+        <p className="font-semibold">{title}</p>
+        <p className="text-sm mt-1">{description}</p>
+        <Button variant="destructive" size="sm" className="mt-3" onClick={() => fetchCollections()}>Retry</Button>
+      </Card>
+    );
+  }
+
   return (
     <Container>
       <Sidebar />
@@ -71,7 +101,9 @@ const Dashboard = () => {
           onSearch={handleSearch}
         />
 
-        {loading && collections.length === 0 ? (
+        {renderError()}
+
+        {!error && loading && collections.length === 0 ? (
           <div className="flex items-center justify-center h-64">
             <Spinner />
           </div>
