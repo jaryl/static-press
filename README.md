@@ -1,15 +1,12 @@
 <div align="center">
   <h1>Static Press</h1>
-  <p>A modern headless CMS that deploys as a static site - no traditional backend required</p>
+  <p>A simple serverless CMS that deploys as a static site - no traditional backend required</p>
 
   <p>
-    <a href="https://github.com/jaryl/static-press/blob/main/LICENSE">
-      <img src="https://img.shields.io/github/license/jaryl/static-press" alt="License">
-    </a>
-    <a href="https://cloud.digitalocean.com/apps/new?repo=https://github.com/jaryl/static-press/tree/main&refcode=3eb491dbdfc1">
-      <img src="https://img.shields.io/badge/DigitalOcean-Deploy-0080FF?logo=digitalocean" alt="Deploy to DigitalOcean">
-    </a>
-    <small><i>(Referral link - supports project development)</i></small>
+    <a href="https://github.com/jaryl/static-press/blob/main/LICENSE"><img src="https://img.shields.io/github/license/jaryl/static-press" alt="License"></a>
+    <a href="https://cloud.digitalocean.com/apps/new?repo=https://github.com/jaryl/static-press/tree/main&refcode=3eb491dbdfc1"><img src="https://img.shields.io/badge/DigitalOcean-Deploy-0080FF?logo=digitalocean" alt="Deploy to DigitalOcean"></a>
+    <a href="https://windsurf.com/refer?referral_code=91db5694eb"><img src="https://img.shields.io/badge/Windsurf-AI_Editor-0066FF?logo=windsurf" alt="Windsurf Agentic IDE"></a>
+    <small><i>(Referral links - support project development)</i></small>
   </p>
 </div>
 
