@@ -2,7 +2,7 @@
   "name": "@static-press/collections",
   "version": "1.0.0",
   "description": "Collections endpoint",
-  "main": "update.js",
+  "main": "handler.js",
   "scripts": {},
   "dependencies": {
     "@aws-sdk/client-s3": "^3.556.0",

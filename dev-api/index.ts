@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import schemaRoutes from './api/schema';
 import collectionRoutes from './api/collection';
-import { handleLogin } from './core-api';
+import { handleLogin } from '../lib/core-api';
 import { authenticateToken } from './middleware/auth';
 
 const app = express();

@@ -1,24 +1,57 @@
 spec:
   name: static-press
+  alerts:
+    - rule: DEPLOYMENT_FAILED
+    - rule: DOMAIN_FAILED
+
+  ingress:
+    rules:
+      - component:
+          name: static-press-web
+        match:
+          path:
+            prefix: /zxc
+        cors:
+          allow_origins:
+            - regex: .*
+          allow_methods: ["GET"]
+
+      - component:
+          name: static-press-api
+        match:
+          path:
+            prefix: /api
+        cors:
+          allow_origins:
+            - regex: "^https?://.*\\.ondigitalocean\\.app$"
+          allow_methods: ["GET", "PUT", "POST"]
+          allow_headers: ["Authorization"]
+          expose_headers: ["Authorization"]
+          allow_credentials: true
 
   # Static site for the frontend
   static_sites:
-    - name: static-press-frontend
+    - name: static-press-web
       github:
-        repo: ${_self}
+        repo: jaryl/static-press
         branch: main
-        deploy_on_push: true
+        deploy_on_push: false
       build_command: npm run build
       output_dir: dist
-      routes:
-        - path: /
+      source_dir: /
       envs:
+        - key: VITE_APP_REPOSITORY_URL
+          scope: BUILD_TIME
+          value: ${_self}
+        - key: VITE_APP_VERSION
+          scope: BUILD_TIME
+          value: ${_self.COMMIT_HASH}
         - key: VITE_USE_REMOTE_DATA
           scope: BUILD_TIME
-          value: true
+          value: "true"
         - key: VITE_API_BASE_URL
           scope: BUILD_TIME
-          value: "${_self.HOSTNAME}/api"
+          value: "https://${_self.HOSTNAME}/api"
         - key: VITE_S3_ENDPOINT_URL
           scope: BUILD_TIME
         - key: VITE_S3_BUCKET_NAME
@@ -28,10 +61,10 @@ spec:
   functions:
     - name: static-press-api
       github:
-        repo: ${_self}
+        repo: jaryl/static-press
         branch: main
-        deploy_on_push: true
-      source_dir: packages
+        deploy_on_push: false
+      source_dir: /
       envs:
         - key: VITE_S3_ENDPOINT_URL
           scope: RUN_TIME
@@ -43,6 +76,9 @@ spec:
         - key: S3_ACCESS_KEY_ID
           scope: RUN_TIME
         - key: S3_SECRET_ACCESS_KEY
+          type: SECRET
+          scope: RUN_TIME
+        - key: JWT_SECRET
           type: SECRET
           scope: RUN_TIME
         - key: NODE_ENV

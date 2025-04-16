@@ -1,5 +1,5 @@
 // src/lib/api-logic/handlers/auth.ts
-import jwt from 'jsonwebtoken';
+import * as jose from 'jose';
 
 // --- FAKE DATA & CONFIG (Replace with real logic/env vars later) ---
 const ADMIN_USERNAME = 'admin';
@@ -15,7 +15,15 @@ if (!JWT_SECRET) {
   // In a production app, you might want to throw an error here to prevent startup
   // throw new Error('JWT_SECRET environment variable is required');
 }
-// -------------------------------------------------------------------
+
+// Utility to get the secret key as Uint8Array
+const getSecretKey = () => {
+  if (!JWT_SECRET) {
+    throw new Error('JWT_SECRET is not configured.');
+  }
+  // jose requires the key material as a Uint8Array
+  return new TextEncoder().encode(JWT_SECRET);
+};
 
 interface LoginRequestBody {
   username?: string;
@@ -29,17 +37,16 @@ interface ApiResponse {
 }
 
 /**
- * Handles user login attempts.
+ * Handles user login attempts using jose.
  * Validates credentials and returns a JWT if successful.
+ * NOTE: This function is now async due to jose's async nature.
  */
-export const handleLogin = (body: string | null): ApiResponse => {
-  let credentials: LoginRequestBody;
-  try {
-    credentials = body ? JSON.parse(body) : {};
-  } catch (error) {
+export const handleLogin = async (credentials: LoginRequestBody): Promise<ApiResponse> => {
+  // Basic check if credentials object is empty or missing essential fields
+  if (!credentials || typeof credentials !== 'object' || Object.keys(credentials).length === 0) {
     return {
       statusCode: 400,
-      body: { message: 'Invalid request body: Malformed JSON.' },
+      body: { message: `Invalid or empty request body.` },
     };
   }
 
@@ -55,22 +62,22 @@ export const handleLogin = (body: string | null): ApiResponse => {
   // --- Replace with actual credential validation logic later ---
   if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
     // Credentials are valid, generate JWT
-    const payload = {
-      sub: username, // Subject (usually user ID or username)
-      role: 'admin', // Example custom claim for role
-      // iat (issued at) is added automatically
+    const payload: jose.JWTPayload = {
+      role: 'admin', // Example custom claim
+      // 'sub' will be set via .setSubject()
+      // 'iat' will be set via .setIssuedAt()
+      // 'exp' will be set via .setExpirationTime()
     };
 
     try {
-      // Ensure JWT_SECRET is defined before using it
-      if (!JWT_SECRET) {
-        throw new Error('JWT_SECRET is not configured. Authentication cannot proceed.');
-      }
+      const secretKey = getSecretKey(); // Get key material
 
-      const token = jwt.sign(payload, JWT_SECRET, {
-        expiresIn: JWT_EXPIRATION,
-        algorithm: 'HS256',
-      });
+      const token = await new jose.SignJWT(payload)
+        .setProtectedHeader({ alg: 'HS256' }) // Set Algorithm
+        .setIssuedAt()                         // Set 'iat' claim
+        .setSubject(username)                  // Set 'sub' claim
+        .setExpirationTime(JWT_EXPIRATION)     // Set 'exp' claim
+        .sign(secretKey);                      // Sign the token (async)
 
       return {
         statusCode: 200,
@@ -79,8 +86,12 @@ export const handleLogin = (body: string | null): ApiResponse => {
           'Content-Type': 'application/json',
         },
       };
-    } catch (error) {
-      console.error('[API Logic Auth] Error signing JWT:', error);
+    } catch (error: any) {
+      console.error('[API Logic Auth] Error signing JWT with jose:', error.message || error);
+      // Provide a more specific error message if the key was the issue
+      if (error.message.includes('JWT_SECRET')) {
+        return { statusCode: 500, body: { message: 'Internal server error: JWT secret misconfiguration.' } };
+      }
       return {
         statusCode: 500,
         body: { message: 'Internal server error: Could not generate token.' },

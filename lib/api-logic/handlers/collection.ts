@@ -1,5 +1,5 @@
 import { PutObjectCommand } from '@aws-sdk/client-s3';
-import { s3Client, bucketName } from '@/lib/s3Client';
+import { s3Client, bucketName } from '../../s3Client.ts';
 
 // Collections are always in the data directory
 const getCollectionKey = (slug: string) => `data/${slug}.json`;

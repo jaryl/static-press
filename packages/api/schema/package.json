@@ -2,7 +2,7 @@
   "name": "@static-press/schema",
   "version": "1.0.0",
   "description": "Schema endpoint",
-  "main": "index.js",
+  "main": "handler.js",
   "scripts": {},
   "dependencies": {
     "@aws-sdk/client-s3": "^3.556.0",

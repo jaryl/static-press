@@ -1,0 +1,17 @@
+{
+  "name": "auth-function",
+  "version": "1.0.0",
+  "description": "Authentication function bundle script",
+  "private": true,
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "build": "esbuild handler.js --bundle --outfile=index.js --platform=node --format=esm --target=node18 --minify --external:jose"
+  },
+  "dependencies": {
+    "jose": "^5.2.4"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.2"
+  }
+}

@@ -1,25 +1,23 @@
-const { updateCollection } = require('../core-api');
-// const { updateCollection } = require('../../../src/lib/api-logic/handlers/collection'); // Old import
-// Require the authentication utility
-const { authenticateRequest } = require('../utils/auth');
+// packages/default/collections/handler.js
+import { updateCollection } from '../../../lib/api-logic/handlers/collection.js';
+import { authenticateRequest } from '../../../lib/auth.js';
 
 /**
- * DigitalOcean Serverless Function for updating collection data (Protected)
+ * DigitalOcean Serverless Function for collection operations (Protected)
+ * Handles PUT requests to /api/collections/:slug
  * @param {Object} args - Parameters passed to the function
  * @returns {Object} Response object with statusCode and body
  */
 async function main(args) {
-  console.log('[Collections] Received PUT /api/collections/:slug');
-
   try {
     // --- Authentication Check ---
     const decodedToken = await authenticateRequest(args);
-    // Optional: Use decodedToken.sub or decodedToken.role if needed for authorization
     console.log(`[Collections] Authenticated user: ${decodedToken.sub}`);
     // ---------------------------
 
     // Extract the slug from the path parameters
-    const slug = args.__ow_path.split('/').pop();
+    const pathParts = args.__ow_path.split('/');
+    const slug = pathParts.length > 3 ? pathParts[pathParts.length - 1] : null;
 
     if (!slug) {
       return {
@@ -29,12 +27,27 @@ async function main(args) {
       };
     }
 
-    // Extract the collection data from the request body
+    // Determine the HTTP method
+    const method = args.__ow_method ? args.__ow_method.toUpperCase() : 'GET';
+    console.log(`[Collections] Received ${method} /api/collections/${slug}`);
+
+    // We only support PUT for collections via the API
+    if (method !== 'PUT') {
+      return {
+        statusCode: 405,
+        headers: {
+          'Content-Type': 'application/json',
+          'Allow': 'PUT'
+        },
+        body: { message: 'Method Not Allowed. Only PUT is supported for collections.' }
+      };
+    }
+
+    // Handle PUT request
     const recordsData = typeof args.__ow_body === 'string'
       ? JSON.parse(args.__ow_body)
       : args.__ow_body;
 
-    // Call the core handler
     const result = await updateCollection(slug, recordsData);
 
     // Return the result
@@ -46,7 +59,7 @@ async function main(args) {
 
   } catch (error) {
     // Handle potential errors, including authentication errors
-    console.error('[Collections] Error in collection update function:', error.message || error);
+    console.error(`[Collections] Error in collections ${args.__ow_method} function:`, error.message || error);
 
     let statusCode = 500;
     let message = 'Internal Server Error';
@@ -65,4 +78,4 @@ async function main(args) {
   }
 }
 
-module.exports = { main }; // Ensure main is exported
+module.exports = { main };
