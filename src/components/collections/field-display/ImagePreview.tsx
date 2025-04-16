@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Eye, ExternalLink, ImageOff, Image as ImageIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { collectionService } from "@/services/backend/collectionService";
+import { collectionService } from "@/services/collectionService";
 
 interface ImageMetadata {
   width?: number;

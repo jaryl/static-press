@@ -22,6 +22,8 @@ interface CollectionFormProps {
   triggerButton?: React.ReactNode;
   title?: string;
   submitButtonText?: string;
+  isSubmitting?: boolean;
+  submissionError?: string | null;
 }
 
 export const CollectionForm: React.FC<CollectionFormProps> = ({
@@ -31,7 +33,9 @@ export const CollectionForm: React.FC<CollectionFormProps> = ({
   isOpen,
   triggerButton,
   title = 'New Collection',
-  submitButtonText = 'Create Collection'
+  submitButtonText = 'Create Collection',
+  isSubmitting = false,
+  submissionError = null,
 }) => {
   const [formData, setFormData] = useState<CollectionFormData>(initialValues);
 
@@ -88,9 +92,14 @@ export const CollectionForm: React.FC<CollectionFormProps> = ({
           rows={3}
         />
       </div>
+      {submissionError && (
+        <div className="text-xs text-red-600 mt-2">
+          {submissionError}
+        </div>
+      )}
       <div className="flex justify-end">
-        <Button type="submit">
-          {submitButtonText}
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Creating...' : submitButtonText}
         </Button>
       </div>
     </form>
@@ -117,25 +126,39 @@ export const CollectionForm: React.FC<CollectionFormProps> = ({
 };
 
 // Convenience component for creating a new collection with a button trigger
-export const NewCollectionDialog: React.FC<{
+interface NewCollectionDialogProps {
   onSubmit: (data: CollectionFormData) => void;
   isOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
   buttonSize?: 'sm' | 'default';
-}> = ({ onSubmit, isOpen, onOpenChange, buttonSize = 'sm' }) => {
+  isSubmitting?: boolean;
+  submissionError?: string | null;
+}
+
+export const NewCollectionDialog: React.FC<NewCollectionDialogProps> = ({
+  onSubmit,
+  isOpen,
+  onOpenChange,
+  buttonSize = 'sm',
+  isSubmitting = false,
+  submissionError = null,
+}) => {
   return (
     <CollectionForm
       onSubmit={onSubmit}
       isOpen={isOpen}
       onOpenChange={onOpenChange}
-      title="Create New Collection"
+      initialValues={{ name: '', slug: '', description: '', fields: [] }} // Reset form
       triggerButton={
-        <Button size={buttonSize} className={buttonSize === 'sm' ? "h-8 text-xs" : ""}>
+        <Button size={buttonSize} className={buttonSize === 'sm' ? 'h-7 text-xs' : ''}>
           <Plus className="mr-1 h-3.5 w-3.5" />
-          New Collection
+          Create Collection
         </Button>
       }
+      title="Create New Collection"
       submitButtonText="Create Collection"
+      isSubmitting={isSubmitting} // Pass down
+      submissionError={submissionError} // Pass down
     />
   );
 };

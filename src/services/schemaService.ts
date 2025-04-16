@@ -1,5 +1,5 @@
 import { createStorageAdapter } from './adapters';
-import type { CollectionSchema } from '../shared/types/schema';
+import type { CollectionSchema } from './shared/types/schema';
 
 const storageAdapter = createStorageAdapter();
 let collectionsCache: CollectionSchema[] = [];

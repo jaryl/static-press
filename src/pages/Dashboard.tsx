@@ -11,11 +11,14 @@ import NoResults from "@/components/layout/NoResults";
 import { NewCollectionDialog, CollectionFormData } from '@/components/layout/CollectionForm';
 import { CollectionTable } from '@/components/dashboard/CollectionTable';
 import { Card } from "@/components/ui/card";
+import { useCreateCollectionSubmit } from '@/hooks/useCreateCollectionSubmit';
 
 const Dashboard = () => {
   const { collections, fetchCollections, loading, createCollection } = useCollection();
   const [searchTerm, setSearchTerm] = useState("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+
+  const { submit: submitNewCollection, isSubmitting, error: submissionError, resetError } = useCreateCollectionSubmit(createCollection);
 
   useEffect(() => {
     fetchCollections();
@@ -25,20 +28,16 @@ const Dashboard = () => {
     setSearchTerm(value);
   };
 
-  const handleCreateCollectionSubmit = async (data: CollectionFormData) => {
-    try {
-      await createCollection({
-        ...data,
-        fields: data.fields || []
-      });
+  const handleDialogSubmit = async (data: CollectionFormData) => {
+    const success = await submitNewCollection(data);
+    if (success) {
       setIsCreateDialogOpen(false);
-    } catch (error) {
-      console.error('Failed to create collection:', error);
+    } else {
+      console.error("Submission failed:", submissionError);
     }
   };
 
   const filteredCollections = collections.filter(collection => {
-    // Ensure searchTerm is treated as a string
     const search = String(searchTerm).toLowerCase();
     return (
       collection.name.toLowerCase().includes(search) ||
@@ -53,11 +52,15 @@ const Dashboard = () => {
         <PrimaryHeader
           title="Collections"
         >
-          {/* New Collection Button */}
           <NewCollectionDialog
-            onSubmit={handleCreateCollectionSubmit}
+            onSubmit={handleDialogSubmit}
             isOpen={isCreateDialogOpen}
-            onOpenChange={setIsCreateDialogOpen}
+            onOpenChange={(isOpen) => {
+              setIsCreateDialogOpen(isOpen);
+              if (!isOpen) resetError();
+            }}
+            isSubmitting={isSubmitting}
+            submissionError={submissionError}
           />
         </PrimaryHeader>
         <SecondaryHeader

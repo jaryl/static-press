@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { createStorageAdapter } from './adapters';
 import { schemaService } from './schemaService';
-import type { CollectionRecord, RecordData } from '../shared/types/collection';
+import type { CollectionRecord, RecordData } from './shared/types/collection';
 
 const storageAdapter = createStorageAdapter();
 let recordsCache: Record<string, CollectionRecord[]> = {};
