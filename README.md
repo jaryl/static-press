@@ -97,16 +97,16 @@ This approach ensures you have the correct Node.js version and all required depe
 
 ```
 static-press/
-├── core/                # Shared business logic
-│   └── handlers/        # Core API handlers
-├── packages/            # Serverless functions
-│   └── default/         # DigitalOcean Functions
-├── server/              # Express development server
-│   └── api/             # API routes
+├── dev-api/             # Express development server (mocks API)
+│   └── api/             # API routes for local dev
+├── packages/            # Serverless functions (for deployment)
+│   └── default/         # DigitalOcean Functions structure
 ├── src/                 # Frontend React application
 │   ├── components/      # UI components
-│   ├── lib/             # Utility functions
+│   ├── lib/             # Utility functions & shared logic
+│   │   └── api-logic/   # Core API handlers (used by dev-api & packages)
 │   └── pages/           # Application pages
+├── public/              # Static assets
 └── .do/                 # DigitalOcean deployment config
 ```
 
