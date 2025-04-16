@@ -5,7 +5,7 @@ import { Spinner } from '@/components/ui/spinner';
 import Container from '@/components/layout/Container';
 import { PrimaryHeader } from '@/components/layout/PrimaryHeader';
 import { SecondaryHeader } from '@/components/layout/SecondaryHeader';
-import { useSchemaLoader } from '@/hooks/useSchemaLoader';
+import { useSchemaLoader } from '@/hooks/use-schema-loader';
 import { GenericErrorDisplay } from '@/components/layout/GenericErrorDisplay';
 import React from 'react';
 

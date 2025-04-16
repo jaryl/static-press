@@ -11,7 +11,7 @@ import NoResults from "@/components/layout/NoResults";
 import { NewCollectionDialog, CollectionFormData } from '@/components/layout/CollectionForm';
 import { CollectionTable } from '@/components/dashboard/CollectionTable';
 import { Card } from "@/components/ui/card";
-import { useCreateCollectionSubmit } from '@/hooks/useCreateCollectionSubmit';
+import { useCreateCollectionSubmit } from '@/hooks/use-create-collection-submit';
 
 const Dashboard = () => {
   const {
