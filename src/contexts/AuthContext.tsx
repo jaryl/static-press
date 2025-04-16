@@ -33,7 +33,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(user);
         toast({
           title: "Login successful",
-          description: `Welcome back, ${user.name}!`,
+          description: `Welcome back, ${user.id}!`,
         });
         return true;
       } else {

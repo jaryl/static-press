@@ -1,5 +1,6 @@
 import type { StorageAdapter } from './StorageAdapter';
 import type { CollectionSchema, CollectionRecord } from '@/types';
+import { authService } from '@/services/authService';
 
 // Custom error class for adapter-specific issues
 export class ApiAdapterError extends Error {
@@ -36,6 +37,39 @@ export class ApiStorageAdapter implements StorageAdapter {
     console.log(`[ApiStorageAdapter] Initialized with data URL: ${this.baseUrl}`);
   }
 
+  /**
+   * Private helper method to make authenticated API requests
+   * @param url The URL to fetch
+   * @param options Additional fetch options
+   * @returns Promise with the fetch response
+   */
+  private async fetchWithAuth(
+    url: string,
+    options: RequestInit = {}
+  ): Promise<Response> {
+    // Get the auth token
+    const token = authService.getToken();
+
+    // Prepare headers with authentication
+    const headers = {
+      ...options.headers,
+      'Authorization': token ? `Bearer ${token}` : '',
+    };
+
+    // If we're sending JSON data, add the Content-Type header
+    if (options.body && !headers['Content-Type']) {
+      headers['Content-Type'] = 'application/json';
+    }
+
+    // Make the authenticated request
+    const response = await fetch(url, {
+      ...options,
+      headers,
+    });
+
+    return response;
+  }
+
   // Read operations
   async getSchema(): Promise<CollectionSchema[]> {
     if (!this.apiBaseUrl) {
@@ -47,7 +81,8 @@ export class ApiStorageAdapter implements StorageAdapter {
       const schemaUrl = `${this.apiBaseUrl}/schema`;
       console.log(`[ApiStorageAdapter] Fetching schema from API: ${schemaUrl}`);
 
-      const response = await fetch(schemaUrl);
+      const response = await this.fetchWithAuth(schemaUrl);
+
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status} fetching schema from API`);
 
       const schema = await response.json();
@@ -75,6 +110,7 @@ export class ApiStorageAdapter implements StorageAdapter {
     console.log(`[ApiStorageAdapter] Fetching data from ${dataUrl}`);
 
     try {
+      // Note: This is a direct S3 request, not an API request, so we don't use fetchWithAuth
       const response = await fetch(dataUrl);
 
       // Handle Not Found
@@ -134,11 +170,8 @@ export class ApiStorageAdapter implements StorageAdapter {
   async updateSchema(schemaData: CollectionSchema[]): Promise<void> {
     console.log(`[ApiStorageAdapter] Sending schema update to ${this.apiBaseUrl}/schema`);
     try {
-      const response = await fetch(`${this.apiBaseUrl}/schema`, {
+      const response = await this.fetchWithAuth(`${this.apiBaseUrl}/schema`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify(schemaData),
       });
 
@@ -157,12 +190,8 @@ export class ApiStorageAdapter implements StorageAdapter {
     const url = `${this.apiBaseUrl}/collections/${slug}`;
     console.log(`[ApiStorageAdapter] Sending collection data update to ${url}`);
     try {
-      const response = await fetch(url, {
+      const response = await this.fetchWithAuth(url, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-
-        },
         body: JSON.stringify(records),
       });
 

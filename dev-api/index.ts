@@ -1,8 +1,9 @@
-// server/index.ts
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import schemaRoutes from './api/schema';
 import collectionRoutes from './api/collection';
+import { handleLogin } from '../src/lib/api-logic/handlers/auth';
+import { authenticateToken } from './middleware/auth';
 
 const app = express();
 const port = process.env.API_PORT || 3001;
@@ -13,14 +14,26 @@ const bucketName = process.env.VITE_S3_BUCKET_NAME;
 app.use(cors({ origin: viteDevServerUrl })); // Allow requests from Vite dev server
 app.use(express.json()); // Parse JSON request bodies
 
-// Mount Routers
-app.use('/api/schema', schemaRoutes);
-app.use('/api/collections', collectionRoutes);
+// --- Public Routes (No Auth Required) ---
+// Login route - must be public
+app.post('/api/login', (req: Request, res: Response) => {
+  const rawBody = req.body ? JSON.stringify(req.body) : null;
+  const apiResponse = handleLogin(rawBody);
+  if (apiResponse.headers) {
+    res.set(apiResponse.headers);
+  }
+  res.status(apiResponse.statusCode).json(apiResponse.body);
+});
 
-// Root/Health Check Route
+// Root/Health Check Route - can remain public
 app.get('/', (req: Request, res: Response) => {
   res.send('Static Press API Server is running.');
 });
+
+// --- Protected Routes (Auth Required) ---
+// Mount protected routers, applying middleware individually
+app.use('/api/schema', authenticateToken, schemaRoutes);
+app.use('/api/collections', authenticateToken, collectionRoutes);
 
 // Start Server
 app.listen(port, () => {

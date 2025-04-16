@@ -1,4 +1,5 @@
-const { updateSchema } = require('../../../src/lib/api-logic/handlers/schema');
+const { updateSchema } = require('../core-api');
+const { authenticateRequest } = require('../utils/auth');
 
 /**
  * DigitalOcean Serverless Function for updating schema
@@ -9,6 +10,11 @@ async function main(args) {
   console.log('[Schema] Received PUT /api/schema');
 
   try {
+    // --- Authentication Check ---
+    const decodedToken = await authenticateRequest(args);
+    console.log(`[Schema] Authenticated user: ${decodedToken.sub}`);
+    // ---------------------------
+
     // Extract the schema data from the request body
     const schemaData = typeof args.__ow_body === 'string'
       ? JSON.parse(args.__ow_body)
@@ -26,16 +32,24 @@ async function main(args) {
       body: result.body
     };
   } catch (error) {
-    console.error('[Schema] Error in schema update function:', error);
+    // Handle potential errors, including authentication errors
+    console.error('[Schema] Error in schema update function:', error.message || error);
+
+    let statusCode = 500;
+    let message = 'Internal Server Error';
+
+    // Check if it's an authentication error from our utility
+    if (error.message.startsWith('Unauthorized:') || error.message.startsWith('Forbidden:')) {
+      statusCode = error.message.startsWith('Forbidden:') ? 403 : 401;
+      message = error.message;
+    }
+
     return {
-      statusCode: 500,
+      statusCode: statusCode,
       headers: {
         'Content-Type': 'application/json'
       },
-      body: {
-        message: 'Internal server error',
-        error: error.message
-      }
+      body: { message: message }
     };
   }
 }

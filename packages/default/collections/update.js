@@ -1,7 +1,10 @@
-const { updateCollection } = require('../../../src/lib/api-logic/handlers/collection');
+const { updateCollection } = require('../core-api');
+// const { updateCollection } = require('../../../src/lib/api-logic/handlers/collection'); // Old import
+// Require the authentication utility
+const { authenticateRequest } = require('../utils/auth');
 
 /**
- * DigitalOcean Serverless Function for updating collection data
+ * DigitalOcean Serverless Function for updating collection data (Protected)
  * @param {Object} args - Parameters passed to the function
  * @returns {Object} Response object with statusCode and body
  */
@@ -9,18 +12,20 @@ async function main(args) {
   console.log('[Collections] Received PUT /api/collections/:slug');
 
   try {
+    // --- Authentication Check ---
+    const decodedToken = await authenticateRequest(args);
+    // Optional: Use decodedToken.sub or decodedToken.role if needed for authorization
+    console.log(`[Collections] Authenticated user: ${decodedToken.sub}`);
+    // ---------------------------
+
     // Extract the slug from the path parameters
     const slug = args.__ow_path.split('/').pop();
 
     if (!slug) {
       return {
         statusCode: 400,
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: {
-          message: 'Missing collection slug in path'
-        }
+        headers: { 'Content-Type': 'application/json' },
+        body: { message: 'Missing collection slug in path' }
       };
     }
 
@@ -32,28 +37,32 @@ async function main(args) {
     // Call the core handler
     const result = await updateCollection(slug, recordsData);
 
-    // Return the result in the format expected by DigitalOcean Functions
+    // Return the result
     return {
       statusCode: result.statusCode,
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: result.body
     };
+
   } catch (error) {
-    console.error('[Collections] Error in collection update function:', error);
+    // Handle potential errors, including authentication errors
+    console.error('[Collections] Error in collection update function:', error.message || error);
+
+    let statusCode = 500;
+    let message = 'Internal Server Error';
+
+    // Check if it's an authentication error from our utility
+    if (error.message.startsWith('Unauthorized:') || error.message.startsWith('Forbidden:')) {
+      statusCode = error.message.startsWith('Forbidden:') ? 403 : 401;
+      message = error.message;
+    }
+
     return {
-      statusCode: 500,
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: {
-        message: 'Internal server error',
-        error: error.message
-      }
+      statusCode: statusCode,
+      headers: { 'Content-Type': 'application/json' },
+      body: { message: message }
     };
   }
 }
 
-// Export the function for DigitalOcean Functions
-exports.main = main;
+module.exports = { main }; // Ensure main is exported
