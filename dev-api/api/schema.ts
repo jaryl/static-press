@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { getSchema, updateSchema } from '../../src/lib/api-logic/handlers/schema';
+import { getSchema, updateSchema } from '../core-api';
 
 const router = Router();
 

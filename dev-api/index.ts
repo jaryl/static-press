@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import schemaRoutes from './api/schema';
 import collectionRoutes from './api/collection';
-import { handleLogin } from '../src/lib/api-logic/handlers/auth';
+import { handleLogin } from './core-api';
 import { authenticateToken } from './middleware/auth';
 
 const app = express();

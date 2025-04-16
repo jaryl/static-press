@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { updateCollection } from '../../src/lib/api-logic/handlers/collection';
+import { updateCollection } from '../core-api';
 
 const router = Router();
 
