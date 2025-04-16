@@ -1,81 +1,51 @@
 import { Component, ErrorInfo, ReactNode } from 'react';
-import { Button } from '@/components/ui/button';
-import { AlertCircle, RefreshCw } from 'lucide-react';
+import { useNavigate, NavigateFunction } from 'react-router-dom';
+import { GenericErrorDisplay } from '@/components/layout/GenericErrorDisplay';
 
-interface Props {
+interface CollectionErrorBoundaryProps {
   children: ReactNode;
-  onRetry: () => void;
-  collectionId?: string;
+  onRetry?: () => void;
+  navigate?: NavigateFunction;
 }
 
-interface State {
+interface CollectionErrorBoundaryState {
   hasError: boolean;
-  error: Error | null;
-  lastCollectionId?: string;
+  error?: Error;
 }
 
-class CollectionErrorBoundary extends Component<Props, State> {
-  constructor(props: Props) {
+class CollectionErrorBoundary extends Component<CollectionErrorBoundaryProps, CollectionErrorBoundaryState> {
+  constructor(props: CollectionErrorBoundaryProps) {
     super(props);
-    this.state = {
-      hasError: false,
-      error: null,
-      lastCollectionId: props.collectionId
-    };
+    this.state = { hasError: false };
   }
 
-  static getDerivedStateFromError(error: Error): Partial<State> {
-    return {
-      hasError: true,
-      error
-    };
-  }
-
-  static getDerivedStateFromProps(props: Props, state: State): Partial<State> | null {
-    if (state.hasError && props.collectionId !== state.lastCollectionId) {
-      return {
-        hasError: false,
-        error: null,
-        lastCollectionId: props.collectionId
-      };
-    }
-
-    if (props.collectionId !== state.lastCollectionId) {
-      return {
-        lastCollectionId: props.collectionId
-      };
-    }
-
-    return null;
+  static getDerivedStateFromError(error: Error): CollectionErrorBoundaryState {
+    return { hasError: true, error };
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     console.error('Collection error boundary caught an error:', error, errorInfo);
   }
 
+  handleGoToDashboard = () => {
+    if (this.props.navigate) {
+      this.props.navigate('/dashboard');
+    } else {
+      console.error('Navigate function not provided to CollectionErrorBoundary');
+    }
+  };
+
   render(): ReactNode {
     if (this.state.hasError) {
       return (
-        <div className="flex flex-col items-center justify-center h-full w-full p-8 text-center">
-          <div className="bg-destructive/10 p-4 rounded-lg mb-4 inline-flex">
-            <AlertCircle className="h-6 w-6 text-destructive" />
-          </div>
-          <h3 className="text-lg font-semibold mb-2">Error Loading Collection Data</h3>
-          <p className="text-sm text-muted-foreground mb-4 max-w-md">
-            There was a problem loading the collection data. This might be due to malformed data or schema incompatibility.
-          </p>
-          <p className="text-xs text-destructive mb-6 max-w-md font-mono bg-muted p-2 rounded overflow-auto">
-            {this.state.error?.message || 'Unknown error'}
-          </p>
-          <Button
-            onClick={this.props.onRetry}
-            variant="outline"
-            className="flex items-center gap-2"
-          >
-            <RefreshCw className="h-4 w-4" />
-            Retry
-          </Button>
-        </div>
+        <GenericErrorDisplay
+          title="Something went wrong"
+          description="An unexpected error occurred while rendering this part of the application."
+          errorMessage={this.state.error?.message || 'Unknown error'}
+          actionButtonLabel="Back to Dashboard"
+          onActionClick={this.handleGoToDashboard}
+          containerClassName="w-full h-full"
+        />
       );
     }
 
@@ -83,4 +53,9 @@ class CollectionErrorBoundary extends Component<Props, State> {
   }
 }
 
-export default CollectionErrorBoundary;
+const CollectionErrorBoundaryWithNavigation = (props: Omit<CollectionErrorBoundaryProps, 'navigate'>) => {
+  const navigate = useNavigate();
+  return <CollectionErrorBoundary {...props} navigate={navigate} />;
+};
+
+export default CollectionErrorBoundaryWithNavigation;
