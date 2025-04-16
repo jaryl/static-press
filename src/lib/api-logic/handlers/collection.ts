@@ -26,7 +26,7 @@ export async function updateCollection(slug: string, recordsData: any) {
   }
 
   const key = getCollectionKey(slug);
-  console.log(`[API Core] Attempting to update collection in S3 at key: ${key}`);
+  console.log('[API Core] Attempting to update collection in S3 at key: %s', key);
 
   const command = new PutObjectCommand({
     Bucket: bucketName,
@@ -38,13 +38,13 @@ export async function updateCollection(slug: string, recordsData: any) {
 
   try {
     await s3Client.send(command);
-    console.log(`[API Core] Successfully updated ${key} in S3 bucket: ${bucketName}`);
+    console.log('[API Core] Successfully updated %s in S3 bucket: %s', key, bucketName);
     return {
       statusCode: 200,
       body: { message: `Collection ${slug} updated successfully in S3` }
     };
   } catch (error) {
-    console.error(`[API Core] Error updating ${key} in S3:`, error);
+    console.error('[API Core] Error updating %s in S3: %s', key, error);
     return {
       statusCode: 500,
       body: {
