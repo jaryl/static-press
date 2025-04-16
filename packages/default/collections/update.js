@@ -1,5 +1,4 @@
-// packages/default/collections/update.js
-const { updateCollection } = require('../../../core/handlers/collection');
+const { updateCollection } = require('../../../src/lib/api-logic/handlers/collection');
 
 /**
  * DigitalOcean Serverless Function for updating collection data

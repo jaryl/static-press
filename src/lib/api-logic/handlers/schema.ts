@@ -1,6 +1,5 @@
-// core/handlers/schema.ts
 import { PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
-import { s3Client, bucketName } from '../../src/lib/s3Client';
+import { s3Client, bucketName } from '@/lib/s3Client';
 import { Readable } from 'stream';
 
 // Schema is always at the root level

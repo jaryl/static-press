@@ -1,5 +1,4 @@
-// packages/default/schema/index.js
-const { getSchema } = require('../../../core/handlers/schema');
+const { getSchema } = require('../../../src/lib/api-logic/handlers/schema');
 
 /**
  * DigitalOcean Serverless Function for getting schema

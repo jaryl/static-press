@@ -1,6 +1,5 @@
-// server/api/collection.ts
 import { Router, Request, Response } from 'express';
-import { updateCollection } from '../../core/handlers/collection';
+import { updateCollection } from '../../src/lib/api-logic/handlers/collection';
 
 const router = Router();
 

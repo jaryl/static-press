@@ -1,5 +1,4 @@
-// packages/default/schema/update.js
-const { updateSchema } = require('../../../core/handlers/schema');
+const { updateSchema } = require('../../../src/lib/api-logic/handlers/schema');
 
 /**
  * DigitalOcean Serverless Function for updating schema
