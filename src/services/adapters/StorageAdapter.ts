@@ -1,5 +1,4 @@
-import type { CollectionSchema } from '../../shared/types/schema';
-import type { CollectionRecord } from '../../shared/types/collection';
+import type { CollectionSchema, CollectionRecord } from '@/types';
 
 /**
  * StorageAdapter interface - For CRUD operations

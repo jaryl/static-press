@@ -1,5 +1,4 @@
-import { RecordData } from '@/services/shared/types/collection';
-import { FieldDefinition } from '@/services/shared/types/schema';
+import type { RecordData, FieldDefinition } from '@/types';
 
 /**
  * Validates record data against field definitions

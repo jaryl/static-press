@@ -1,6 +1,5 @@
 import type { StorageAdapter } from './StorageAdapter';
-import type { CollectionSchema } from '../../shared/types/schema';
-import type { CollectionRecord } from '../../shared/types/collection';
+import type { CollectionSchema, CollectionRecord } from '@/types';
 import { importImage } from '@/lib/imageLoader';
 
 const validFieldTypes = [

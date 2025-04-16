@@ -1,6 +1,6 @@
 import { createStorageAdapter } from './adapters';
 import { ApiAdapterError } from './adapters/ApiStorageAdapter';
-import type { CollectionSchema } from './shared/types/schema';
+import type { CollectionSchema } from '@/types';
 
 const storageAdapter = createStorageAdapter();
 let collectionsCache: CollectionSchema[] = [];

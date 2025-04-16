@@ -1,11 +1,15 @@
 import { createContext, ReactNode, useContext, useState, useCallback } from 'react';
-import type { CollectionSchema, FieldDefinition } from '@/services/shared/types/schema';
-import type { CollectionRecord, RecordData } from '@/services/shared/types/collection';
+import type {
+  CollectionSchema,
+  FieldDefinition,
+  CollectionRecord,
+  RecordData,
+} from '@/types';
 import { schemaService } from '@/services/schemaService';
 import { collectionService } from '@/services/collectionService';
 import { useToast } from '@/hooks/use-toast';
-import { validateRecord } from '../lib/validation';
-import { handleApiError, withLoading } from '../lib/utils';
+import { validateRecord } from '@/lib/validation';
+import { handleApiError, withLoading } from '@/lib/utils';
 
 interface CollectionContextType {
   collections: CollectionSchema[];

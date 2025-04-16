@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { schemaService } from '@/services/schemaService';
-import type { CollectionSchema } from '../services/shared/types/schema';
+import type { CollectionSchema } from '@/types';
 import { ApiAdapterError } from '@/services/adapters/ApiStorageAdapter';
 
 interface UseSchemaLoaderReturn {

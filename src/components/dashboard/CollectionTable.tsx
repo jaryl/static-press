@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Eye, Pencil, ExternalLink } from 'lucide-react';
 import { useCollection } from '@/contexts/CollectionContext';
-import { CollectionSchema } from '@/services/shared/types/schema';
+import type { CollectionSchema } from '@/types';
 
 interface CollectionTableProps {
   collections: CollectionSchema[];

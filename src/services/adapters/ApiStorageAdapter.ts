@@ -1,6 +1,5 @@
 import type { StorageAdapter } from './StorageAdapter';
-import type { CollectionSchema } from '../shared/types/schema';
-import type { CollectionRecord } from '../shared/types/collection';
+import type { CollectionSchema, CollectionRecord } from '@/types';
 
 // Custom error class for adapter-specific issues
 export class ApiAdapterError extends Error {
@@ -21,8 +20,8 @@ export class ApiStorageAdapter implements StorageAdapter {
 
   constructor() {
     // Construct the base URL from S3 configuration
-    const s3Endpoint = import.meta.env.VITE_S3_ENDPOINT_URL || 'https://sgp1.digitaloceanspaces.com';
-    const s3Bucket = import.meta.env.VITE_S3_BUCKET_NAME || 'nutripod-static';
+    const s3Endpoint = import.meta.env.VITE_S3_ENDPOINT_URL;
+    const s3Bucket = import.meta.env.VITE_S3_BUCKET_NAME;
 
     // Ensure endpoint doesn't have trailing slash
     const cleanEndpoint = s3Endpoint.endsWith('/') ? s3Endpoint.slice(0, -1) : s3Endpoint;

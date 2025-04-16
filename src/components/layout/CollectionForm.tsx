@@ -6,13 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import StandardDialog from '@/components/ui/standard-dialog';
 import { Plus, Lock, Database } from 'lucide-react';
 import { generateSlug } from '@/lib/utils';
-
-export interface CollectionFormData {
-  name: string;
-  slug: string;
-  description: string;
-  fields?: any[];
-}
+import type { CollectionFormData } from '@/types';
 
 interface CollectionFormProps {
   initialValues?: CollectionFormData;

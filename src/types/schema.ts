@@ -1,7 +1,21 @@
+// Define available field types
+export type FieldType =
+  | 'text'
+  | 'number'
+  | 'boolean'
+  | 'date'
+  | 'datetime'
+  | 'email'
+  | 'url'
+  | 'select'
+  | 'image'
+  | 'array'
+  | 'coordinates';
+
 export interface FieldDefinition {
   id: string;
   name: string;
-  type: 'text' | 'number' | 'boolean' | 'date' | 'datetime' | 'email' | 'url' | 'select' | 'image' | 'array' | 'coordinates';
+  type: FieldType;
   required: boolean;
   options?: string[];
   timezoneAware?: boolean;

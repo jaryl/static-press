@@ -1,35 +1,12 @@
-// Define available field types
-export type FieldType =
-  | 'text'
-  | 'number'
-  | 'boolean'
-  | 'date'
-  | 'datetime'
-  | 'email'
-  | 'url'
-  | 'select'
-  | 'image'
-  | 'array'
-  | 'coordinates';
+// Re-export core types for easier imports
 
-export interface Field {
-  id: string;
-  name: string;
-  type: FieldType;
-  required: boolean;
-  options?: string[];
-  timezoneAware?: boolean;
-}
+// From schema.ts
+export type { CollectionSchema, FieldDefinition, FieldType } from './schema';
 
-export interface Collection {
-  id: string;
-  name: string;
-  slug: string;
-  description: string;
-  fields: Field[];
-}
+// From collection.ts
+export type { CollectionRecord, RecordData } from './collection';
 
-export interface Record {
-  id: string;
-  data: { [key: string]: any };
-}
+// From forms.ts
+export type { CollectionFormData } from './forms';
+
+// Optionally add other shared types here or re-export from other files in src/types

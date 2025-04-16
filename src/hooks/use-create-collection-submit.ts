@@ -1,6 +1,5 @@
 import { useState, useCallback } from 'react';
-import { CollectionSchema } from '@/services/shared/types/schema';
-import { CollectionFormData } from '@/components/layout/CollectionForm'; // Assuming type is here
+import type { CollectionSchema, CollectionFormData } from '@/types';
 
 type CreateCollectionFunction = (
     data: Omit<CollectionSchema, 'createdAt' | 'updatedAt'>
