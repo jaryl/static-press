@@ -1,4 +1,4 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { useEffect, useRef } from "react";
 import { useCollection } from "@/contexts/CollectionContext";
 import { Sidebar } from "@/components/layout/sidebar";
@@ -15,13 +15,17 @@ import { useRecordFilter } from "@/hooks/use-record-filter";
 
 const Collection = () => {
   const { slug } = useParams<{ slug: string }>();
+  const navigate = useNavigate();
   const {
     currentCollection,
     records,
     validateRecord,
     createRecord,
     updateRecord,
-    getRawCollectionUrl
+    getRawCollectionUrl,
+    fetchCollection,
+    fetchRecords,
+    error
   } = useCollection();
 
   const form = useRecordForm({ validateRecord, createRecord, updateRecord });
@@ -30,14 +34,29 @@ const Collection = () => {
   const prevSlugRef = useRef(slug);
 
   useEffect(() => {
+    // Reset form state when slug changes
     if (prevSlugRef.current && prevSlugRef.current !== slug) {
       if (form.isEditing) {
         form.cancelEditing();
       }
+
+      // Force a clean fetch of the new collection when slug changes
+      if (slug) {
+        const loadCollection = async () => {
+          const collection = await fetchCollection(slug);
+          if (collection) {
+            fetchRecords(slug).catch(err => {
+              console.error("Error fetching records:", err);
+            });
+          }
+        };
+
+        loadCollection();
+      }
     }
 
     prevSlugRef.current = slug;
-  }, [slug, form]);
+  }, [slug, form, fetchCollection, fetchRecords]);
 
   const hasNewRecord = !!form.newRecordId;
   const hasAnyRecords = records.length > 0 || hasNewRecord;
@@ -139,7 +158,7 @@ const Collection = () => {
           </>
         )}
 
-        <CollectionErrorBoundary onRetry={() => window.location.reload()}>
+        <CollectionErrorBoundary onRetry={() => window.location.reload()} collectionId={slug}>
           <CollectionContent
             id={slug}
             onCreateRecord={handleCreateRecord}

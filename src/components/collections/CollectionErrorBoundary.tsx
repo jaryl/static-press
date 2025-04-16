@@ -5,11 +5,13 @@ import { AlertCircle, RefreshCw } from 'lucide-react';
 interface Props {
   children: ReactNode;
   onRetry: () => void;
+  collectionId?: string;
 }
 
 interface State {
   hasError: boolean;
   error: Error | null;
+  lastCollectionId?: string;
 }
 
 class CollectionErrorBoundary extends Component<Props, State> {
@@ -17,15 +19,34 @@ class CollectionErrorBoundary extends Component<Props, State> {
     super(props);
     this.state = {
       hasError: false,
-      error: null
+      error: null,
+      lastCollectionId: props.collectionId
     };
   }
 
-  static getDerivedStateFromError(error: Error): State {
+  static getDerivedStateFromError(error: Error): Partial<State> {
     return {
       hasError: true,
       error
     };
+  }
+
+  static getDerivedStateFromProps(props: Props, state: State): Partial<State> | null {
+    if (state.hasError && props.collectionId !== state.lastCollectionId) {
+      return {
+        hasError: false,
+        error: null,
+        lastCollectionId: props.collectionId
+      };
+    }
+
+    if (props.collectionId !== state.lastCollectionId) {
+      return {
+        lastCollectionId: props.collectionId
+      };
+    }
+
+    return null;
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
