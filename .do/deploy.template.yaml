@@ -4,30 +4,46 @@ spec:
     - rule: DEPLOYMENT_FAILED
     - rule: DOMAIN_FAILED
 
+  envs:
+    - key: NODE_ENV
+      scope: RUN_AND_BUILD_TIME
+      value: production
+    - key: VITE_S3_ENDPOINT_URL
+      scope: RUN_AND_BUILD_TIME
+    - key: VITE_S3_BUCKET_NAME
+      scope: RUN_AND_BUILD_TIME
+
   ingress:
     rules:
-      - component:
-          name: static-press-web
-        match:
-          path:
-            prefix: /zxc
-        cors:
-          allow_origins:
-            - regex: .*
-          allow_methods: ["GET"]
-
-      - component:
-          name: static-press-api
-        match:
-          path:
-            prefix: /api
-        cors:
-          allow_origins:
-            - regex: "^https?://.*\\.ondigitalocean\\.app$"
-          allow_methods: ["GET", "PUT", "POST"]
-          allow_headers: ["Authorization"]
-          expose_headers: ["Authorization"]
-          allow_credentials: true
+    - component:
+        name: static-press-web
+      match:
+        path:
+          prefix: /
+    - component:
+        name: static-press-api
+        rewrite: /api/auth
+      match:
+        path:
+          prefix: /api/login
+    - component:
+        name: static-press-api
+        rewrite: /api/ping
+      match:
+        path:
+          prefix: /api/ping
+    - component:
+        name: static-press-api
+        rewrite: /api/schema
+      match:
+        path:
+          prefix: /api/schema
+    - component:
+        name: static-press-api
+        rewrite: /api/collections
+      match:
+        path:
+          prefix: /api/collections
 
   # Static site for the frontend
   static_sites:
@@ -35,10 +51,11 @@ spec:
       github:
         repo: jaryl/static-press
         branch: main
-        deploy_on_push: false
+        deploy_on_push: true
       build_command: npm run build
       output_dir: dist
       source_dir: /
+      catchall_document: index.html
       envs:
         - key: VITE_APP_REPOSITORY_URL
           scope: BUILD_TIME
@@ -52,10 +69,7 @@ spec:
         - key: VITE_API_BASE_URL
           scope: BUILD_TIME
           value: "https://${_self.HOSTNAME}/api"
-        - key: VITE_S3_ENDPOINT_URL
-          scope: BUILD_TIME
-        - key: VITE_S3_BUCKET_NAME
-          scope: BUILD_TIME
+
 
   # Serverless functions
   functions:
@@ -63,13 +77,9 @@ spec:
       github:
         repo: jaryl/static-press
         branch: main
-        deploy_on_push: false
-      source_dir: /
+        deploy_on_push: true
+      source_dir: packages
       envs:
-        - key: VITE_S3_ENDPOINT_URL
-          scope: RUN_TIME
-        - key: VITE_S3_BUCKET_NAME
-          scope: RUN_TIME
         - key: S3_REGION
           scope: RUN_TIME
           value: us-east-1
@@ -80,7 +90,4 @@ spec:
           scope: RUN_TIME
         - key: JWT_SECRET
           type: SECRET
-          scope: RUN_TIME
-        - key: NODE_ENV
-          value: production
           scope: RUN_TIME
