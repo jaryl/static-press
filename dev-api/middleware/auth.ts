@@ -1,5 +1,6 @@
 // dev-api/middleware/auth.ts
 import { Request, Response, NextFunction } from 'express';
+import * as jose from 'jose';
 
 // IMPORTANT: Use the SAME secret as your login handler!
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -11,6 +12,15 @@ if (!JWT_SECRET) {
   // throw new Error('JWT_SECRET environment variable is required');
 }
 
+// Utility to get the secret key as Uint8Array (same as in auth.ts)
+const getSecretKey = () => {
+  if (!JWT_SECRET) {
+    throw new Error('JWT_SECRET is not configured.');
+  }
+  // jose requires the key material as a Uint8Array
+  return new TextEncoder().encode(JWT_SECRET);
+};
+
 // Extend Express Request type to include 'user' property
 // This avoids TypeScript errors when attaching the decoded payload
 declare global {
@@ -21,42 +31,38 @@ declare global {
   }
 }
 
-// Refactored to use async/await
+// Refactored to use jose for JWT verification
 export const authenticateToken = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
-  if (token == null) {
-    // No token provided - End the cycle
-    res.status(401).json({ message: 'Unauthorized: No token provided.' });
-    return; // Explicitly return to satisfy void promise type
+  if (!token) {
+    res.status(401).json({ message: 'Unauthorized: No token provided' });
+    return;
   }
 
   try {
-    // Promisify jwt.verify
-    const user = await new Promise((resolve, reject) => {
-      // Ensure JWT_SECRET is defined before using it
-      if (!JWT_SECRET) {
-        return reject(new Error('JWT_SECRET is not configured. Authentication cannot proceed.'));
-      }
+    // Get the secret key
+    const secretKey = getSecretKey();
 
-      jwt.verify(token, JWT_SECRET, (err: any, decoded: any) => {
-        if (err) {
-          return reject(err);
-        }
-        resolve(decoded);
-      });
+    // Verify the token using jose
+    const { payload } = await jose.jwtVerify(token, secretKey, {
+      // Optional verification options can be added here
     });
 
-    // Token is valid, attach payload to request object
-    req.user = user;
-    next(); // Proceed to the next middleware or route handler
+    // Attach the decoded payload to the request object
+    req.user = payload;
+    next();
+  } catch (error: any) {
+    console.error('[Auth Middleware] Token verification failed:', error.message || error);
 
-  } catch (err: any) {
-    // Token is invalid (bad signature, expired, etc.)
-    console.error('[Auth Middleware] Token verification failed:', err.message);
-    // End the cycle
-    res.status(403).json({ message: 'Forbidden: Invalid or expired token.' });
-    // No explicit return needed here as res.status().json() ends the cycle
+    // Provide a more specific error based on the error type
+    if (error.code === 'ERR_JWT_EXPIRED') {
+      res.status(401).json({ message: 'Unauthorized: Token expired' });
+    } else if (error.code === 'ERR_JWS_INVALID' || error.code === 'ERR_JWS_SIGNATURE_VERIFICATION_FAILED') {
+      res.status(403).json({ message: 'Forbidden: Invalid token' });
+    } else {
+      res.status(403).json({ message: 'Forbidden: Token verification failed' });
+    }
   }
 };

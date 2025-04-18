@@ -1,6 +1,6 @@
 // packages/default/schema/handler.js
 import { getSchema, updateSchema } from '../../../lib/api-logic/handlers/schema.js';
-import { authenticateRequest } from '../../../lib/auth.js';
+import { authenticateRequest } from '../../../lib/api-logic/handlers/auth.js';
 
 /**
  * DigitalOcean Serverless Function for schema operations (Protected)

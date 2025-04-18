@@ -105,3 +105,56 @@ export const handleLogin = async (credentials: LoginRequestBody): Promise<ApiRes
     };
   }
 };
+
+/**
+ * Authenticates a request based on the JWT in the Authorization header.
+ * Assumes DigitalOcean Functions header format.
+ * @param args - The arguments passed to the serverless function.
+ * @returns The decoded JWT payload if authentication succeeds.
+ * @throws Error If authentication fails (no token, invalid token, expired token).
+ */
+export async function authenticateRequest(args: any): Promise<jose.JWTPayload> {
+  // Extract headers (adjust key based on serverless provider if needed)
+  const headers = args.__ow_headers || {};
+  const authHeader = headers['authorization'];
+
+  if (!authHeader) {
+    throw new Error('Unauthorized: No Authorization header provided.');
+  }
+
+  // Token format is 'Bearer YOUR_TOKEN'
+  const tokenParts = authHeader.split(' ');
+  if (tokenParts.length !== 2 || tokenParts[0].toLowerCase() !== 'bearer') {
+    throw new Error('Unauthorized: Malformed Authorization header.');
+  }
+  const token = tokenParts[1];
+
+  if (!token) {
+    throw new Error('Unauthorized: No token provided in Authorization header.');
+  }
+
+  try {
+    // Get the secret key
+    const secretKey = getSecretKey();
+
+    // Verify the token using jose
+    const { payload } = await jose.jwtVerify(token, secretKey, {
+      // Optional verification options can be added here
+    });
+
+    return payload;
+  } catch (error: any) {
+    console.error('[Auth Util] Token verification failed:', error.message || error);
+
+    // Provide a more specific error based on the error type
+    if (error.code === 'ERR_JWT_EXPIRED') {
+      throw new Error('Forbidden: Token expired.');
+    } else if (error.code === 'ERR_JWS_INVALID') {
+      throw new Error('Forbidden: Invalid token.');
+    } else if (error.code === 'ERR_JWS_SIGNATURE_VERIFICATION_FAILED') {
+      throw new Error('Forbidden: Token signature verification failed.');
+    } else {
+      throw new Error('Forbidden: Token verification failed.');
+    }
+  }
+}

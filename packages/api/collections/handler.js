@@ -1,6 +1,6 @@
 // packages/default/collections/handler.js
 import { updateCollection } from '../../../lib/api-logic/handlers/collection.js';
-import { authenticateRequest } from '../../../lib/auth.js';
+import { authenticateRequest } from '../../../lib/api-logic/handlers/auth.js';
 
 /**
  * DigitalOcean Serverless Function for collection operations (Protected)

@@ -2,11 +2,17 @@
   "name": "@static-press/schema",
   "version": "1.0.0",
   "description": "Schema endpoint",
-  "main": "handler.js",
-  "scripts": {},
+  "private": true,
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "build": "esbuild handler.js --bundle --outfile=index.js --platform=node --format=esm --target=node18 --minify --external:jose --external:@aws-sdk/client-s3"
+  },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.556.0",
-    "jsonwebtoken": "^9.0.0"
+    "jose": "^5.2.4"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "esbuild": "^0.25.2"
+  }
 }
