@@ -1,6 +1,5 @@
 // dev-api/middleware/auth.ts
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
 
 // IMPORTANT: Use the SAME secret as your login handler!
 const JWT_SECRET = process.env.JWT_SECRET;

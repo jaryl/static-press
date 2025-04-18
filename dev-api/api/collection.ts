@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { updateCollection } from '../../lib/core-api.js';
+import { updateCollection } from '../core-api';
 
 const router = Router();
 

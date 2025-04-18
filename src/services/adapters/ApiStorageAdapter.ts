@@ -17,7 +17,6 @@ export class ApiAdapterError extends Error {
 
 export class ApiStorageAdapter implements StorageAdapter {
   private baseUrl: string;
-  private apiBaseUrl: string;
 
   constructor() {
     // Construct the base URL from S3 configuration
@@ -30,21 +29,17 @@ export class ApiStorageAdapter implements StorageAdapter {
     // Construct the base URL for data files
     this.baseUrl = `${cleanEndpoint}/${s3Bucket}/data`;
 
-    // Get API base URL
-    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
-    this.apiBaseUrl = apiBaseUrl && apiBaseUrl.trim() !== '' ? apiBaseUrl : 'http://localhost:3001/api';
-
     console.log(`[ApiStorageAdapter] Initialized with data URL: ${this.baseUrl}`);
   }
 
   /**
    * Private helper method to make authenticated API requests
-   * @param url The URL to fetch
+   * @param relativePath The relative path to fetch
    * @param options Additional fetch options
    * @returns Promise with the fetch response
    */
   private async fetchWithAuth(
-    url: string,
+    relativePath: string,
     options: RequestInit = {}
   ): Promise<Response> {
     // Get the auth token
@@ -61,6 +56,10 @@ export class ApiStorageAdapter implements StorageAdapter {
       headers['Content-Type'] = 'application/json';
     }
 
+    // Construct the full URL using the relative path
+    // The browser will use the current origin (localhost:5173 or production domain)
+    const url = relativePath.startsWith('/') ? relativePath : `/${relativePath}`;
+
     // Make the authenticated request
     const response = await fetch(url, {
       ...options,
@@ -72,16 +71,12 @@ export class ApiStorageAdapter implements StorageAdapter {
 
   // Read operations
   async getSchema(): Promise<CollectionSchema[]> {
-    if (!this.apiBaseUrl) {
-      throw new Error('[ApiStorageAdapter] VITE_API_BASE_URL is not set. Cannot fetch schema from API.');
-    }
-
     try {
       // Use the API to fetch the schema
-      const schemaUrl = `${this.apiBaseUrl}/schema`;
-      console.log(`[ApiStorageAdapter] Fetching schema from API: ${schemaUrl}`);
+      const schemaPath = `/api/schema`;
+      console.log(`[ApiStorageAdapter] Fetching schema from API: ${schemaPath}`);
 
-      const response = await this.fetchWithAuth(schemaUrl);
+      const response = await this.fetchWithAuth(schemaPath);
 
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status} fetching schema from API`);
 
@@ -168,9 +163,10 @@ export class ApiStorageAdapter implements StorageAdapter {
 
   // Write operations
   async updateSchema(schemaData: CollectionSchema[]): Promise<void> {
-    console.log(`[ApiStorageAdapter] Sending schema update to ${this.apiBaseUrl}/schema`);
+    const schemaPath = `/api/schema`;
+    console.log(`[ApiStorageAdapter] Sending schema update to ${schemaPath}`);
     try {
-      const response = await this.fetchWithAuth(`${this.apiBaseUrl}/schema`, {
+      const response = await this.fetchWithAuth(schemaPath, {
         method: 'PUT',
         body: JSON.stringify(schemaData),
       });
@@ -187,10 +183,10 @@ export class ApiStorageAdapter implements StorageAdapter {
   }
 
   async saveCollectionData(slug: string, records: CollectionRecord[]): Promise<void> {
-    const url = `${this.apiBaseUrl}/collections/${slug}`;
-    console.log(`[ApiStorageAdapter] Sending collection data update to ${url}`);
+    const collectionPath = `/api/collections/${slug}`;
+    console.log(`[ApiStorageAdapter] Sending collection data update to ${collectionPath}`);
     try {
-      const response = await this.fetchWithAuth(url, {
+      const response = await this.fetchWithAuth(collectionPath, {
         method: 'PUT',
         body: JSON.stringify(records),
       });

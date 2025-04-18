@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import schemaRoutes from './api/schema';
 import collectionRoutes from './api/collection';
-import { handleLogin } from '../lib/core-api';
+import { handleLogin } from './core-api';
 import { authenticateToken } from './middleware/auth';
 
 const app = express();
@@ -16,13 +16,35 @@ app.use(express.json()); // Parse JSON request bodies
 
 // --- Public Routes (No Auth Required) ---
 // Login route - must be public
-app.post('/api/login', (req: Request, res: Response) => {
-  const rawBody = req.body ? JSON.stringify(req.body) : null;
-  const apiResponse = handleLogin(rawBody);
-  if (apiResponse.headers) {
-    res.set(apiResponse.headers);
+app.post('/api/login', async (req: Request, res: Response) => {
+  // Pass the request body directly, assuming it matches LoginRequestBody
+  // The express.json() middleware should have parsed it.
+  const credentials = req.body;
+
+  // Basic check if credentials object is provided
+  if (!credentials || typeof credentials !== 'object' || Object.keys(credentials).length === 0) {
+    res.status(400).json({ message: 'Invalid or empty request body.' });
+    return; // Explicitly return void after sending response
   }
-  res.status(apiResponse.statusCode).json(apiResponse.body);
+
+  try {
+    // Call handleLogin with the request body
+    const apiResponse = await handleLogin(credentials);
+
+    if (apiResponse.headers) {
+      res.set(apiResponse.headers);
+    }
+
+    // Send the response based on ApiResponse structure
+    res.status(apiResponse.statusCode).json(apiResponse.body);
+
+  } catch (error) {
+    console.error('Error handling /api/login:', error);
+    // Ensure a response is always sent in case of unexpected errors
+    if (!res.headersSent) {
+      res.status(500).json({ message: 'Internal Server Error' });
+    }
+  }
 });
 
 // Root/Health Check Route - can remain public
