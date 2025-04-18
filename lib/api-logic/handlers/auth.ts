@@ -108,15 +108,15 @@ export const handleLogin = async (credentials: LoginRequestBody): Promise<ApiRes
 
 /**
  * Authenticates a request based on the JWT in the Authorization header.
- * Assumes DigitalOcean Functions header format.
+ * Compatible with DigitalOcean Functions event format.
  * @param args - The arguments passed to the serverless function.
  * @returns The decoded JWT payload if authentication succeeds.
  * @throws Error If authentication fails (no token, invalid token, expired token).
  */
 export async function authenticateRequest(args: any): Promise<jose.JWTPayload> {
-  // Extract headers (adjust key based on serverless provider if needed)
-  const headers = args.__ow_headers || {};
-  const authHeader = headers['authorization'];
+  // Extract authorization header - handle both DigitalOcean Functions format and legacy format
+  // DigitalOcean Functions: headers are directly in the event object
+  const authHeader = args.http.headers.authorization;
 
   if (!authHeader) {
     throw new Error('Unauthorized: No Authorization header provided.');
@@ -128,10 +128,6 @@ export async function authenticateRequest(args: any): Promise<jose.JWTPayload> {
     throw new Error('Unauthorized: Malformed Authorization header.');
   }
   const token = tokenParts[1];
-
-  if (!token) {
-    throw new Error('Unauthorized: No token provided in Authorization header.');
-  }
 
   try {
     // Get the secret key

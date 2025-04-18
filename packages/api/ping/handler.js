@@ -13,4 +13,4 @@ async function main(args, context) {
   };
 }
 
-module.exports = { main };
+export { main };

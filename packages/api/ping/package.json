@@ -2,7 +2,9 @@
   "name": "ping-function",
   "version": "1.0.0",
   "description": "Serverless function for StaticPress ping endpoint",
+  "private": true,
   "main": "handler.js",
+  "type": "module",
   "scripts": {},
   "dependencies": {},
   "devDependencies": {}
