@@ -1,35 +1,27 @@
 import { PutObjectCommand } from '@aws-sdk/client-s3';
-import { s3Client, bucketName } from '../../s3Client.ts';
+import { s3Client } from '../../s3Client';
+import { ApiResponse, createSuccessResponse, createErrorResponse } from '../utils/response';
+import { config } from '../../config';
+import { logger } from '../../utils/logger';
 
 // Collections are always in the data directory
 const getCollectionKey = (slug: string) => `data/${slug}.json`;
 
 /**
- * Core handler for updating collection data
- * This function contains the business logic without being tied to Express or serverless
+ * Core handler for updating collection data in S3.
+ * This function contains the business logic without being tied to Express or serverless.
  */
-export async function updateCollection(slug: string, recordsData: any) {
+export async function updateCollection(slug: string, recordsData: any): Promise<ApiResponse> {
   // Validate input
   if (!Array.isArray(recordsData)) {
-    return {
-      statusCode: 400,
-      body: { message: 'Invalid data format. Expected an array of records.' }
-    };
-  }
-
-  if (!bucketName) {
-    console.error("[API Core] S3 bucket name is missing!");
-    return {
-      statusCode: 500,
-      body: { message: 'Server configuration error: S3 bucket name missing.' }
-    };
+    return createErrorResponse('Invalid data format. Expected an array of records.', 400, 'VALIDATION_ERROR');
   }
 
   const key = getCollectionKey(slug);
-  console.log('[API Core] Attempting to update collection in S3 at key: %s', key);
+  logger.info(`Attempting to update ${key} in S3 bucket: ${config.s3.bucketName}`);
 
   const command = new PutObjectCommand({
-    Bucket: bucketName,
+    Bucket: config.s3.bucketName,
     Key: key,
     Body: JSON.stringify(recordsData, null, 2),
     ContentType: 'application/json',
@@ -38,19 +30,10 @@ export async function updateCollection(slug: string, recordsData: any) {
 
   try {
     await s3Client.send(command);
-    console.log('[API Core] Successfully updated %s in S3 bucket: %s', key, bucketName);
-    return {
-      statusCode: 200,
-      body: { message: `Collection ${slug} updated successfully in S3` }
-    };
+    logger.info(`Successfully updated ${key} in S3 bucket: ${config.s3.bucketName}`);
+    return createSuccessResponse({ message: `Collection ${slug} updated successfully in S3` });
   } catch (error) {
-    console.error('[API Core] Error updating %s in S3: %s', key, error);
-    return {
-      statusCode: 500,
-      body: {
-        message: `Failed to update collection ${slug} in S3`,
-        error: error instanceof Error ? error.message : String(error)
-      }
-    };
+    logger.error(`Error updating ${key} in S3:`, error);
+    return createErrorResponse(`Failed to update collection ${slug} in S3`, 500, 'S3_UPDATE_ERROR');
   }
 }

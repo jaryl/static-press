@@ -29,4 +29,4 @@ const s3Client = new S3Client({
   forcePathStyle: !!endpoint,
 });
 
-export { s3Client, bucketName };
+export { s3Client };
