@@ -2,32 +2,51 @@
 import { logger } from './utils/logger';
 
 /**
- * Loads and validates required environment variables.
- * Throws an error if any required variable is missing.
+ * Loads and validates the necessary configuration from environment variables.
  */
-function loadConfig() {
+function loadConfig(): {
+  s3: {
+    bucketName: string;
+  };
+  auth: {
+    jwtSecret: string;
+  };
+  urls: {
+    presignedUrlExpirySeconds: number;
+  }
+} {
   const bucketName = process.env.VITE_S3_BUCKET_NAME;
-  const jwtSecret = process.env.JWT_SECRET;
-
   if (!bucketName) {
-    throw new Error("Configuration Error: S3_BUCKET_NAME environment variable is not set.");
+    throw new Error("Configuration Error: VITE_S3_BUCKET_NAME environment variable is not set.");
   }
 
+  const jwtSecret = process.env.JWT_SECRET;
   if (!jwtSecret) {
     throw new Error("Configuration Error: JWT_SECRET environment variable is not set.");
   }
 
-  // Add other required variables here in the future
+  // Load URL expiry, providing a default
+  const presignedUrlExpirySecondsRaw = process.env.VITE_PRESIGNED_URL_EXPIRY_SECONDS;
+  let presignedUrlExpirySeconds = 3600; // Default to 1 hour
+  if (presignedUrlExpirySecondsRaw) {
+    const parsed = parseInt(presignedUrlExpirySecondsRaw, 10);
+    if (!isNaN(parsed) && parsed > 0) {
+      presignedUrlExpirySeconds = parsed;
+    } else {
+      console.warn(`Invalid VITE_PRESIGNED_URL_EXPIRY_SECONDS value: "${presignedUrlExpirySecondsRaw}". Using default ${presignedUrlExpirySeconds}s.`);
+    }
+  }
 
   return {
     s3: {
-      bucketName: bucketName,
+      bucketName,
     },
     auth: {
-      jwtSecret: jwtSecret,
-      // jwtExpiration: '8h', // Could add expiration here too
+      jwtSecret,
     },
-    // Add other config sections as needed
+    urls: {
+      presignedUrlExpirySeconds,
+    }
   };
 }
 

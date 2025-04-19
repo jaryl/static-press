@@ -9,7 +9,7 @@ const secretAccessKey = process.env.S3_SECRET_ACCESS_KEY;
 
 if (!region || !accessKeyId || !secretAccessKey || !bucketName) {
   console.error(
-    "FATAL ERROR: AWS S3 configuration (VITE_S3_REGION, VITE_S3_BUCKET_NAME, VITE_S3_ACCESS_KEY_ID, VITE_S3_SECRET_ACCESS_KEY) must be available in process.env."
+    "FATAL ERROR: S3 configuration (VITE_S3_REGION, VITE_S3_BUCKET_NAME, VITE_S3_ACCESS_KEY_ID, VITE_S3_SECRET_ACCESS_KEY) must be available in process.env."
   );
   console.log("[s3Client] S3 Bucket Name is NOT configured. API will fail S3 operations.");
 } else {
