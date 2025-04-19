@@ -2,6 +2,9 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import schemaRoutes from './api/schema';
 import collectionRoutes from './api/collection';
+import metadataHandler from './api/schema-metadata';
+import presignedUrlHandler from './api/schema-presigned-url';
+import makePrivateHandler from './api/schema-make-private';
 import { handleLogin } from './core-api';
 import { authenticateToken } from './middleware/auth';
 
@@ -56,6 +59,13 @@ app.get('/', (req: Request, res: Response) => {
 // Mount protected routers, applying middleware individually
 app.use('/api/schema', authenticateToken, schemaRoutes);
 app.use('/api/collections', authenticateToken, collectionRoutes);
+
+// Add the new route for schema metadata
+app.get('/api/schema/metadata', authenticateToken, metadataHandler);
+
+// Add new routes for presigned URL and making schema private
+app.get('/api/schema/presigned-url', authenticateToken, presignedUrlHandler);
+app.put('/api/schema/make-private', authenticateToken, makePrivateHandler);
 
 // Start Server
 app.listen(port, () => {

@@ -35,13 +35,7 @@ const Login = () => {
         </div>
 
         <Card className="w-full">
-          <CardHeader>
-            <CardTitle>Sign in</CardTitle>
-            <CardDescription>
-              Enter your credentials to access the admin panel
-            </CardDescription>
-          </CardHeader>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} className="pt-5">
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="username">Username</Label>

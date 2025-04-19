@@ -1,5 +1,6 @@
 // src/lib/api-logic/handlers/auth.ts
 import * as jose from 'jose';
+import type { IncomingHttpHeaders } from 'http'; // Import type for headers
 
 // --- FAKE DATA & CONFIG (Replace with real logic/env vars later) ---
 const ADMIN_USERNAME = 'admin';
@@ -114,9 +115,19 @@ export const handleLogin = async (credentials: LoginRequestBody): Promise<ApiRes
  * @throws Error If authentication fails (no token, invalid token, expired token).
  */
 export async function authenticateRequest(args: any): Promise<jose.JWTPayload> {
-  // Extract authorization header - handle both DigitalOcean Functions format and legacy format
-  // DigitalOcean Functions: headers are directly in the event object
-  const authHeader = args.http.headers.authorization;
+  let authHeader: string | undefined;
+
+  // Try extracting headers from different possible structures
+  if (args?.http?.headers?.authorization) {
+    // DigitalOcean Functions new format
+    authHeader = args.http.headers.authorization;
+  } else if (args?.__ow_headers?.authorization) {
+    // Legacy format or simulation
+    authHeader = args.__ow_headers.authorization;
+  } else if (args?.headers?.authorization) {
+    // Direct Express req.headers format
+    authHeader = args.headers.authorization;
+  }
 
   if (!authHeader) {
     throw new Error('Unauthorized: No Authorization header provided.');

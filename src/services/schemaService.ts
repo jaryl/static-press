@@ -1,6 +1,17 @@
 import { createStorageAdapter } from './adapters';
 import { ApiAdapterError } from './adapters/ApiStorageAdapter';
 import type { CollectionSchema } from '@/types';
+import { authService } from './authService';
+
+interface SchemaMetadata {
+  lastModified: string;
+  size: number;
+  isPublic: boolean;
+}
+
+interface PresignedUrlResponse {
+  url: string;
+}
 
 const storageAdapter = createStorageAdapter();
 let collectionsCache: CollectionSchema[] = [];
@@ -78,5 +89,76 @@ export const schemaService = {
       throw new Error("Collection not found for delete");
     }
     await storageAdapter.updateSchema(collectionsCache);
+  },
+
+  async getSchemaFileMetadata(apiBaseUrl: string): Promise<SchemaMetadata> {
+    const token = authService.getToken();
+    if (!token) {
+      throw new Error('Authentication token not found.');
+    }
+    if (!apiBaseUrl) {
+      throw new Error('API Base URL is not configured.');
+    }
+
+    const response = await fetch(`${apiBaseUrl}/schema/metadata`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `HTTP error fetching metadata: ${response.status}`);
+    }
+    return await response.json() as SchemaMetadata;
+  },
+
+  async getSchemaPresignedUrl(apiBaseUrl: string): Promise<PresignedUrlResponse> {
+    const token = authService.getToken();
+    if (!token) {
+      throw new Error('Authentication token not found.');
+    }
+    if (!apiBaseUrl) {
+      throw new Error('API Base URL is not configured.');
+    }
+
+    const response = await fetch(`${apiBaseUrl}/schema/presigned-url`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `HTTP error getting presigned URL: ${response.status}`);
+    }
+    const data = await response.json();
+    if (!data.url) {
+      throw new Error('No presigned URL received from server.');
+    }
+    return data as PresignedUrlResponse;
+  },
+
+  async makeSchemaPrivate(apiBaseUrl: string): Promise<void> {
+    const token = authService.getToken();
+    if (!token) {
+      throw new Error('Authentication token not found.');
+    }
+    if (!apiBaseUrl) {
+      throw new Error('API Base URL is not configured.');
+    }
+
+    const response = await fetch(`${apiBaseUrl}/schema/make-private`, {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `HTTP error making schema private: ${response.status}`);
+    }
+    // No return value needed on success
   },
 };
