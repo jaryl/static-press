@@ -13,7 +13,11 @@ function loadConfig(): {
   };
   urls: {
     presignedUrlExpirySeconds: number;
-  }
+  };
+  devServer: {
+    port: number;
+    viteUrl: string;
+  };
 } {
   const bucketName = process.env.VITE_S3_BUCKET_NAME;
   if (!bucketName) {
@@ -37,6 +41,24 @@ function loadConfig(): {
     }
   }
 
+  // Dev Server Config
+  const viteDevServerUrl = process.env.VITE_DEV_SERVER_URL;
+  if (!viteDevServerUrl) {
+    // Make this required for the dev server
+    throw new Error("Configuration Error: VITE_DEV_SERVER_URL environment variable is not set.");
+  }
+
+  const apiPortRaw = process.env.API_PORT;
+  let apiPort = 3001; // Default port
+  if (apiPortRaw) {
+    const parsed = parseInt(apiPortRaw, 10);
+    if (!isNaN(parsed) && parsed > 0 && parsed < 65536) {
+      apiPort = parsed;
+    } else {
+      console.warn(`Invalid API_PORT value: "${apiPortRaw}". Using default ${apiPort}.`);
+    }
+  }
+
   return {
     s3: {
       bucketName,
@@ -46,6 +68,10 @@ function loadConfig(): {
     },
     urls: {
       presignedUrlExpirySeconds,
+    },
+    devServer: {
+      port: apiPort,
+      viteUrl: viteDevServerUrl,
     }
   };
 }

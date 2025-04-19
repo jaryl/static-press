@@ -2,16 +2,14 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import schemaRoutes from './api/schema';
 import collectionRoutes from './api/collection';
-import metadataHandler from './api/schema-metadata';
-import presignedUrlHandler from './api/schema-presigned-url';
-import makePrivateHandler from './api/schema-make-private';
-import { handleLogin } from './core-api';
+import { handleLogin } from '../lib/api-logic/handlers/auth';
 import { authenticateToken } from './middleware/auth';
+import { errorHandler } from './middleware/errorHandler';
+import { config } from '../lib/config';
 
 const app = express();
-const port = process.env.API_PORT || 3001;
-const viteDevServerUrl = process.env.VITE_DEV_SERVER_URL;
-const bucketName = process.env.VITE_S3_BUCKET_NAME;
+const port = config.devServer.port;
+const viteDevServerUrl = config.devServer.viteUrl;
 
 // Middleware
 app.use(cors({ origin: viteDevServerUrl })); // Allow requests from Vite dev server
@@ -60,21 +58,14 @@ app.get('/', (req: Request, res: Response) => {
 app.use('/api/schema', authenticateToken, schemaRoutes);
 app.use('/api/collections', authenticateToken, collectionRoutes);
 
-// Add the new route for schema metadata
-app.get('/api/schema/metadata', authenticateToken, metadataHandler);
-
-// Add new routes for presigned URL and making schema private
-app.get('/api/schema/presigned-url', authenticateToken, presignedUrlHandler);
-app.put('/api/schema/make-private', authenticateToken, makePrivateHandler);
+// --- Global Error Handler ---
+// IMPORTANT: Must be registered *after* all other app.use() and routes
+app.use(errorHandler);
 
 // Start Server
 app.listen(port, () => {
   console.log(`[API Server] Listening on port ${port}`);
   console.log(`[API Server] Allowing CORS origin: ${viteDevServerUrl}`);
 
-  if (bucketName) {
-    console.log(`[API Server] Configured to use S3 Bucket: ${bucketName}`);
-  } else {
-    console.error(`[API Server] S3 Bucket Name is NOT configured. API will fail S3 operations.`);
-  }
+  console.log(`[API Server] Configured to use S3 Bucket: ${config.s3.bucketName}`);
 });
