@@ -1,6 +1,6 @@
-// packages/api/schema/handler.js
-import { getSchema, updateSchema } from '../../../lib/api-logic/handlers/schema.js';
-import { authenticateRequest } from '../../../lib/api-logic/handlers/auth.js';
+// packages/schema/handler.js
+import { getSchema, updateSchema } from '../../lib/api-logic/handlers/schema.js'; // Corrected path
+import { authenticateRequest } from '../../lib/api-logic/handlers/auth.js'; // Corrected path
 
 /**
  * Handles GET request for schema
@@ -64,8 +64,9 @@ function handleError(error, method) {
 }
 
 /**
- * DigitalOcean Serverless Function for schema operations (Protected)
- * Handles GET and PUT requests to /api/schema
+ * DigitalOcean Serverless Function for schema GET/PUT operations (Protected)
+ * Handles GET and PUT requests targeted directly at the schema resource.
+ * Assumes sub-paths like /metadata, /presigned-url are handled elsewhere.
  * @param {object} event - The event object containing request parameters and metadata
  * @param {object} context - The context object containing function metadata
  * @returns {object} Response object with statusCode, headers, and body
@@ -82,8 +83,9 @@ async function main(event, context) {
     // ---------------------------
 
     // Determine the HTTP method from event
-    const method = event.method?.toUpperCase() || 'GET';
-    console.log(`[Schema] Received ${method} /api/schema`);
+    // Use __ow_method if available (DigitalOcean convention)
+    const method = event.__ow_method?.toUpperCase() || event.method?.toUpperCase() || 'GET';
+    console.log(`[Schema] Received ${method}`);
 
     let result;
 
@@ -91,11 +93,25 @@ async function main(event, context) {
     if (method === 'GET') {
       result = await handleGetSchema();
     } else if (method === 'PUT') {
-      result = await handlePutSchema(event.body);
+      // For DO Functions, event often contains the parsed body if Content-Type is JSON
+      const requestBody = event; // Or event.body depending on platform/invocation
+      if (!requestBody || typeof requestBody !== 'object' || Object.keys(requestBody).length === 0) {
+        console.error('[Schema] Invalid or missing body for PUT request.');
+        return createResponse(400, { message: 'Bad Request: Missing or invalid schema data in request body for PUT.' });
+      }
+      // Clone and clean potential platform args if necessary
+      const schemaData = { ...requestBody };
+      delete schemaData.__ow_method;
+      delete schemaData.__ow_path;
+      delete schemaData.__ow_headers;
+      delete schemaData.__ow_query;
+      delete schemaData.__ow_body;
+
+      result = await handlePutSchema(schemaData);
     } else {
-      // Method not supported
-      return createResponse(405, 
-        { message: 'Method Not Allowed. Only GET and PUT are supported for schema.' },
+      // Method not supported by *this* handler
+      return createResponse(405,
+        { message: `Method Not Allowed. This endpoint only supports GET and PUT.` },
         { 'Allow': 'GET, PUT' }
       );
     }
@@ -104,7 +120,7 @@ async function main(event, context) {
     return createResponse(result.statusCode, result.body, result.headers);
 
   } catch (error) {
-    return handleError(error, event.method);
+    return handleError(error, event.__ow_method || event.method);
   }
 }
 

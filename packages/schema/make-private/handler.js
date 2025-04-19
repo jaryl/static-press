@@ -1,8 +1,8 @@
 // packages/api/schema/make-private/handler.js
 // This handler sets the ACL of schema.json to 'private'
 
-const { authenticateRequest } = require('../../../lib/api-logic/handlers/auth');
-const { makeSchemaPrivate } = require('../../../lib/api-logic/handlers/schema');
+const { authenticateRequest } = require('../../lib/api-logic/handlers/auth');
+const { makeSchemaPrivate } = require('../../lib/api-logic/handlers/schema');
 
 async function main(args) {
   console.log('[API Function: schema/make-private] Processing request');

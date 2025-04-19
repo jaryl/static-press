@@ -1,8 +1,8 @@
 // packages/api/schema/presigned-url/handler.js
 // This handler generates a temporary, pre-signed URL to view schema.json
 
-const { authenticateRequest } = require('../../../lib/api-logic/handlers/auth');
-const { getSchemaPresignedUrl } = require('../../../lib/api-logic/handlers/schema');
+const { authenticateRequest } = require('../../lib/api-logic/handlers/auth');
+const { getSchemaPresignedUrl } = require('../../lib/api-logic/handlers/schema');
 
 async function main(args) {
   console.log('[API Function: schema/presigned-url] Processing request');

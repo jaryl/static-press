@@ -1,6 +1,6 @@
 // packages/api/auth/handler.js
 
-import { handleLogin } from '../../../lib/api-logic/handlers/auth.js';
+import { handleLogin } from '../../lib/api-logic/handlers/auth.js';
 
 /**
  * DigitalOcean Serverless Function for user authentication using the event/context signature.

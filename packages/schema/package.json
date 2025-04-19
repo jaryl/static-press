@@ -1,0 +1,22 @@
+{
+  "name": "@static-press/schema",
+  "version": "1.0.0",
+  "description": "Schema endpoint",
+  "private": true,
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "build:main": "esbuild handler.js --bundle --outfile=index.js --platform=node --format=esm --target=node18 --minify --external:jose --external:@aws-sdk/client-s3",
+    "build:metadata": "esbuild metadata/handler.js --bundle --outfile=metadata.js --platform=node --format=esm --target=node18 --minify --external:jose --external:@aws-sdk/client-s3",
+    "build:presigned-url": "esbuild presigned-url/handler.js --bundle --outfile=presigned-url.js --platform=node --format=esm --target=node18 --minify --external:jose --external:@aws-sdk/client-s3",
+    "build:make-private": "esbuild make-private/handler.js --bundle --outfile=make-private.js --platform=node --format=esm --target=node18 --minify --external:jose --external:@aws-sdk/client-s3",
+    "build": "npm run build:main && npm run build:metadata && npm run build:presigned-url && npm run build:make-private"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.556.0",
+    "jose": "^5.2.4"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.2"
+  }
+}

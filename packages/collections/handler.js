@@ -1,6 +1,6 @@
 // packages/api/collections/handler.js
-import { updateCollection } from '../../../lib/api-logic/handlers/collection.js';
-import { authenticateRequest } from '../../../lib/api-logic/handlers/auth.js';
+import { updateCollection } from '../../lib/api-logic/handlers/collection.js';
+import { authenticateRequest } from '../../lib/api-logic/handlers/auth.js';
 
 /**
  * Handles PUT request for collection data
