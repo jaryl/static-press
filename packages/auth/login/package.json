@@ -1,0 +1,17 @@
+{
+  "name": "@static-press/auth-login",
+  "version": "1.0.0",
+  "description": "Endpoint to handle user login",
+  "private": true,
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "build": "esbuild function.js --bundle --outfile=index.js --platform=node --format=esm --target=node18 --minify --external:jose"
+  },
+  "dependencies": {
+    "jose": "^5.2.4"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.2"
+  }
+}

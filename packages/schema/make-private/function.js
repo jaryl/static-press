@@ -1,25 +1,19 @@
-// packages/api/schema/make-private/handler.js
-// This handler sets the ACL of schema.json to 'private'
-
 const { authenticateRequest } = require('../../../lib/api-logic/handlers/auth');
 const { makeSchemaPrivate } = require('../../../lib/api-logic/handlers/schema');
 
-async function main(args) {
+async function main(event, context) {
   console.log('[API Function: schema/make-private] Processing request');
 
-  // Ensure it's a PUT request
-  if (args.__ow_method?.toLowerCase() !== 'put') {
-    console.log('[API Function: schema/make-private] Method not allowed:', args.__ow_method);
-    return {
-      statusCode: 405,
-      body: { message: 'Method Not Allowed' },
-      headers: { 'Allow': 'PUT' }
-    };
+  const method = event.http.method?.toUpperCase();
+  console.log(`[Schema Make Private] Received ${method} /api/schema/make-private`);
+
+  if (method !== 'PUT') {
+    return handleError(new Error('Method Not Allowed'), method);
   }
 
   try {
     // Authenticate the request
-    await authenticateRequest(args);
+    await authenticateRequest(event);
     console.log('[API Function: schema/make-private] Authentication successful');
 
     // Call the core logic function to set the ACL to private
@@ -61,4 +55,4 @@ async function main(args) {
   }
 }
 
-module.exports = { main };
+export { main };

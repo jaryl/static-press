@@ -1,6 +1,6 @@
-// packages/api/collections/handler.js
-import { updateCollection } from '../../../lib/api-logic/handlers/collection.js';
-import { authenticateRequest } from '../../../lib/api-logic/handlers/auth.js';
+import { updateCollection } from '../../../lib/api-logic/handlers/collection';
+import { authenticateRequest } from '../../../lib/api-logic/handlers/auth';
+import { createResponse, handleError } from '../../../lib/digital-ocean/helpers';
 
 /**
  * Handles PUT request for collection data
@@ -15,45 +15,6 @@ async function handlePutCollection(slug, body) {
     : body;
 
   return await updateCollection(slug, recordsData);
-}
-
-/**
- * Creates a properly formatted response object
- * @param {number} statusCode - HTTP status code
- * @param {object} body - Response body
- * @param {object} [headers={}] - Additional headers
- * @returns {object} Formatted response object
- */
-function createResponse(statusCode, body, headers = {}) {
-  return {
-    statusCode,
-    headers: {
-      'Content-Type': 'application/json',
-      ...headers
-    },
-    body: JSON.stringify(body)
-  };
-}
-
-/**
- * Handles error responses
- * @param {Error} error - The error that occurred
- * @param {string} method - The HTTP method being processed
- * @returns {object} Formatted error response
- */
-function handleError(error, method) {
-  console.error(`[Collections] Error in collections ${method} function:`, error.message || error);
-
-  let statusCode = 500;
-  let message = 'Internal Server Error';
-
-  // Check if it's an authentication error from our utility
-  if (error.message.startsWith('Unauthorized:') || error.message.startsWith('Forbidden:')) {
-    statusCode = error.message.startsWith('Forbidden:') ? 403 : 401;
-    message = error.message;
-  }
-
-  return createResponse(statusCode, { message });
 }
 
 /**
@@ -75,22 +36,19 @@ async function main(event, context) {
     // ---------------------------
 
     // Extract the slug from the path or params
-    const slug = event.slug || event.pathParameters?.slug;
+    const slug = event.http.path.replace(/^\//, '');
 
     if (!slug) {
       return createResponse(400, { message: 'Missing collection slug in path' });
     }
 
     // Determine the HTTP method from event
-    const method = event.method?.toUpperCase() || 'GET';
+    const method = event.http.method?.toUpperCase();
     console.log(`[Collections] Received ${method} /api/collections/${slug}`);
 
     // We only support PUT for collections via the API
     if (method !== 'PUT') {
-      return createResponse(405,
-        { message: 'Method Not Allowed. Only PUT is supported for collections.' },
-        { 'Allow': 'PUT' }
-      );
+      return handleError(new Error('Method Not Allowed.'), method);
     }
 
     // Handle PUT request

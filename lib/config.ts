@@ -29,7 +29,7 @@ function loadConfig(): {
     throw new Error("Configuration Error: JWT_SECRET environment variable is not set.");
   }
 
-  // Load URL expiry, providing a default
+  // // Load URL expiry, providing a default
   const presignedUrlExpirySecondsRaw = process.env.VITE_PRESIGNED_URL_EXPIRY_SECONDS;
   let presignedUrlExpirySeconds = 3600; // Default to 1 hour
   if (presignedUrlExpirySecondsRaw) {
@@ -41,12 +41,8 @@ function loadConfig(): {
     }
   }
 
-  // Dev Server Config
-  const viteDevServerUrl = process.env.VITE_DEV_SERVER_URL;
-  if (!viteDevServerUrl) {
-    // Make this required for the dev server
-    throw new Error("Configuration Error: VITE_DEV_SERVER_URL environment variable is not set.");
-  }
+  // // Dev Server Config
+  const viteDevServerUrl = process.env.VITE_DEV_SERVER_URL || '';
 
   const apiPortRaw = process.env.API_PORT;
   let apiPort = 3001; // Default port
@@ -78,9 +74,7 @@ function loadConfig(): {
 
 export const config = loadConfig();
 
-// Log confirmation (optional, good for debugging startup)
 logger.info("Configuration loaded successfully.");
 if (process.env.NODE_ENV !== 'production') {
   logger.info(`Bucket Name: ${config.s3.bucketName}`);
-  // Avoid logging secrets, even in dev
 }

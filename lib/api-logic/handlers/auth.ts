@@ -1,26 +1,23 @@
-// src/lib/api-logic/handlers/auth.ts
 import * as jose from 'jose';
-import { ApiResponse, createSuccessResponse, createErrorResponse } from '../utils/response';
-import { config } from '../../config'; // Import centralized config
-import { logger } from '../../utils/logger'; // Import the logger
+import { ApiResponse, createErrorResponse, createSuccessResponse } from '../utils/response';
+import { config } from '../../config';
+import { logger } from '../../utils/logger';
 
-// --- FAKE DATA & CONFIG (Replace with real logic/env vars later) ---
 const ADMIN_USERNAME = 'admin';
 const ADMIN_PASSWORD = 'password123'; // In real app, use env vars
 
 // IMPORTANT: Use environment variable for JWT secret
 const JWT_EXPIRATION = '8h'; // Token expiration time (e.g., 8 hours)
 
-// Utility to get the secret key as Uint8Array
-const getSecretKey = () => {
-  const secret = config.auth.jwtSecret;
-  return new TextEncoder().encode(secret);
-};
-
 interface LoginRequestBody {
   username?: string;
   password?: string;
 }
+
+const getSecretKey = () => {
+  const secret = config.auth.jwtSecret;
+  return new TextEncoder().encode(secret);
+};
 
 /**
  * Handles user login attempts using jose.
@@ -28,7 +25,6 @@ interface LoginRequestBody {
  * NOTE: This function is now async due to jose's async nature.
  */
 export const handleLogin = async (credentials: LoginRequestBody): Promise<ApiResponse> => {
-  // Basic check if credentials object is empty or missing essential fields
   if (!credentials || typeof credentials !== 'object' || Object.keys(credentials).length === 0) {
     return createErrorResponse('Invalid or empty request body.', 400);
   }
@@ -39,16 +35,14 @@ export const handleLogin = async (credentials: LoginRequestBody): Promise<ApiRes
     return createErrorResponse('Username and password are required.', 400);
   }
 
-  // --- Replace with actual credential validation logic later ---
   if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-    // Credentials are valid, generate JWT
     const payload: jose.JWTPayload = {
       username: username,
       role: 'admin',
     };
 
     try {
-      const secretKey = getSecretKey(); // Get key material
+      const secretKey = getSecretKey();
 
       const token = await new jose.SignJWT(payload)
         .setProtectedHeader({ alg: 'HS256' }) // Set Algorithm
@@ -64,13 +58,13 @@ export const handleLogin = async (credentials: LoginRequestBody): Promise<ApiRes
       if (error.message.includes('JWT_SECRET')) {
         return createErrorResponse('Internal server error: JWT secret misconfiguration.', 500);
       }
-      return createErrorResponse('Internal server error: Could not generate token.', 500);
+      // return createErrorResponse('Internal server error: Could not generate token.', 500);
+      return createErrorResponse(`Internal server error: ${error.message}`, 500);
     }
   } else {
-    // Invalid credentials
     return createErrorResponse('Invalid username or password.', 401);
   }
-};
+}
 
 /**
  * Authenticates a request based on the JWT in the Authorization header.

@@ -1,6 +1,5 @@
-// packages/api/auth/handler.js
-
-import { handleLogin } from '../../../lib/api-logic/handlers/auth.js';
+import { handleLogin } from '../../../lib/api-logic/handlers/auth';
+import { createResponse } from '../../../lib/digital-ocean/helpers';
 
 /**
  * DigitalOcean Serverless Function for user authentication using the event/context signature.
@@ -28,27 +27,14 @@ async function main(event, context) {
     const result = await handleLogin(requestBody);
 
     // Return the result - structure matches DO Functions expectations
-    const response = {
-      statusCode: result.statusCode,
-      headers: {
-        'Content-Type': 'application/json',
-        ...(result.headers || {})
-      },
-      // Ensure body is stringified for the final platform response
-      body: JSON.stringify(result.body)
-    };
+    const response = createResponse(result.statusCode, result.body, result.headers);
 
     return response;
 
   } catch (error) {
     // Catch errors from handleLogin or other synchronous code
     console.error('[Auth] Error during request processing:', error.message || error);
-    return {
-      statusCode: 500,
-      headers: { 'Content-Type': 'application/json' },
-      // Ensure body is stringified for the final platform response
-      body: JSON.stringify({ message: 'Internal server error during login' })
-    };
+    return createResponse(500, { message: `Internal Server Error: ${error.message}` });
   }
 }
 

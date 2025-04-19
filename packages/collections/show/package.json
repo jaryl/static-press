@@ -1,0 +1,19 @@
+{
+  "name": "@static-press/collections-show",
+  "version": "1.0.0",
+  "description": "Endpoint to retrieve collection data",
+  "private": true,
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "build": "esbuild function.js --bundle --outfile=index.js --platform=node --format=esm --target=node18 --minify --external:jose --external:@aws-sdk/client-s3 --external:@aws-sdk/s3-request-presigner"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.556.0",
+    "@aws-sdk/s3-request-presigner": "^3.556.0",
+    "jose": "^5.2.4"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.2"
+  }
+}

@@ -1,8 +1,5 @@
-// packages/api/schema/metadata/handler.js
-// This function specifically handles fetching metadata for the schema.json file.
-
-import { getSchemaMetadata } from '../../../lib/api-logic/handlers/schema.ts'; // Assuming build process handles .ts
-import { authenticateRequest } from '../../../lib/api-logic/handlers/auth.ts'; // Assuming build process handles .ts
+import { getSchemaMetadata } from '../../../lib/api-logic/handlers/schema';
+import { authenticateRequest } from '../../../lib/api-logic/handlers/auth';
 
 /**
  * Creates a properly formatted response object

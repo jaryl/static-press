@@ -1,4 +1,3 @@
-import { s3Client } from '../../s3Client';
 import { ApiResponse, createSuccessResponse, createErrorResponse } from '../utils/response';
 import { config } from '../../config';
 import { logger } from '../../utils/logger';

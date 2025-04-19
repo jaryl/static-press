@@ -1,12 +1,28 @@
 import { Readable } from 'stream';
+import { Buffer } from 'buffer';
 import { ApiResponse, createSuccessResponse, createErrorResponse } from '../utils/response';
 import { config } from '../../config';
 import { logger } from '../../utils/logger';
-import { streamToString } from '../../utils/stream';
 import { getObjectMetadata, isObjectPublic, setObjectAcl, putObjectJson, getObjectStream, generatePresignedGetUrl } from '../../utils/s3Utils';
 
 // Schema is always at the root level
 const SCHEMA_KEY = 'schema.json';
+
+/**
+ * Helper function to convert a Readable stream to a string.
+ *
+ * @param stream - The Readable stream to convert.
+ * @returns A promise that resolves with the string content of the stream.
+ */
+export async function streamToString(stream: Readable): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const chunks: Uint8Array[] = [];
+    stream.on('data', (chunk) => chunks.push(chunk));
+    stream.on('error', reject);
+    stream.on('end', () => resolve(Buffer.concat(chunks).toString('utf-8')));
+  });
+}
+
 
 /**
  * Core handler for retrieving schema data
