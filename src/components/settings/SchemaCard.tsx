@@ -63,7 +63,7 @@ const SchemaCard: React.FC<SchemaCardProps> = ({ useRemoteData, apiBaseUrl }) =>
     setViewError(null);
     try {
       const data = await schemaService.getSchemaPresignedUrl(apiBaseUrl);
-      window.open(data.url, '_blank', 'noopener,noreferrer');
+      window.open(data.presignedUrl, '_blank', 'noopener,noreferrer');
     } catch (error: any) { // Type 'error' explicitly
       console.error('Failed to view schema:', error);
       setViewError(error.message || 'Could not view schema.');

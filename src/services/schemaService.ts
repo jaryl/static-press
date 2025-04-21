@@ -10,7 +10,7 @@ interface SchemaMetadata {
 }
 
 interface PresignedUrlResponse {
-  url: string;
+  presignedUrl: string;
 }
 
 const storageAdapter = createStorageAdapter();
@@ -133,7 +133,7 @@ export const schemaService = {
       throw new Error(errorData.message || `HTTP error getting presigned URL: ${response.status}`);
     }
     const data = await response.json();
-    if (!data.url) {
+    if (!data.presignedUrl) {
       throw new Error('No presigned URL received from server.');
     }
     return data as PresignedUrlResponse;
