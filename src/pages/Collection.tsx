@@ -36,19 +36,15 @@ const Collection = () => {
   const prevSlugRef = useRef(slug);
 
   useEffect(() => {
-    // Reset form state when slug changes
     if (prevSlugRef.current && prevSlugRef.current !== slug) {
       if (form.isEditing) {
         form.cancelEditing();
       }
 
-      // Force a clean fetch of the new collection when slug changes
       if (slug) {
         const loadCollection = async () => {
           const collection = await fetchCollection(slug);
-          if (collection) {
-            fetchRecords(slug);
-          }
+          if (collection) fetchRecords(slug);
         };
 
         loadCollection();
@@ -57,6 +53,16 @@ const Collection = () => {
 
     prevSlugRef.current = slug;
   }, [slug, form, fetchCollection, fetchRecords]);
+
+  useEffect(() => {
+    if (slug && (!currentCollection || currentCollection.slug !== slug)) {
+      const loadInitialCollection = async () => {
+        const collection = await fetchCollection(slug);
+        if (collection) fetchRecords(slug);
+      };
+      loadInitialCollection();
+    }
+  }, [slug, currentCollection, fetchCollection, fetchRecords]);
 
   const hasNewRecord = !!form.newRecordId;
   const hasAnyRecords = records.length > 0 || hasNewRecord;
