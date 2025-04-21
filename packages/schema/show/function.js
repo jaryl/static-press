@@ -32,7 +32,7 @@ async function handlePutSchema(body) {
  * @param {object} context - The context object containing function metadata
  * @returns {object} Response object with statusCode, headers, and body
  */
-async function main(event, context) {
+async function main(event, _) {
   try {
     // --- Authentication Check ---
     // Pass the event directly to authenticateRequest which now handles headers properly
@@ -43,30 +43,14 @@ async function main(event, context) {
     // Determine the HTTP method from event
     const method = event.http.method?.toUpperCase();
 
-    let result;
-
     // Route to the appropriate handler based on HTTP method
     if (method === 'GET') {
-      result = await handleGetSchema();
+      return await handleGetSchema();
     } else if (method === 'PUT') {
-
-      // For DO Functions, event often contains the parsed body if Content-Type is JSON
-      const requestBody = event; // Or event.body depending on platform/invocation
-
-      // if (!requestBody || typeof requestBody !== 'object' || Object.keys(requestBody).length === 0) {
-      //   console.error('[Schema] Invalid or missing body for PUT request.');
-      //   return createResponse(400, { message: 'Bad Request: Missing or invalid schema data in request body for PUT.' });
-      // }
-
-      result = await handlePutSchema(requestBody);
-    } else {
-      // Method not supported by *this* handler
-      result = { statusCode: 405, body: JSON.stringify({ message: `Method Not Allowed. This endpoint only supports GET and PUT, got ${method}.` }), headers: { 'Content-Type': 'application/json' } };
+      return await handlePutSchema(event.http.body);
     }
 
-    // Return the result with the appropriate response format
-    return createResponse(result.statusCode, result.body, result.headers);
-
+    return { statusCode: 405, body: JSON.stringify({ message: `Method Not Allowed. This endpoint only supports GET and PUT, got ${method}.` }), headers: { 'Content-Type': 'application/json' } };
   } catch (error) {
     console.error('[Auth] Error during request processing:', error.message || error);
     return handleError(error, method);
