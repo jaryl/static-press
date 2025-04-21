@@ -20,7 +20,7 @@ export async function updateCollection(slug: string, recordsData: any): Promise<
   logger.info(`Attempting to update ${key} in S3 bucket: ${config.s3.bucketName}`);
 
   try {
-    await putObjectJson(key, recordsData);
+    await putObjectJson(key, recordsData, 'public-read');
     logger.info(`Successfully updated ${key} in S3 bucket: ${config.s3.bucketName}`);
     return createSuccessResponse({ message: `Collection ${slug} updated successfully in S3` });
   } catch (error) {

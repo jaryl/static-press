@@ -57,16 +57,6 @@ const SchemaMetadataDisplay: React.FC<SchemaMetadataDisplayProps> = ({ metadata,
               {metadata.isPublic ? 'Publicly Readable' : 'Private'}
             </dd>
           </div>
-
-          {metadata.isPublic && (
-            <Alert variant="default" className="mt-4">
-              <AlertCircle className="h-4 w-4 text-yellow-600" />
-              <AlertTitle className="text-yellow-700">Warning</AlertTitle>
-              <AlertDescription>
-                Your <code className="font-mono text-sm">schema.json</code> file is publicly readable. This might expose your content structure. It's recommended to keep it private.
-              </AlertDescription>
-            </Alert>
-          )}
         </div>
       )}
       {!isLoading && !error && !metadata && useRemoteData && (

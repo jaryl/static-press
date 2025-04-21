@@ -94,8 +94,7 @@ export async function updateSchema(schemaData: any): Promise<ApiResponse> {
   logger.info(`[API Core] Attempting to update schema in S3 at key: ${SCHEMA_KEY}`);
 
   try {
-    // Use the new utility function, ensure schema remains public
-    await putObjectJson(SCHEMA_KEY, schemaData, 'public-read');
+    await putObjectJson(SCHEMA_KEY, schemaData);
 
     logger.info(`[API Core] Successfully updated schema in S3: ${SCHEMA_KEY}`);
     return createSuccessResponse({ message: 'Schema updated successfully in S3' });
