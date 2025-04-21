@@ -76,17 +76,8 @@ export const handleLogin = async (credentials: LoginRequestBody): Promise<ApiRes
 export async function authenticateRequest(args: any): Promise<jose.JWTPayload> {
   let authHeader: string | undefined;
 
-  // Try extracting headers from different possible structures
-  if (args?.http?.headers?.authorization) {
-    // DigitalOcean Functions new format
-    authHeader = args.http.headers.authorization;
-  } else if (args?.__ow_headers?.authorization) {
-    // Legacy format or simulation
-    authHeader = args.__ow_headers.authorization;
-  } else if (args?.headers?.authorization) {
-    // Direct Express req.headers format
-    authHeader = args.headers.authorization;
-  }
+  // Extract Authorization header using standard DO Functions format
+  authHeader = args?.http?.headers?.authorization;
 
   if (!authHeader) {
     throw new Error('Unauthorized: No Authorization header provided.');

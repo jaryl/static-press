@@ -1,5 +1,5 @@
 import { handleLogin } from '../../../lib/api-logic/handlers/auth';
-import { createResponse } from '../../../lib/digital-ocean/helpers';
+import { createResponse, handleError } from '../../../lib/digital-ocean/helpers';
 
 /**
  * DigitalOcean Serverless Function for user authentication using the event/context signature.
@@ -10,8 +10,13 @@ import { createResponse } from '../../../lib/digital-ocean/helpers';
  */
 async function main(event, context) {
   console.log(`[Auth] Function Version: ${context?.functionVersion}`);
-  // Log received event keys to help debugging parameter passing
-  console.log(`[Auth] Received event with keys: ${Object.keys(event || {}).join(', ')}`);
+
+  const method = event.http.method?.toUpperCase();
+  console.log(`[Auth] Received ${method} /api/auth/login`);
+
+  if (method !== 'POST') {
+    return handleError(new Error('Method Not Allowed'), method);
+  }
 
   try {
     // Extract parameters directly from the event object

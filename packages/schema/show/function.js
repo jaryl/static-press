@@ -50,7 +50,7 @@ async function main(event, _) {
       return await handlePutSchema(event.http.body);
     }
 
-    return { statusCode: 405, body: JSON.stringify({ message: `Method Not Allowed. This endpoint only supports GET and PUT, got ${method}.` }), headers: { 'Content-Type': 'application/json' } };
+    return handleError(new Error('Method Not Allowed'), method);
   } catch (error) {
     console.error('[Auth] Error during request processing:', error.message || error);
     return handleError(error, method);

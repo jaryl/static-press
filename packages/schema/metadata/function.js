@@ -63,15 +63,11 @@ async function main(event, context) {
     console.log(`[Schema Meta] Authenticated user: ${decodedToken.sub}`);
     // ---------------------------
 
-    // Determine the HTTP method from event
-    const method = event.httpMethod?.toUpperCase() || event.requestContext?.http?.method?.toUpperCase() || 'GET'; // Adapt for different event structures
+    const method = event.http.method?.toUpperCase();
     console.log(`[Schema Meta] Received ${method} /api/schema/metadata`);
 
     if (method !== 'GET') {
-      return createResponse(405,
-        { message: 'Method Not Allowed. Only GET is supported for schema metadata.' },
-        { 'Allow': 'GET' }
-      );
+      return handleError(new Error('Method Not Allowed'), method);
     }
 
     // Call the core logic function
