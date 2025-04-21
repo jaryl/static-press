@@ -202,6 +202,42 @@ export class ApiStorageAdapter implements StorageAdapter {
     }
   }
 
+  async makeCollectionPublic(slug: string): Promise<void> {
+    const path = `/api/collections/${slug}/make-public`;
+    console.log(`[ApiStorageAdapter] Making collection public via API: PUT ${path}`);
+    try {
+      const response = await this.fetchWithAuth(path, {
+        method: 'PUT',
+        // No body needed for this request
+      });
+
+      if (!response.ok) {
+        // Attempt to get more details from the error response
+        const errorData = await response.json().catch(() => ({})); // Default to empty object if parsing fails
+        const errorMessage = errorData.message || `API error! status: ${response.status}`;
+        const errorType = errorData.errorCode || (response.status === 404 ? 'NOT_FOUND' : 'API_ERROR');
+
+        console.error(`[ApiStorageAdapter] Failed to make collection ${slug} public: ${errorMessage} (Status: ${response.status})`);
+        throw new ApiAdapterError(
+          errorMessage,
+          errorType,
+          response.status
+        );
+      }
+      console.log(`[ApiStorageAdapter] Collection '${slug}' made public successfully (via API)`);
+    } catch (error) {
+      // Re-throw ApiAdapterErrors, wrap others
+      if (error instanceof ApiAdapterError) {
+        throw error;
+      }
+      console.error(`[ApiStorageAdapter] Unexpected error making collection ${slug} public via API:`, error);
+      throw new ApiAdapterError(
+        error instanceof Error ? error.message : `An unexpected error occurred`,
+        'UNEXPECTED_ERROR'
+      );
+    }
+  }
+
   getRawDataUrl(slug: string): string {
     if (!this.baseUrl) {
       console.warn('[ApiStorageAdapter] Base URL could not be constructed, cannot generate raw data URL.');

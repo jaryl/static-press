@@ -1,7 +1,7 @@
 import { ApiResponse, createSuccessResponse, createErrorResponse } from '../utils/response';
 import { config } from '../../config';
 import { logger } from '../../utils/logger';
-import { putObjectJson } from '../../utils/s3Utils';
+import { putObjectJson, setObjectAcl } from '../../utils/s3Utils';
 
 // Collections are always in the data directory
 const getCollectionKey = (slug: string) => `data/${slug}.json`;
@@ -31,3 +31,26 @@ export async function updateCollection(slug: string, recordsData: any): Promise<
     return createErrorResponse(`Failed to update collection ${slug} in S3`, 500, 'S3_UPDATE_ERROR');
   }
 }
+
+/**
+ * Handles business logic for collection data operations.
+ */
+class CollectionHandler {
+  /**
+   * Sets the ACL of a collection's data file to 'public-read'.
+   * @param slug - The slug of the collection.
+   */
+  async makeCollectionPublic(slug: string): Promise<void> {
+    logger.info(`Attempting to set collection data ACL to public-read for ${slug}`);
+    const key = getCollectionKey(slug);
+    try {
+      await setObjectAcl(key, 'public-read');
+      logger.info(`Successfully set collection data ACL to public-read for ${slug}`);
+    } catch (error) {
+      logger.error(`Failed to set collection data ACL to public-read for ${slug}`, error);
+      throw error;
+    }
+  }
+}
+
+export const collectionHandler = new CollectionHandler();

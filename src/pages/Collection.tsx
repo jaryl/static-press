@@ -1,5 +1,5 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useCollection } from "@/contexts/CollectionContext";
 import { Sidebar } from "@/components/layout/sidebar";
 import Container from "@/components/layout/Container";
@@ -13,6 +13,7 @@ import { Edit, Plus, FileJson, AlertTriangle } from "lucide-react";
 import { useRecordForm } from "@/hooks/use-record-form";
 import { useRecordFilter } from "@/hooks/use-record-filter";
 import { Card } from "@/components/ui/card";
+import { CollectionDataPrivacyAlert } from '@/components/collections/CollectionDataPrivacyAlert';
 
 const Collection = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -161,6 +162,11 @@ const Collection = () => {
               searchTerm={filter.searchTerm}
               onSearch={filter.handleSearch}
             />
+
+            {/* Accessibility Warning */}
+            {currentCollection && slug && (
+              <CollectionDataPrivacyAlert />
+            )}
           </>
         )}
 

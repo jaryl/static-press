@@ -1,8 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
 import { createStorageAdapter } from './adapters';
 import { ApiAdapterError } from './adapters/ApiStorageAdapter';
-import { schemaService } from './schemaService';
-import type { CollectionRecord, RecordData } from './shared/types/collection';
+import type { CollectionRecord, RecordData } from '@/types';
+import { schemaService } from '@/services/schemaService';
 
 const storageAdapter = createStorageAdapter();
 let recordsCache: Record<string, CollectionRecord[]> = {};
@@ -96,6 +96,23 @@ export const collectionService = {
     }
 
     await storageAdapter.saveCollectionData(slug, recordsCache[slug]);
+  },
+
+  /**
+   * Makes a collection's data file public using the configured storage adapter.
+   * @param slug The slug of the collection.
+   * @returns A promise that resolves when the operation is complete.
+   */
+  async makeCollectionPublic(slug: string): Promise<void> {
+    console.log(`[collectionService] Requesting to make collection '${slug}' public`);
+    try {
+      await storageAdapter.makeCollectionPublic(slug);
+      console.log(`[collectionService] Successfully made collection '${slug}' public`);
+    } catch (error) {
+      console.error(`[collectionService] Failed to make collection '${slug}' public:`, error);
+      // Re-throw the error so the calling context (e.g., the component) can handle it
+      throw error;
+    }
   },
 
   /**

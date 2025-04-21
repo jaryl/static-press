@@ -29,8 +29,8 @@ export const SecondaryHeader = ({
   if (isEmpty) return null;
 
   return (
-    <header className={`sticky top-[42px] sm:top-14 px-3 sm:px-6 py-2 sm:py-3 sm:min-h-11 border-b border-border bg-background z-40 ${className}`}>
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full gap-2">
+    <header className={`sticky top-[42px] sm:top-14 px-3 sm:px-6 py-2 sm:py-3 sm:min-h-11 border-b border-border bg-background flex-none z-40 ${className}`}>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         {description && (
           <div className="text-xs text-muted-foreground leading-tight">
             {description}

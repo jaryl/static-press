@@ -28,4 +28,11 @@ export interface StorageAdapter {
    * @returns True if the adapter is using remote storage, false otherwise
    */
   isRemoteStorage(): boolean;
+
+  /**
+   * Makes a collection public
+   * @param slug The slug of the collection to make public
+   * @returns A promise that resolves when the operation is complete
+   */
+  makeCollectionPublic(slug: string): Promise<void>;
 }

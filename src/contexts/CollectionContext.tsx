@@ -29,6 +29,7 @@ interface CollectionContextType {
   deleteRecord: (slug: string, recordId: string) => Promise<void>;
   validateRecord: (data: RecordData, fields: FieldDefinition[]) => string[];
   getRawCollectionUrl: (slug: string) => string;
+  makeCollectionPublic: (slug: string) => Promise<void>;
 }
 
 const CollectionContext = createContext<CollectionContextType | undefined>(undefined);
@@ -197,6 +198,17 @@ export const CollectionProvider = ({ children }: { children: ReactNode }) => {
     return collectionService.getRawCollectionDataUrl(slug);
   }, []);
 
+  const makeCollectionPublic = useCallback(async (slug: string): Promise<void> => {
+    return withLoading(async () => {
+      try {
+        await collectionService.makeCollectionPublic(slug);
+      } catch (err) {
+        handleApiError('make collection public', err, setError, toast, setErrorType);
+        throw err;
+      }
+    }, setLoading);
+  }, [toast, setLoading]);
+
   const value = {
     collections,
     currentCollection,
@@ -214,7 +226,8 @@ export const CollectionProvider = ({ children }: { children: ReactNode }) => {
     updateRecord,
     deleteRecord,
     validateRecord,
-    getRawCollectionUrl
+    getRawCollectionUrl,
+    makeCollectionPublic
   };
 
   return (

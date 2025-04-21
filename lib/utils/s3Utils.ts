@@ -3,7 +3,7 @@ import {
   PutObjectCommand,
   HeadObjectCommand,
   GetObjectAclCommand,
-  PutObjectAclCommand,
+  CopyObjectCommand,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
@@ -128,14 +128,18 @@ export async function isObjectPublic(key: string): Promise<boolean> {
  */
 export async function setObjectAcl(key: string, acl: 'private' | 'public-read'): Promise<void> {
   logger.info(`[S3 Utils] Attempting to set ACL to '${acl}' for object: ${key}`);
-  const command = new PutObjectAclCommand({
+  // Copy the object onto itself with the new ACL
+  const copyCommand = new CopyObjectCommand({
     Bucket: config.s3.bucketName,
+    CopySource: `${config.s3.bucketName}/${key}`, // Source includes bucket name
     Key: key,
-    ACL: acl,
+    ACL: acl, // Apply the new ACL
+    MetadataDirective: 'REPLACE', // Replace metadata (including ACL)
   });
 
+  console.log(`[setObjectAcl] Attempting to set ACL '${acl}' for key '${key}' by copying`);
   try {
-    await s3Client.send(command);
+    await s3Client.send(copyCommand);
     logger.info(`[S3 Utils] Successfully set ACL to '${acl}' for object: ${key}`);
   } catch (error) {
     logger.error(`[S3 Utils] Error setting ACL for object ${key} to '${acl}'`, error);
