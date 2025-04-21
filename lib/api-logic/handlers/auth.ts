@@ -3,9 +3,6 @@ import { ApiResponse, createErrorResponse, createSuccessResponse } from '../util
 import { config } from '../../config';
 import { logger } from '../../utils/logger';
 
-const ADMIN_USERNAME = 'admin';
-const ADMIN_PASSWORD = 'password123'; // In real app, use env vars
-
 // IMPORTANT: Use environment variable for JWT secret
 const JWT_EXPIRATION = '8h'; // Token expiration time (e.g., 8 hours)
 
@@ -35,7 +32,8 @@ export const handleLogin = async (credentials: LoginRequestBody): Promise<ApiRes
     return createErrorResponse('Username and password are required.', 400);
   }
 
-  if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+  // Compare against credentials from config
+  if (username === config.auth.adminUsername && password === config.auth.adminPassword) {
     const payload: jose.JWTPayload = {
       username: username,
       role: 'admin',

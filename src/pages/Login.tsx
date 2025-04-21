@@ -79,10 +79,12 @@ const Login = () => {
           </form>
         </Card>
 
-        <div className="mt-6 text-center text-sm text-muted-foreground">
-          <p>For demo purposes, use:</p>
-          <p className="font-mono mt-1">Username: admin | Password: password123</p>
-        </div>
+        {import.meta.env.VITE_USE_REMOTE_DATA !== 'true' && (
+          <div className="mt-6 text-center text-sm text-muted-foreground">
+            <p>For demo/local purposes, use:</p>
+            <p className="font-mono mt-1">Username: admin | Password: password123</p>
+          </div>
+        )}
       </div>
     </div>
   );

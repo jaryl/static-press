@@ -68,7 +68,7 @@ spec:
           value: "true"
         - key: VITE_API_BASE_URL
           scope: BUILD_TIME
-          value: "https://${_self.HOSTNAME}/api"
+          value: "${APP_URL}/api"
 
 
   # Serverless functions
@@ -89,5 +89,10 @@ spec:
           type: SECRET
           scope: RUN_TIME
         - key: JWT_SECRET
+          type: SECRET
+          scope: RUN_TIME
+        - key: ADMIN_USERNAME
+          scope: RUN_TIME
+        - key: ADMIN_PASSWORD
           type: SECRET
           scope: RUN_TIME

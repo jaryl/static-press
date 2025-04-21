@@ -10,6 +10,8 @@ function loadConfig(): {
   };
   auth: {
     jwtSecret: string;
+    adminUsername: string;
+    adminPassword: string;
   };
   urls: {
     presignedUrlExpirySeconds: number;
@@ -29,7 +31,31 @@ function loadConfig(): {
     throw new Error("Configuration Error: JWT_SECRET environment variable is not set.");
   }
 
-  // // Load URL expiry, providing a default
+  // Determine mode
+  const isRemoteDataMode = process.env.VITE_USE_REMOTE_DATA === 'true';
+
+  // Load Admin Credentials conditionally
+  let adminUsername: string;
+  let adminPassword: string;
+
+  if (isRemoteDataMode) {
+    // In remote mode, require environment variables
+    adminUsername = process.env.ADMIN_USERNAME!;
+    if (!adminUsername) {
+      throw new Error("Configuration Error: ADMIN_USERNAME environment variable is required when VITE_USE_REMOTE_DATA is true.");
+    }
+    adminPassword = process.env.ADMIN_PASSWORD!;
+    if (!adminPassword) {
+      throw new Error("Configuration Error: ADMIN_PASSWORD environment variable is required when VITE_USE_REMOTE_DATA is true.");
+    }
+  } else {
+    // In local/demo mode, use env vars if set, otherwise default
+    adminUsername = 'admin';
+    adminPassword = 'password123';
+    logger.info('Running in local/demo mode, using default admin credentials.');
+  }
+
+  // Load URL expiry, providing a default
   const presignedUrlExpirySecondsRaw = process.env.VITE_PRESIGNED_URL_EXPIRY_SECONDS;
   let presignedUrlExpirySeconds = 3600; // Default to 1 hour
   if (presignedUrlExpirySecondsRaw) {
@@ -41,7 +67,7 @@ function loadConfig(): {
     }
   }
 
-  // // Dev Server Config
+  // Dev Server Config
   const viteDevServerUrl = process.env.VITE_DEV_SERVER_URL || '';
 
   const apiPortRaw = process.env.API_PORT;
@@ -61,6 +87,8 @@ function loadConfig(): {
     },
     auth: {
       jwtSecret,
+      adminUsername,
+      adminPassword,
     },
     urls: {
       presignedUrlExpirySeconds,
