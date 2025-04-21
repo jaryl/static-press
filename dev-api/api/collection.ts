@@ -17,10 +17,10 @@ router.put('/:slug', async (req: Request, res: Response, next: NextFunction) => 
   res.status(result.statusCode).json(result.body);
 });
 
-// PUT /api/collection/:slug/make-public
-router.put('/:slug/make-public', async (req: Request, res: Response) => {
+// PUT /api/make-public/:slug  (Note: This is now a top-level route, consider moving to its own file/router if structure grows)
+router.put('/make-public/:slug', async (req: Request, res: Response) => {
   const { slug } = req.params;
-  logger.info(`[API Route] PUT /collections/${slug}/make-public request received`);
+  logger.info(`[API Route] PUT /collections/make-public/${slug} request received`);
 
   try {
     await collectionHandler.makeCollectionPublic(slug);

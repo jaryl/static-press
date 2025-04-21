@@ -22,27 +22,21 @@ packages:
     - name: show
       runtime: nodejs:18
       web: true
+    - name: make-public
+      runtime: nodejs:18
+      web: true
 
   - name: schema
     functions:
     - name: show
       runtime: nodejs:18
       web: true
-
-  - name: schema
-    functions:
     - name: presigned-url
       runtime: nodejs:18
       web: true
-
-  - name: schema
-    functions:
     - name: metadata
       runtime: nodejs:18
       web: true
-
-  - name: schema
-    functions:
     - name: make-private
       runtime: nodejs:18
       web: true

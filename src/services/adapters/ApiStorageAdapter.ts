@@ -203,7 +203,7 @@ export class ApiStorageAdapter implements StorageAdapter {
   }
 
   async makeCollectionPublic(slug: string): Promise<void> {
-    const path = `/api/collections/${slug}/make-public`;
+    const path = `/api/collections/make-public/${slug}`;
     console.log(`[ApiStorageAdapter] Making collection public via API: PUT ${path}`);
     try {
       const response = await this.fetchWithAuth(path, {

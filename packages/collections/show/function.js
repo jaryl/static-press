@@ -30,7 +30,6 @@ async function main(event, context) {
 
   try {
     // --- Authentication Check ---
-    // Pass the event directly to authenticateRequest which now handles headers properly
     const decodedToken = await authenticateRequest(event);
     console.log(`[Collections] Authenticated user: ${decodedToken.sub}`);
     // ---------------------------
