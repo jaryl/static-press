@@ -9,6 +9,8 @@ import { useArrayItems } from './useArrayItems';
 
 const ArrayInput = ({ field, value, onChange }: FieldInputProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  // Generate a unique ID for the description
+  const descriptionId = `array-input-description-${field.name.toLowerCase().replace(/\s+/g, '-')}`;
 
   // Ensure value is an array
   const arrayValue = Array.isArray(value) ? value : [];

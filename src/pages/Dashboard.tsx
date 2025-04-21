@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useCollection } from "@/contexts/CollectionContext";
 import { Button } from "@/components/ui/button";
 import { Sidebar } from "@/components/layout/sidebar";
@@ -13,24 +13,21 @@ import type { CollectionFormData } from '@/types';
 import { CollectionTable } from '@/components/dashboard/CollectionTable';
 import { Card } from "@/components/ui/card";
 import { useCreateCollectionSubmit } from '@/hooks/use-create-collection-submit';
+import { useQueryClient } from "@tanstack/react-query";
 
 const Dashboard = () => {
   const {
     collections,
-    fetchCollections,
-    loading,
     createCollection,
+    loading,
     error,
     errorType
   } = useCollection();
   const [searchTerm, setSearchTerm] = useState("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const queryClient = useQueryClient();
 
   const { submit: submitNewCollection, isSubmitting, error: submissionError, resetError } = useCreateCollectionSubmit(createCollection);
-
-  useEffect(() => {
-    fetchCollections();
-  }, [fetchCollections]);
 
   const handleSearch = (value: string) => {
     setSearchTerm(value);
@@ -71,7 +68,14 @@ const Dashboard = () => {
       <Card className="bg-destructive/10 border-destructive text-destructive-foreground p-4 m-6 text-center">
         <p className="font-semibold">{title}</p>
         <p className="text-sm mt-1">{description}</p>
-        <Button variant="destructive" size="sm" className="mt-3" onClick={() => fetchCollections()}>Retry</Button>
+        <Button
+          variant="destructive"
+          size="sm"
+          className="mt-3"
+          onClick={() => queryClient.invalidateQueries({ queryKey: ['collections'] })}
+        >
+          Retry
+        </Button>
       </Card>
     );
   }
@@ -104,7 +108,7 @@ const Dashboard = () => {
 
         {renderError()}
 
-        {!error && loading && collections.length === 0 ? (
+        {loading && collections.length === 0 ? (
           <div className="flex items-center justify-center h-64">
             <Spinner />
           </div>

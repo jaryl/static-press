@@ -1,4 +1,5 @@
 import { createContext, ReactNode, useContext, useState, useCallback } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type {
   CollectionSchema,
   FieldDefinition,
@@ -18,9 +19,7 @@ interface CollectionContextType {
   loading: boolean;
   error: string | null;
   errorType: string | null;
-  fetchCollections: () => Promise<void>;
-  fetchCollection: (slug: string) => Promise<CollectionSchema | null>;
-  fetchRecords: (slug: string) => Promise<CollectionRecord[]>;
+  setCurrentCollectionSlug: (slug: string | null) => void;
   createCollection: (collection: Omit<CollectionSchema, 'createdAt' | 'updatedAt'>) => Promise<CollectionSchema>;
   updateCollection: (slug: string, updates: Partial<Omit<CollectionSchema, 'createdAt' | 'updatedAt'>>) => Promise<CollectionSchema>;
   deleteCollection: (slug: string) => Promise<void>;
@@ -35,103 +34,80 @@ interface CollectionContextType {
 const CollectionContext = createContext<CollectionContextType | undefined>(undefined);
 
 export const CollectionProvider = ({ children }: { children: ReactNode }) => {
-  const [collections, setCollections] = useState<CollectionSchema[]>([]);
-  const [currentCollection, setCurrentCollection] = useState<CollectionSchema | null>(null);
-  const [records, setRecords] = useState<CollectionRecord[]>([]);
+  const queryClient = useQueryClient();
+  const [currentCollectionSlug, setCurrentCollectionSlug] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [errorType, setErrorType] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const fetchCollections = useCallback(async (): Promise<void> => {
-    return withLoading(async () => {
+  const { data: collections = [] } = useQuery({
+    queryKey: ['collections'],
+    queryFn: async () => {
       try {
-        const data = await schemaService.getCollections();
-        setCollections(data);
-        setError(null);
-        setErrorType(null);
+        return await schemaService.getCollections();
       } catch (err) {
-        handleApiError('fetch collections', err, setError, toast, setErrorType, false);
+        console.error('Error fetching collections:', err);
+        throw err;
       }
-    }, setLoading);
-  }, [toast, setLoading]);
+    },
+  });
 
-  const fetchCollection = useCallback(async (id: string): Promise<CollectionSchema | null> => {
-    return withLoading(async () => {
-      let collection: CollectionSchema | null = null;
+  // Fetch current collection if slug is set
+  const { data: currentCollection = null } = useQuery({
+    queryKey: ['collection', currentCollectionSlug],
+    queryFn: async () => {
+      if (!currentCollectionSlug) return null;
       try {
-        collection = await schemaService.getCollection(id);
-
-        if (!collection) {
-          setCurrentCollection(null);
-          setError(`Collection schema '${id}' not found.`);
-          setErrorType('SCHEMA_NOT_FOUND');
-          return null;
-        } else {
-          setCurrentCollection(collection);
-          setError(null);
-          setErrorType(null);
-          return collection;
-        }
+        return await schemaService.getCollection(currentCollectionSlug);
       } catch (err) {
-        setCurrentCollection(null);
-        handleApiError('fetch collection', err, setError, toast, setErrorType, false);
-        return null;
+        console.error(`Error fetching collection ${currentCollectionSlug}:`, err);
+        throw err;
       }
-    }, setLoading);
-  }, [toast, setLoading]);
+    },
+    enabled: !!currentCollectionSlug, // Only run query if slug is available
+  });
 
-  const fetchRecords = useCallback(async (slug: string): Promise<CollectionRecord[]> => {
-    return withLoading(async () => {
+  // Fetch records for current collection
+  const { data: records = [] } = useQuery({
+    queryKey: ['records', currentCollectionSlug],
+    queryFn: async () => {
+      if (!currentCollectionSlug) return [];
       try {
-        const data = await collectionService.getRecords(slug);
-        setRecords(data);
-        setError(null);
-        setErrorType(null);
-        return data;
+        return await collectionService.getRecords(currentCollectionSlug);
       } catch (err) {
-        let message = 'Failed to fetch records';
-        let type: string | null = 'UNKNOWN_ERROR';
-
-        if (err instanceof Error) {
-          message = err.message;
+        // Handle specific error types
+        if (err instanceof Error && err.message.includes('not found')) {
+          console.warn(`Collection data for ${currentCollectionSlug} not found.`);
+          return [];
         }
-
-        setError(message);
-        setErrorType(type);
-
-        if (type !== 'COLLECTION_DATA_NOT_FOUND') {
-          toast({
-            title: "Error Fetching Records",
-            description: message,
-            variant: "destructive",
-          });
-        }
-        return [];
+        console.error(`Error fetching records for ${currentCollectionSlug}:`, err);
+        throw err;
       }
-    }, setLoading);
-  }, [toast, setLoading]);
+    },
+    enabled: !!currentCollectionSlug, // Only run query if slug is available
+  });
 
   const createCollection = useCallback(async (collectionData: Omit<CollectionSchema, 'createdAt' | 'updatedAt'>): Promise<CollectionSchema> => {
     return withLoading(async () => {
       try {
         const newCollection = await schemaService.createCollection(collectionData);
-        await fetchCollections();
+        queryClient.invalidateQueries({ queryKey: ['collections'] });
         return newCollection;
       } catch (err) {
         handleApiError('create collection', err, setError, toast, setErrorType);
         throw err;
       }
     }, setLoading);
-  }, [fetchCollections, toast, setLoading]);
+  }, [toast, setLoading, queryClient]);
 
   const updateCollection = useCallback(async (slug: string, updates: Partial<Omit<CollectionSchema, 'createdAt' | 'updatedAt'>>): Promise<CollectionSchema> => {
     return withLoading(async () => {
       try {
         const updatedCollection = await schemaService.updateCollection(slug, updates);
-        setCollections(prev => prev.map(c => c.slug === slug ? updatedCollection : c));
+        queryClient.invalidateQueries({ queryKey: ['collections'] });
         if (currentCollection?.slug === slug) {
-          setCurrentCollection(updatedCollection);
+          setCurrentCollectionSlug(slug);
         }
         return updatedCollection;
       } catch (err) {
@@ -139,60 +115,60 @@ export const CollectionProvider = ({ children }: { children: ReactNode }) => {
         throw err;
       }
     }, setLoading);
-  }, [currentCollection, toast, setLoading]);
+  }, [currentCollection, toast, setLoading, queryClient]);
 
   const deleteCollection = useCallback(async (slug: string): Promise<void> => {
     return withLoading(async () => {
       try {
         await schemaService.deleteCollection(slug);
-        setCollections(prev => prev.filter(c => c.slug !== slug));
+        queryClient.invalidateQueries({ queryKey: ['collections'] });
         if (currentCollection?.slug === slug) {
-          setCurrentCollection(null);
+          setCurrentCollectionSlug(null);
         }
       } catch (err) {
         handleApiError('delete collection', err, setError, toast, setErrorType);
         throw err;
       }
     }, setLoading);
-  }, [currentCollection, toast, setLoading]);
+  }, [currentCollection, toast, setLoading, queryClient]);
 
   const createRecord = useCallback(async (slug: string, data: RecordData): Promise<CollectionRecord> => {
     return withLoading(async () => {
       try {
         const newRecord = await collectionService.createRecord(slug, data);
-        await fetchRecords(slug);
+        queryClient.invalidateQueries({ queryKey: ['records', slug] });
         return newRecord;
       } catch (err) {
         handleApiError('create record', err, setError, toast, setErrorType);
         throw err;
       }
     }, setLoading);
-  }, [fetchRecords, toast, setLoading]);
+  }, [toast, setLoading, queryClient]);
 
   const updateRecord = useCallback(async (slug: string, recordId: string, data: RecordData): Promise<CollectionRecord> => {
     return withLoading(async () => {
       try {
         const updatedRecord = await collectionService.updateRecord(slug, recordId, data);
-        await fetchRecords(slug);
+        queryClient.invalidateQueries({ queryKey: ['records', slug] });
         return updatedRecord;
       } catch (err) {
         handleApiError('update record', err, setError, toast, setErrorType);
         throw err;
       }
     }, setLoading);
-  }, [fetchRecords, toast, setLoading]);
+  }, [toast, setLoading, queryClient]);
 
   const deleteRecord = useCallback(async (slug: string, recordId: string): Promise<void> => {
     return withLoading(async () => {
       try {
         await collectionService.deleteRecord(slug, recordId);
-        await fetchRecords(slug);
+        queryClient.invalidateQueries({ queryKey: ['records', slug] });
       } catch (err) {
         handleApiError('delete record', err, setError, toast, setErrorType);
         throw err;
       }
     }, setLoading);
-  }, [fetchRecords, toast, setLoading]);
+  }, [toast, setLoading, queryClient]);
 
   const getRawCollectionUrl = useCallback((slug: string): string => {
     return collectionService.getRawCollectionDataUrl(slug);
@@ -202,12 +178,17 @@ export const CollectionProvider = ({ children }: { children: ReactNode }) => {
     return withLoading(async () => {
       try {
         await collectionService.makeCollectionPublic(slug);
+        queryClient.invalidateQueries({ queryKey: ['collection', slug] });
+        toast({
+          title: "Success",
+          description: `Collection '${slug}' has been made public.`,
+        });
       } catch (err) {
         handleApiError('make collection public', err, setError, toast, setErrorType);
         throw err;
       }
     }, setLoading);
-  }, [toast, setLoading]);
+  }, [toast, setLoading, queryClient]);
 
   const value = {
     collections,
@@ -216,9 +197,7 @@ export const CollectionProvider = ({ children }: { children: ReactNode }) => {
     loading,
     error,
     errorType,
-    fetchCollections,
-    fetchCollection,
-    fetchRecords,
+    setCurrentCollectionSlug,
     createCollection,
     updateCollection,
     deleteCollection,

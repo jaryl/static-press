@@ -4,18 +4,18 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { Field } from "@/types";
+import { FieldDefinition, FieldType } from "@/types";
 import { Grip, Trash2 } from "lucide-react";
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
 // Available field types - consider moving to a shared constants file if used elsewhere
-const FIELD_TYPES: Field['type'][] = ['text', 'number', 'boolean', 'date', 'datetime', 'email', 'url', 'select', 'image', 'array', 'coordinates'];
+const FIELD_TYPES: FieldType[] = ['text', 'number', 'boolean', 'date', 'datetime', 'email', 'url', 'select', 'image', 'array', 'coordinates'];
 
 export interface SortableFieldProps {
-  field: Field;
+  field: FieldDefinition;
   index: number;
-  onFieldChange: (index: number, field: Partial<Field>) => void;
+  onFieldChange: (index: number, field: Partial<FieldDefinition>) => void;
   onRemoveField: (index: number) => void;
 }
 
@@ -89,7 +89,7 @@ export const SortableField = ({ field, index, onFieldChange, onRemoveField }: So
                   onValueChange={(value) => onFieldChange(
                     index,
                     {
-                      type: value as Field['type'],
+                      type: value as FieldType,
                       // Reset specific options if type changes away from select/datetime
                       ...(field.type === 'select' && value !== 'select' ? { options: undefined } : {}),
                       ...(field.type === 'datetime' && value !== 'datetime' ? { timezoneAware: undefined } : {}),

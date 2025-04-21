@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ListChecks, Plus } from 'lucide-react';
-import { Field } from '@/types';
+import { FieldDefinition } from '@/types';
 import { DndContext, closestCenter, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { restrictToParentElement } from '@dnd-kit/modifiers';
@@ -10,10 +10,10 @@ import { SortableField } from './SortableField'; // Assuming SortableField is in
 // --- SchemaFieldList Component --- //
 
 export interface SchemaFieldListProps {
-  fields: Field[];
+  fields: FieldDefinition[];
   sensors: ReturnType<typeof useSensors>; // Use the actual type from useSensors
   onDragEnd: (event: DragEndEvent) => void;
-  onFieldChange: (index: number, field: Partial<Field>) => void;
+  onFieldChange: (index: number, field: Partial<FieldDefinition>) => void;
   onRemoveField: (index: number) => void;
   onAddField: () => void;
 }

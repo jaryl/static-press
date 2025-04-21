@@ -22,6 +22,7 @@ interface StandardDialogProps {
   onOpenChange?: (open: boolean) => void;
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl';
   className?: string;
+  'aria-describedby'?: string;
 }
 
 /**
@@ -38,6 +39,7 @@ interface StandardDialogProps {
  * @param onOpenChange - Optional callback for open state changes
  * @param maxWidth - Optional max width setting (sm, md, lg, xl)
  * @param className - Optional additional classes for the dialog content
+ * @param aria-describedby - Optional aria-describedby attribute for accessibility
  */
 const StandardDialog: React.FC<StandardDialogProps> = ({
   trigger,
@@ -51,6 +53,7 @@ const StandardDialog: React.FC<StandardDialogProps> = ({
   onOpenChange,
   maxWidth = 'md',
   className,
+  'aria-describedby': ariaDescribedby,
 }) => {
   // Determine max width class based on the prop
   const maxWidthClass = {
@@ -60,17 +63,23 @@ const StandardDialog: React.FC<StandardDialogProps> = ({
     xl: 'sm:max-w-[700px] md:max-w-[900px]',
   }[maxWidth];
 
+  // Generate a unique ID for the description if not provided
+  const descriptionId = description ? ariaDescribedby || `dialog-description-${React.useId()}` : undefined;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent className={`${maxWidthClass} ${className || ''}`}>
+      <DialogContent
+        className={`${maxWidthClass} ${className || ''}`}
+        aria-describedby={descriptionId}
+      >
         <DialogHeader className="text-left">
           <DialogTitle className="flex items-center gap-2 text-left">
             {Icon && <Icon className="h-4 w-4 text-primary" />}
             {title}
           </DialogTitle>
           {description && (
-            <DialogDescription className="text-left">
+            <DialogDescription id={descriptionId} className="text-left">
               {description}
             </DialogDescription>
           )}

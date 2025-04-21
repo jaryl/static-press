@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useCollection } from "@/contexts/CollectionContext";
 import { Button } from "@/components/ui/button";
@@ -9,8 +8,7 @@ import NewRecordRow from "./NewRecordRow";
 import EmptyState from "@/components/layout/EmptyState";
 import NoResults from "@/components/layout/NoResults";
 import ErrorDisplay from "@/components/layout/ErrorDisplay";
-import { CollectionRecord, RecordData } from "@/services/shared/types/collection";
-import { FieldDefinition, CollectionSchema } from "@/services/shared/types/schema";
+import { CollectionRecord, RecordData, FieldDefinition, CollectionSchema } from "@/types";
 
 interface CollectionContentProps {
   id: string;
@@ -42,8 +40,6 @@ const CollectionContent = ({
   formErrors = []
 }: CollectionContentProps) => {
   const {
-    fetchCollection,
-    fetchRecords,
     currentCollection,
     records,
     deleteRecord,
@@ -53,11 +49,6 @@ const CollectionContent = ({
     loading,
     error,
   } = useCollection();
-
-  useEffect(() => {
-    fetchCollection(id);
-    fetchRecords(id);
-  }, [id, fetchCollection, fetchRecords]);
 
   const handleDelete = async (recordId: string) => {
     await deleteRecord(id, recordId);

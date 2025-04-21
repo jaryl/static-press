@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useCollection } from "@/contexts/CollectionContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { Separator } from "@/components/ui/separator";
@@ -12,8 +12,17 @@ import SidebarFooter from './SidebarFooter';
 // Key for storing sidebar state in localStorage
 const SIDEBAR_STATE_KEY = 'static-press-sidebar-open';
 
+// Simple placeholder loading component
+const CollectionsLoading = ({ isOpen }: { isOpen: boolean }) => (
+  <div className={`px-4 mt-5 ${isOpen ? '' : 'flex flex-col items-center'}`}>
+    <div className={`h-4 w-20 bg-muted rounded animate-pulse ${isOpen ? 'mb-3' : 'mb-2 h-5 w-5 rounded-full'}`}></div>
+    <div className={`h-8 w-full bg-muted rounded animate-pulse ${isOpen ? 'mb-2' : 'h-8 w-8 rounded-full'}`}></div>
+    <div className={`h-8 w-full bg-muted rounded animate-pulse ${isOpen ? '' : 'h-8 w-8 rounded-full'}`}></div>
+  </div>
+);
+
 export function Sidebar() {
-  const { collections, fetchCollections, createCollection } = useCollection();
+  const { collections, createCollection } = useCollection();
   const { logout } = useAuth();
   // Initialize from localStorage, defaulting to true if not found
   const [isOpen, setIsOpen] = useState(() => {
@@ -25,10 +34,6 @@ export function Sidebar() {
     return true;
   });
   const [searchTerm, setSearchTerm] = useState("");
-
-  useEffect(() => {
-    fetchCollections();
-  }, [fetchCollections]);
 
   // Save sidebar state to localStorage whenever it changes
   useEffect(() => {
@@ -56,11 +61,13 @@ export function Sidebar() {
         <div className="py-2 flex flex-col justify-start h-full">
           <SidebarNavLinks isOpen={isOpen} />
 
-          <SidebarCollections
-            isOpen={isOpen}
-            collections={filteredCollections}
-            createCollection={createCollection}
-          />
+          <Suspense fallback={<CollectionsLoading isOpen={isOpen} />}>
+            <SidebarCollections
+              isOpen={isOpen}
+              collections={filteredCollections}
+              createCollection={createCollection}
+            />
+          </Suspense>
         </div>
       </ScrollArea>
 

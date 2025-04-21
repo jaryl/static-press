@@ -4,6 +4,7 @@ import { AlertTriangle, Loader2 } from 'lucide-react';
 import { useCollection } from '@/contexts/CollectionContext';
 import { Button } from '../ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { useQueryClient } from "@tanstack/react-query";
 
 /**
  * Displays an alert if the collection's data file in S3 is not publicly accessible.
@@ -15,13 +16,13 @@ export const CollectionDataPrivacyAlert: React.FC = () => {
     getRawCollectionUrl,
     loading: collectionLoading,
     makeCollectionPublic,
-    fetchRecords,
   } = useCollection();
   const [isPrivate, setIsPrivate] = useState<boolean | null>(null);
   const [checkError, setCheckError] = useState<string | null>(null);
   const [isMakingPublic, setIsMakingPublic] = useState<boolean>(false);
   const [makePublicError, setMakePublicError] = useState<string | null>(null);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const checkDataPrivacy = useCallback(async () => {
     if (!currentCollection || !getRawCollectionUrl) {
@@ -78,8 +79,7 @@ export const CollectionDataPrivacyAlert: React.FC = () => {
 
       await checkDataPrivacy();
 
-      await fetchRecords(currentCollection.slug);
-
+      queryClient.invalidateQueries({ queryKey: ['records', currentCollection.slug] });
     } catch (error: any) {
       console.error("Error making collection public (caught in component):", error);
       const errorMessage = error?.message || (error instanceof Error ? error.message : 'An unexpected error occurred.');

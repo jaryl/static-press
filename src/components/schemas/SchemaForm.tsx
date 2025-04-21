@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Collection, Field } from "@/types";
+import { CollectionSchema, FieldDefinition, FieldType } from "@/types";
 import { useCollection } from "@/contexts/CollectionContext";
 import { Lock, ClipboardList } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -13,15 +13,15 @@ import { generateSlug } from "@/lib/utils";
 import { SchemaFieldList } from './SchemaFieldList';
 
 interface SchemaFormProps {
-  collection: Collection;
+  collection: CollectionSchema;
 }
 
-const FIELD_TYPES: Field['type'][] = ['text', 'number', 'boolean', 'date', 'datetime', 'email', 'url', 'select', 'image', 'array'];
+const FIELD_TYPES: FieldType[] = ['text', 'number', 'boolean', 'date', 'datetime', 'email', 'url', 'select', 'image', 'array'];
 
 export function SchemaForm({ collection }: SchemaFormProps) {
   const navigate = useNavigate();
   const { updateCollection } = useCollection();
-  const [schema, setSchema] = useState<Collection>({
+  const [schema, setSchema] = useState<CollectionSchema>({
     ...collection
   });
 
@@ -71,7 +71,7 @@ export function SchemaForm({ collection }: SchemaFormProps) {
     });
   };
 
-  const handleFieldChange = (index: number, field: Partial<Field>) => {
+  const handleFieldChange = (index: number, field: Partial<FieldDefinition>) => {
     const updatedFields = [...schema.fields];
     updatedFields[index] = {
       ...updatedFields[index],
@@ -85,7 +85,7 @@ export function SchemaForm({ collection }: SchemaFormProps) {
   };
 
   const handleAddField = () => {
-    const newField: Field = {
+    const newField: FieldDefinition = {
       id: `field-${Date.now()}`,
       name: '',
       type: 'text',
