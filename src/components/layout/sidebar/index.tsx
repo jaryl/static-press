@@ -50,7 +50,7 @@ export function Sidebar() {
   );
 
   return (
-    <div className={`h-screen flex flex-col bg-sidebar border-r border-border ${isOpen ? 'w-60' : 'w-16'}`}>
+    <div className={`flex flex-col bg-sidebar border-r border-border ${isOpen ? 'w-60' : 'w-16'}`}>
       <SidebarHeader isOpen={isOpen} onToggle={handleToggleSidebar} />
 
       {isOpen && <SidebarSearch searchTerm={searchTerm} onSearchChange={setSearchTerm} />}
@@ -58,7 +58,7 @@ export function Sidebar() {
       <Separator className="bg-border/50" />
 
       <ScrollArea className="flex-1">
-        <div className="py-2 flex flex-col justify-start h-full">
+        <div className="py-2 flex flex-col justify-start">
           <SidebarNavLinks isOpen={isOpen} />
 
           <Suspense fallback={<CollectionsLoading isOpen={isOpen} />}>
