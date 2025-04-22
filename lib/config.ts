@@ -31,29 +31,18 @@ function loadConfig(): {
     throw new Error("Configuration Error: JWT_SECRET environment variable is not set.");
   }
 
-  // Determine mode
-  const isRemoteDataMode = process.env.VITE_USE_REMOTE_DATA === 'true';
-
   // Load Admin Credentials conditionally
   let adminUsername: string;
-  let adminPassword;
+  let adminPassword: string;
 
-  if (isRemoteDataMode) {
-    // In remote mode, require environment variables
-    adminUsername = process.env.ADMIN_USERNAME!;
-    if (!adminUsername) {
-      throw new Error("Configuration Error: ADMIN_USERNAME environment variable is required when VITE_USE_REMOTE_DATA is true.");
-    }
-    adminPassword = process.env.ADMIN_PASSWORD!;
-    if (!adminPassword) {
-      logger.warn("Security Info: ADMIN_PASSWORD environment variable is not set. Using default 'password123' for demo/local development.");
-      adminPassword = 'password123'; // Default for demo/local ONLY
-    }
-  } else {
-    // In local/demo mode, use env vars if set, otherwise default
-    adminUsername = 'admin';
-    adminPassword = 'password123';
-    logger.info('Running in local/demo mode, using default admin credentials.');
+  adminUsername = process.env.ADMIN_USERNAME!;
+  if (!adminUsername) {
+    throw new Error("Configuration Error: ADMIN_USERNAME environment variable is required when VITE_USE_REMOTE_DATA is true.");
+  }
+
+  adminPassword = process.env.ADMIN_PASSWORD!;
+  if (!adminPassword) {
+    throw new Error("Configuration Error: ADMIN_PASSWORD environment variable is required when VITE_USE_REMOTE_DATA is true.");
   }
 
   // Load URL expiry, providing a default
