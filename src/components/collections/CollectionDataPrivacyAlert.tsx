@@ -23,8 +23,15 @@ export const CollectionDataPrivacyAlert: React.FC = () => {
   const [makePublicError, setMakePublicError] = useState<string | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const isDemoMode = import.meta.env.VITE_USE_REMOTE_DATA !== 'true';
 
   const checkDataPrivacy = useCallback(async () => {
+    // Skip privacy check in demo mode
+    if (isDemoMode) {
+      setIsPrivate(false);
+      return;
+    }
+
     if (!currentCollection || !getRawCollectionUrl) {
       setIsPrivate(null);
       setCheckError(null);
