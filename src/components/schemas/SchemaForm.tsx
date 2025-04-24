@@ -16,8 +16,6 @@ interface SchemaFormProps {
   collection: CollectionSchema;
 }
 
-const FIELD_TYPES: FieldType[] = ['text', 'number', 'boolean', 'date', 'datetime', 'email', 'url', 'select', 'image', 'array'];
-
 export function SchemaForm({ collection }: SchemaFormProps) {
   const navigate = useNavigate();
   const { updateCollection } = useCollection();
