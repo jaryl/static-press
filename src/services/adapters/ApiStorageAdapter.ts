@@ -16,9 +16,11 @@ export class ApiAdapterError extends Error {
 }
 
 export class ApiStorageAdapter implements StorageAdapter {
+  private currentSiteId: string = 'default';
   private baseUrl: string;
 
-  constructor() {
+  constructor(siteId: string = 'default') {
+    this.currentSiteId = siteId;
     // Construct the base URL from S3 configuration
     const s3Endpoint = import.meta.env.VITE_S3_ENDPOINT_URL;
     const s3Bucket = import.meta.env.VITE_S3_BUCKET_NAME;
@@ -26,8 +28,8 @@ export class ApiStorageAdapter implements StorageAdapter {
     // Ensure endpoint doesn't have trailing slash
     const cleanEndpoint = s3Endpoint.endsWith('/') ? s3Endpoint.slice(0, -1) : s3Endpoint;
 
-    // Construct the base URL for data files
-    this.baseUrl = `${cleanEndpoint}/${s3Bucket}/data`;
+    // Construct the base URL for data files with site path
+    this.baseUrl = `${cleanEndpoint}/${s3Bucket}/sites/${this.currentSiteId}/data`;
 
     console.log(`[ApiStorageAdapter] Initialized with data URL: ${this.baseUrl}`);
   }
@@ -69,11 +71,27 @@ export class ApiStorageAdapter implements StorageAdapter {
     return response;
   }
 
+  // Set current site ID
+  setSiteId(siteId: string): void {
+    this.currentSiteId = siteId || 'default';
+    // Reconstruct the base URL with new site ID
+    const s3Endpoint = import.meta.env.VITE_S3_ENDPOINT_URL;
+    const s3Bucket = import.meta.env.VITE_S3_BUCKET_NAME;
+    const cleanEndpoint = s3Endpoint.endsWith('/') ? s3Endpoint.slice(0, -1) : s3Endpoint;
+    this.baseUrl = `${cleanEndpoint}/${s3Bucket}/sites/${this.currentSiteId}/data`;
+    console.log(`[ApiStorageAdapter] Switched to site: ${this.currentSiteId}, new data URL: ${this.baseUrl}`);
+  }
+
+  // Get current site ID
+  getSiteId(): string {
+    return this.currentSiteId;
+  }
+
   // Read operations
   async getSchema(): Promise<CollectionSchema[]> {
     try {
-      // Use the API to fetch the schema
-      const schemaPath = `/api/schema`;
+      // Use the API to fetch the schema with site ID
+      const schemaPath = `/api/schema?siteId=${this.currentSiteId}`;
       console.log(`[ApiStorageAdapter] Fetching schema from API: ${schemaPath}`);
 
       const response = await this.fetchWithAuth(schemaPath);
@@ -163,7 +181,7 @@ export class ApiStorageAdapter implements StorageAdapter {
 
   // Write operations
   async updateSchema(schemaData: CollectionSchema[]): Promise<void> {
-    const schemaPath = `/api/schema`;
+    const schemaPath = `/api/schema?siteId=${this.currentSiteId}`;
     console.log(`[ApiStorageAdapter] Sending schema update to ${schemaPath}`);
     try {
       const response = await this.fetchWithAuth(schemaPath, {
@@ -270,7 +288,7 @@ export class ApiStorageAdapter implements StorageAdapter {
     // Remove leading slash if present for consistency
     const normalizedPath = imagePath.startsWith('/') ? imagePath.substring(1) : imagePath;
 
-    // Extract the base URL without the 'data' part to get to the bucket root
+    // Extract the base URL without the 'data' part to get to the site root
     const baseUrlWithoutData = this.baseUrl.replace(/\/data$/, '');
 
     // Images are always in the images directory

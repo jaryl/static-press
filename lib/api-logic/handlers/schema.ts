@@ -5,8 +5,8 @@ import { config } from '../../config';
 import { logger } from '../../utils/logger';
 import { getObjectMetadata, isObjectPublic, setObjectAcl, putObjectJson, getObjectStream, generatePresignedGetUrl } from '../../utils/s3Utils';
 
-// Schema is always at the root level
-const SCHEMA_KEY = 'schema.json';
+// Generate the schema path for a site
+const getSchemaKey = (siteId: string = 'default') => `sites/${siteId}/schema.json`;
 
 /**
  * Helper function to convert a Readable stream to a string.
@@ -28,16 +28,17 @@ export async function streamToString(stream: Readable): Promise<string> {
  * Core handler for retrieving schema data
  * This function contains the business logic without being tied to Express or serverless
  */
-export async function getSchema(): Promise<ApiResponse> {
-  logger.info(`[API Core] Attempting to fetch schema from S3 at key: ${SCHEMA_KEY}`);
+export async function getSchema(siteId: string = 'default'): Promise<ApiResponse> {
+  const schemaKey = getSchemaKey(siteId);
+  logger.info(`[API Core] Attempting to fetch schema from S3 at key: ${schemaKey}`);
 
   try {
     // Use the new utility function to get the stream
-    const stream = await getObjectStream(SCHEMA_KEY);
+    const stream = await getObjectStream(schemaKey);
 
     if (!stream) {
       // getObjectStream returns null if NoSuchKey
-      logger.warn(`[API Core] Schema file not found (NoSuchKey): ${SCHEMA_KEY}`);
+      logger.warn(`[API Core] Schema file not found (NoSuchKey): ${schemaKey}`);
       return createErrorResponse('Schema file (schema.json) not found.', 404, 'SCHEMA_FILE_NOT_FOUND');
     }
 
@@ -46,12 +47,12 @@ export async function getSchema(): Promise<ApiResponse> {
       const bodyContents = await streamToString(stream as Readable);
       const schemaData = JSON.parse(bodyContents);
 
-      logger.info(`[API Core] Successfully retrieved and parsed schema from S3: ${SCHEMA_KEY}`);
+      logger.info(`[API Core] Successfully retrieved and parsed schema from S3: ${schemaKey}`);
       return createSuccessResponse(schemaData);
     } catch (parseError) {
       // Handle JSON parsing error specifically
       if (parseError instanceof SyntaxError) {
-        logger.error(`[API Core] Error parsing schema JSON from S3: ${SCHEMA_KEY}`, parseError);
+        logger.error(`[API Core] Error parsing schema JSON from S3: ${schemaKey}`, parseError);
         return createErrorResponse(
           `Failed to parse schema file (schema.json): ${parseError.message}`,
           500,
@@ -64,7 +65,7 @@ export async function getSchema(): Promise<ApiResponse> {
   } catch (error: any) { // Use 'any' to access error.name
     // Check for S3 Not Found error
     if (error.name === 'NoSuchKey') {
-      logger.warn(`[API Core] Schema file not found in S3: ${SCHEMA_KEY}`);
+      logger.warn(`[API Core] Schema file not found in S3: ${schemaKey}`);
       return createErrorResponse(
         'Schema file (schema.json) not found in storage.',
         404,
@@ -73,7 +74,7 @@ export async function getSchema(): Promise<ApiResponse> {
     }
 
     // Handle other S3 or unexpected errors
-    logger.error(`[API Core] Error retrieving schema from S3: ${SCHEMA_KEY}`, error);
+    logger.error(`[API Core] Error retrieving schema from S3: ${schemaKey}`, error);
     return createErrorResponse(
       'Internal server error retrieving schema.',
       500,
@@ -86,17 +87,18 @@ export async function getSchema(): Promise<ApiResponse> {
  * Core handler for updating schema data
  * This function contains the business logic without being tied to Express or serverless
  */
-export async function updateSchema(schemaData: any): Promise<ApiResponse> {
+export async function updateSchema(schemaData: any, siteId: string = 'default'): Promise<ApiResponse> {
   if (!Array.isArray(schemaData)) {
     return createErrorResponse('Invalid schema format. Expected an array of collection schemas.', 400, 'VALIDATION_ERROR');
   }
 
-  logger.info(`[API Core] Attempting to update schema in S3 at key: ${SCHEMA_KEY}`);
+  const schemaKey = getSchemaKey(siteId);
+  logger.info(`[API Core] Attempting to update schema in S3 at key: ${schemaKey}`);
 
   try {
-    await putObjectJson(SCHEMA_KEY, schemaData);
+    await putObjectJson(schemaKey, schemaData);
 
-    logger.info(`[API Core] Successfully updated schema in S3: ${SCHEMA_KEY}`);
+    logger.info(`[API Core] Successfully updated schema in S3: ${schemaKey}`);
     return createSuccessResponse({ message: 'Schema updated successfully in S3' });
   } catch (error) {
     logger.error(`[API Core] Error updating schema in S3:`, error);
@@ -112,15 +114,16 @@ export async function updateSchema(schemaData: any): Promise<ApiResponse> {
  * Core handler for retrieving schema metadata (LastModified, public status)
  * This function contains the business logic without being tied to Express or serverless
  */
-export async function getSchemaMetadata(): Promise<ApiResponse> {
-  logger.info(`[API Core] Attempting to fetch metadata for schema from S3 at key: ${SCHEMA_KEY}`);
+export async function getSchemaMetadata(siteId: string = 'default'): Promise<ApiResponse> {
+  const schemaKey = getSchemaKey(siteId);
+  logger.info(`[API Core] Attempting to retrieve metadata for schema: ${schemaKey}`);
 
   try {
     // Use the new utility function for metadata
-    const objectMetadata = await getObjectMetadata(SCHEMA_KEY);
+    const objectMetadata = await getObjectMetadata(schemaKey);
 
     if (!objectMetadata) {
-      logger.warn(`[API Core] Metadata not found for ${SCHEMA_KEY}`);
+      logger.warn(`[API Core] Metadata not found for ${schemaKey}`);
       return createErrorResponse(
         'Schema file (schema.json) not found in storage.',
         404,
@@ -129,9 +132,9 @@ export async function getSchemaMetadata(): Promise<ApiResponse> {
     }
 
     // Use the new utility function to check public status
-    const isPublic = await isObjectPublic(SCHEMA_KEY);
+    const isPublic = await isObjectPublic(schemaKey);
 
-    logger.info(`[API Core] Successfully retrieved metadata for schema: ${SCHEMA_KEY}`);
+    logger.info(`[API Core] Successfully retrieved metadata for schema: ${schemaKey}`);
     return createSuccessResponse({
       lastModified: objectMetadata.lastModified?.toISOString(), // Return as ISO string
       isPublic,
@@ -139,7 +142,7 @@ export async function getSchemaMetadata(): Promise<ApiResponse> {
   } catch (error: any) {
     // Check for S3 Not Found error before attempting to get metadata
     if (error.name === 'NotFound' || error.name === 'NoSuchKey') { // HeadObject might return 'NotFound'
-      logger.warn(`[API Core] Schema file not found when fetching metadata: ${SCHEMA_KEY}`);
+      logger.warn(`[API Core] Schema file not found in metadata check: ${schemaKey}`);
       return createErrorResponse(
         'Schema file (schema.json) not found in storage.',
         404,
@@ -160,15 +163,16 @@ export async function getSchemaMetadata(): Promise<ApiResponse> {
 /**
  * Core handler for generating a pre-signed GET URL for the schema file.
  */
-export async function getSchemaPresignedUrl(): Promise<ApiResponse> {
-  logger.info(`[API Core] Attempting to generate pre-signed URL for schema: ${SCHEMA_KEY}`);
+export async function getSchemaPresignedUrl(siteId: string = 'default'): Promise<ApiResponse> {
+  const schemaKey = getSchemaKey(siteId);
+  logger.info(`[API Core] Attempting to generate pre-signed URL for schema: ${schemaKey}`);
   const expiresIn = config.urls.presignedUrlExpirySeconds; // Use configured expiry
 
   try {
     // Use the new utility function
-    const url = await generatePresignedGetUrl(SCHEMA_KEY, expiresIn);
+    const url = await generatePresignedGetUrl(schemaKey, expiresIn);
 
-    logger.info(`[API Core] Successfully generated pre-signed URL for schema: ${SCHEMA_KEY}`);
+    logger.info(`[API Core] Successfully generated pre-signed URL for schema: ${schemaKey}`);
     return createSuccessResponse({ presignedUrl: url });
   } catch (error: any) {
     // Check for S3 Not Found error before attempting to sign
@@ -192,14 +196,15 @@ export async function getSchemaPresignedUrl(): Promise<ApiResponse> {
 /**
  * Core handler for setting the schema file ACL to private.
  */
-export async function makeSchemaPrivate(): Promise<ApiResponse> {
-  logger.info(`[API Core] Attempting to set ACL for schema: ${SCHEMA_KEY} to private`);
+export async function makeSchemaPrivate(siteId: string = 'default'): Promise<ApiResponse> {
+  const schemaKey = getSchemaKey(siteId);
+  logger.info(`[API Core] Attempting to set ACL for schema: ${schemaKey} to private`);
 
   try {
     // Use the new utility function to set ACL
-    await setObjectAcl(SCHEMA_KEY, 'private');
+    await setObjectAcl(schemaKey, 'private');
 
-    logger.info(`[API Core] Successfully set schema ACL to private for: ${SCHEMA_KEY}`);
+    logger.info(`[API Core] Successfully set schema ACL to private for: ${schemaKey}`);
     return createSuccessResponse({ message: 'Schema file ACL successfully set to private.' });
   } catch (error: any) {
     // Check for S3 Not Found error before attempting to set ACL

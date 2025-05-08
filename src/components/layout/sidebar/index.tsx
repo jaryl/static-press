@@ -2,7 +2,9 @@ import { useState, useEffect, Suspense } from "react";
 import { useCollection } from "@/contexts/CollectionContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { Separator } from "@/components/ui/separator";
+import { SiteSwitcher } from "@/components/SiteSwitcher";
 import { ScrollArea } from "@/components/ui/scroll-area";
+
 import SidebarHeader from './SidebarHeader';
 import SidebarSearch from './SidebarSearch';
 import SidebarNavLinks from './SidebarNavLinks';
@@ -53,7 +55,12 @@ export function Sidebar() {
     <div className={`flex flex-col bg-sidebar border-r border-border ${isOpen ? 'w-60' : 'w-16'}`}>
       <SidebarHeader isOpen={isOpen} onToggle={handleToggleSidebar} />
 
-      {isOpen && <SidebarSearch searchTerm={searchTerm} onSearchChange={setSearchTerm} />}
+      {isOpen && (
+        <>
+          <SiteSwitcher />
+          <SidebarSearch searchTerm={searchTerm} onSearchChange={setSearchTerm} />
+        </>
+      )}
 
       <Separator className="bg-border/50" />
 
