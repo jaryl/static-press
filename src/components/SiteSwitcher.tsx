@@ -1,128 +1,115 @@
 import { useState } from 'react';
-import { ChevronDown, Plus } from 'lucide-react';
-import { Site, useSite } from '@/contexts/SiteContext';
+import { ChevronDown, Plus, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { useSite } from '@/hooks/useSite';
+import { NewSiteDialog } from '@/components/site/NewSiteDialog';
+import { EditSiteDialog } from '@/components/site/EditSiteDialog';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 export function SiteSwitcher() {
-  const { currentSite, sites, switchSite, createSite } = useSite();
-  const [isOpen, setIsOpen] = useState(false);
-  const [newSiteName, setNewSiteName] = useState('');
-  const [isCreating, setIsCreating] = useState(false);
-  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const { currentSite, sites, switchSite } = useSite();
 
-  const handleCreateSite = async () => {
-    if (!newSiteName.trim()) return;
+  // Dropdown state
+  const [open, setOpen] = useState(false);
 
-    setIsCreating(true);
-    try {
-      await createSite(newSiteName);
-      setNewSiteName('');
-      setCreateDialogOpen(false);
-    } catch (error) {
-      console.error('Failed to create site:', error);
-    } finally {
-      setIsCreating(false);
-    }
+  // Dialog states
+  const [showNewSiteDialog, setShowNewSiteDialog] = useState(false);
+  const [showEditSiteDialog, setShowEditSiteDialog] = useState(false);
+  const [editingSite, setEditingSite] = useState<any>(null);
+
+  // Open edit dialog with site details
+  const openEditDialog = (site: any) => {
+    setEditingSite(site);
+    setShowEditSiteDialog(true);
   };
 
   return (
     <div className="flex items-center space-x-2 mb-4 px-3">
-      <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+      {/* Site Switcher Dropdown */}
+      <DropdownMenu open={open} onOpenChange={setOpen}>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" className="w-full justify-between">
-            <div className="flex items-center max-w-[180px] overflow-hidden">
-              <span className="truncate mr-1">{currentSite.name}</span>
-            </div>
-            <ChevronDown className="h-4 w-4 text-muted-foreground ml-auto" />
+          <Button variant="outline" role="combobox" aria-expanded={open} className="w-full justify-between">
+            <span className="truncate">{currentSite.name}</span>
+            <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="w-[240px]">
+        <DropdownMenuContent className="w-[240px]">
           {sites.map((site) => (
             <DropdownMenuItem
               key={site.id}
-              className="cursor-pointer"
-              onClick={() => {
-                switchSite(site.id);
-                setIsOpen(false);
-              }}
+              className="flex justify-between"
             >
-              <span className={site.id === currentSite.id ? 'font-semibold' : ''}>
+              <div
+                onClick={() => {
+                  switchSite(site.id);
+                  setOpen(false);
+                }}
+                className="flex-1 cursor-pointer"
+              >
                 {site.name}
-              </span>
+              </div>
+              {site.id !== 'default' && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openEditDialog(site);
+                          setOpen(false);
+                        }}
+                      >
+                        <Settings className="h-3.5 w-3.5" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Site Settings</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
             </DropdownMenuItem>
           ))}
-          <DropdownMenuItem
-            className="cursor-pointer focus:bg-primary focus:text-primary-foreground"
-            onClick={() => {
-              setCreateDialogOpen(true);
-              setIsOpen(false);
-            }}
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            <span>Create New Site</span>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onSelect={(e) => {
+            e.preventDefault();
+            setShowNewSiteDialog(true);
+          }}>
+            <Plus className="mr-2 h-4 w-4" />
+            New Site
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Create New Site</DialogTitle>
-            <DialogDescription>
-              Enter a name for your new site. This will create a new empty site.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="siteName" className="text-right">
-                Site Name
-              </Label>
-              <Input
-                id="siteName"
-                placeholder="My Awesome Site"
-                className="col-span-3"
-                value={newSiteName}
-                onChange={(e) => setNewSiteName(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    handleCreateSite();
-                  }
-                }}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setCreateDialogOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleCreateSite}
-              disabled={!newSiteName.trim() || isCreating}
-            >
-              {isCreating ? 'Creating...' : 'Create Site'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Create New Site Dialog */}
+      <NewSiteDialog
+        isOpen={showNewSiteDialog}
+        onOpenChange={setShowNewSiteDialog}
+      />
+
+      {/* Edit Site Dialog */}
+      {editingSite && (
+        <EditSiteDialog
+          isOpen={showEditSiteDialog}
+          onOpenChange={setShowEditSiteDialog}
+          site={editingSite}
+        />
+      )}
     </div>
   );
 }

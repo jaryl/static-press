@@ -1,27 +1,11 @@
 import { Readable } from 'stream';
-import { Buffer } from 'buffer';
 import { ApiResponse, createSuccessResponse, createErrorResponse } from '../utils/response';
 import { config } from '../../config';
 import { logger } from '../../utils/logger';
-import { getObjectMetadata, isObjectPublic, setObjectAcl, putObjectJson, getObjectStream, generatePresignedGetUrl } from '../../utils/s3Utils';
+import { getObjectMetadata, isObjectPublic, setObjectAcl, putObjectJson, getObjectStream, generatePresignedGetUrl, streamToString } from '../../utils/s3Utils';
 
 // Generate the schema path for a site
 const getSchemaKey = (siteId: string = 'default') => `sites/${siteId}/schema.json`;
-
-/**
- * Helper function to convert a Readable stream to a string.
- *
- * @param stream - The Readable stream to convert.
- * @returns A promise that resolves with the string content of the stream.
- */
-export async function streamToString(stream: Readable): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const chunks: Uint8Array[] = [];
-    stream.on('data', (chunk) => chunks.push(chunk));
-    stream.on('error', reject);
-    stream.on('end', () => resolve(Buffer.concat(chunks).toString('utf-8')));
-  });
-}
 
 
 /**
@@ -151,7 +135,7 @@ export async function getSchemaMetadata(siteId: string = 'default'): Promise<Api
     }
 
     // Handle other S3 or unexpected errors
-    logger.error(`[API Core] Error retrieving schema metadata from S3: ${SCHEMA_KEY}`, error);
+    logger.error(`[API Core] Error retrieving schema metadata from S3: ${schemaKey}`, error);
     return createErrorResponse(
       'Internal server error retrieving schema metadata.',
       500,
@@ -177,14 +161,14 @@ export async function getSchemaPresignedUrl(siteId: string = 'default'): Promise
   } catch (error: any) {
     // Check for S3 Not Found error before attempting to sign
     if (error.name === 'NotFound' || error.name === 'NoSuchKey') {
-      logger.warn(`[API Core] Schema file not found when generating pre-signed URL: ${SCHEMA_KEY}`);
+      logger.warn(`[API Core] Schema file not found when generating pre-signed URL: ${schemaKey}`);
       return createErrorResponse(
         'Schema file (schema.json) not found. Cannot generate URL.',
         404,
         'SCHEMA_FILE_NOT_FOUND'
       );
     }
-    logger.error(`[API Core] Error generating pre-signed URL for schema: ${SCHEMA_KEY}`, error);
+    logger.error(`[API Core] Error generating pre-signed URL for schema: ${schemaKey}`, error);
     return createErrorResponse(
       `Failed to generate pre-signed URL for schema due to an internal error.`,
       500,
@@ -209,7 +193,7 @@ export async function makeSchemaPrivate(siteId: string = 'default'): Promise<Api
   } catch (error: any) {
     // Check for S3 Not Found error before attempting to set ACL
     if (error.name === 'NotFound' || error.name === 'NoSuchKey') {
-      logger.warn(`[API Core] Schema file not found when attempting to set ACL: ${SCHEMA_KEY}`);
+      logger.warn(`[API Core] Schema file not found when attempting to set ACL: ${schemaKey}`);
       return createErrorResponse(
         'Schema file (schema.json) not found. Cannot set ACL.',
         404,
@@ -218,7 +202,7 @@ export async function makeSchemaPrivate(siteId: string = 'default'): Promise<Api
     }
     // Handle potential access denied errors
     if (error.name === 'AccessDenied') {
-      logger.error(`[API Core] Access Denied setting schema ACL for: ${SCHEMA_KEY}`, error);
+      logger.error(`[API Core] Access Denied setting schema ACL for: ${schemaKey}`, error);
       return createErrorResponse(
         `Permission denied when trying to set schema file ACL to private. Check function permissions.`,
         403,
@@ -226,7 +210,7 @@ export async function makeSchemaPrivate(siteId: string = 'default'): Promise<Api
       );
     }
 
-    logger.error(`[API Core] Error setting schema ACL to private for: ${SCHEMA_KEY}`, error);
+    logger.error(`[API Core] Error setting schema ACL to private for: ${schemaKey}`, error);
     return createErrorResponse(
       `Failed to set schema file ACL to private due to an internal error.`,
       500,

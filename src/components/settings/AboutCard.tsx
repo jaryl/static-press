@@ -11,13 +11,13 @@ import { ExternalLink } from 'lucide-react';
 const AboutCard: React.FC = () => {
   return (
     <Card>
-      <CardHeader className="py-3 px-4">
+      <CardHeader>
         <CardTitle className="text-base">About</CardTitle>
         <CardDescription className="text-xs">
           A simple serverless CMS that deploys as a static site - no traditional backend required
         </CardDescription>
       </CardHeader>
-      <CardContent className="px-4 py-3 text-sm">
+      <CardContent>
         <dl className="space-y-2">
           <div className="space-y-0.5">
             <dt className="text-xs font-medium text-muted-foreground">Application</dt>

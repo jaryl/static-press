@@ -1,8 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useCollection } from "@/contexts/CollectionContext";
+import { useSite } from "@/hooks/useSite";
 import { Button } from "@/components/ui/button";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Plus } from "lucide-react";
+import { NewSiteDialog } from "@/components/site/NewSiteDialog";
 import Container from '@/components/layout/Container';
 import { Spinner } from "@/components/ui/spinner";
 import { PrimaryHeader } from "@/components/layout/PrimaryHeader";
@@ -23,9 +26,19 @@ const Dashboard = () => {
     error,
     errorType
   } = useCollection();
+  const { currentSite } = useSite();
+  const [searchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isSiteDialogOpen, setIsSiteDialogOpen] = useState(false);
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    const newSite = searchParams.get('newSite');
+    if (newSite === 'true') {
+      setIsSiteDialogOpen(true);
+    }
+  }, [searchParams]);
 
   const { submit: submitNewCollection, isSubmitting, error: submissionError, resetError } = useCreateCollectionSubmit(createCollection);
 
@@ -85,18 +98,24 @@ const Dashboard = () => {
       <Sidebar />
       <div className="flex flex-col flex-1 overflow-y-auto">
         <PrimaryHeader
-          title="Collections"
+          title={`Collections - ${currentSite.name}`}
         >
-          <NewCollectionDialog
-            onSubmit={handleDialogSubmit}
-            isOpen={isCreateDialogOpen}
-            onOpenChange={(isOpen) => {
-              setIsCreateDialogOpen(isOpen);
-              if (!isOpen) resetError();
-            }}
-            isSubmitting={isSubmitting}
-            submissionError={submissionError}
-          />
+          <div className="flex items-center space-x-2">
+            <NewCollectionDialog
+              onSubmit={handleDialogSubmit}
+              isOpen={isCreateDialogOpen}
+              onOpenChange={(isOpen) => {
+                setIsCreateDialogOpen(isOpen);
+                if (!isOpen) resetError();
+              }}
+              isSubmitting={isSubmitting}
+              submissionError={submissionError}
+            />
+            <NewSiteDialog
+              isOpen={isSiteDialogOpen}
+              onOpenChange={setIsSiteDialogOpen}
+            />
+          </div>
         </PrimaryHeader>
         <SecondaryHeader
           description="Manage your data collections and schemas"
@@ -124,7 +143,7 @@ const Dashboard = () => {
         ) : (
           <Card className="bg-card border-border p-6 text-center">
             <div>
-              <p className="text-sm font-medium">No collections yet</p>
+              <p className="text-sm font-medium">No collections yet in <span className="font-bold">{currentSite.name}</span></p>
               <p className="text-xs text-muted-foreground mt-1">Create your first collection to get started</p>
               <Button className="mt-4 text-xs h-7" onClick={() => setIsCreateDialogOpen(true)}>
                 <Plus className="mr-1 h-3.5 w-3.5" />

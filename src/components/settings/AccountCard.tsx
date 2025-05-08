@@ -16,11 +16,12 @@ interface AccountCardProps {
 const AccountCard: React.FC<AccountCardProps> = ({ onLogout }) => {
   return (
     <Card>
-      <CardHeader className="py-3 px-4">
+      <CardHeader>
         <CardTitle className="text-base">Account</CardTitle>
         <CardDescription className="text-xs">Manage your account settings</CardDescription>
       </CardHeader>
-      <CardContent className="px-4 py-3 space-y-3">
+
+      <CardContent>
         {/* TODO: Could add user display info here if needed */}
         <Button variant="outline" size="sm" onClick={onLogout} className="w-full">
           <LogOut className="mr-2 h-4 w-4" /> Log Out

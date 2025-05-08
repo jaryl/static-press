@@ -4,6 +4,7 @@ import EnvironmentVariables from '../components/settings/EnvironmentVariables';
 import SchemaCard from '../components/settings/SchemaCard';
 import AccountCard from '../components/settings/AccountCard';
 import AboutCard from '../components/settings/AboutCard';
+import SiteManagementCard from '../components/settings/SiteManagementCard';
 import Container from '@/components/layout/Container';
 import { PrimaryHeader } from '@/components/layout/PrimaryHeader';
 import { SecondaryHeader } from '@/components/layout/SecondaryHeader';
@@ -37,6 +38,8 @@ const Settings: React.FC = () => {
                 useRemoteData={useRemoteData}
                 apiBaseUrl={apiBaseUrl}
               />
+
+              <SiteManagementCard />
             </div>
 
             <div className="space-y-5">

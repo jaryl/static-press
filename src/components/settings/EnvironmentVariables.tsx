@@ -36,11 +36,12 @@ const EnvironmentVariables: React.FC<EnvironmentVariablesProps> = () => {
 
   return (
     <Card>
-      <CardHeader className="py-3 px-4">
+      <CardHeader>
         <CardTitle className="text-base">Environment Configuration</CardTitle>
         <CardDescription className="text-xs">Client-side environment variables (from `.env`).</CardDescription>
       </CardHeader>
-      <CardContent className="px-4 py-3 text-sm">
+
+      <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {Object.entries(clientEnvVars).map(([key, { value, description }]) => (
             <div key={key} className="space-y-1">

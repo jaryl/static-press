@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import schemaRoutes from './api/schema';
 import collectionRoutes from './api/collection';
+import sitesRoutes from './api/sites';
 import { handleLogin } from '../lib/api-logic/handlers/auth';
 import { authenticateToken } from './middleware/auth';
 import { errorHandler } from './middleware/errorHandler';
@@ -57,6 +58,7 @@ app.get('/', (req: Request, res: Response) => {
 // Mount protected routers, applying middleware individually
 app.use('/api/schema', authenticateToken, schemaRoutes);
 app.use('/api/collections', authenticateToken, collectionRoutes);
+app.use('/api/sites', authenticateToken, sitesRoutes);
 
 // --- Global Error Handler ---
 // IMPORTANT: Must be registered *after* all other app.use() and routes

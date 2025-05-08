@@ -92,12 +92,12 @@ const SchemaCard: React.FC<SchemaCardProps> = ({ useRemoteData, apiBaseUrl }) =>
 
   return (
     <Card>
-      <CardHeader className="py-3 px-4 flex flex-row items-center justify-between">
+      <CardHeader>
+        <CardTitle className="text-base">Schema Configuration</CardTitle>
+        <CardDescription className="text-xs">
+          Metadata about your content schema definition file.
+        </CardDescription>
         <div>
-          <CardTitle className="text-base">Schema Configuration</CardTitle>
-          <CardDescription className="text-xs">
-            Metadata about your content schema definition file.
-          </CardDescription>
         </div>
         {/* View Schema Button */}
         {!metadataLoading && !metadataError && schemaMetadata && (
@@ -116,7 +116,8 @@ const SchemaCard: React.FC<SchemaCardProps> = ({ useRemoteData, apiBaseUrl }) =>
           </Button>
         )}
       </CardHeader>
-      <CardContent className="px-4 py-3 text-sm">
+
+      <CardContent>
         {/* Display Metadata */}
         <SchemaMetadataDisplay
           metadata={schemaMetadata}

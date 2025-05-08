@@ -11,6 +11,7 @@ import Dashboard from "@/pages/Dashboard";
 import Collection from "@/pages/Collection";
 import SchemaEditor from "@/pages/SchemaEditor";
 import Settings from "@/pages/Settings";
+import SiteSettings from "@/pages/settings/SiteSettings";
 import NotFound from "@/pages/NotFound";
 import ProtectedRoute from "@/components/layout/ProtectedRoute";
 import Index from "@/pages/Index";
@@ -51,6 +52,12 @@ const App = () => (
                 <Route path="/settings" element={
                   <ProtectedRoute>
                     <Settings />
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/settings/site" element={
+                  <ProtectedRoute>
+                    <SiteSettings />
                   </ProtectedRoute>
                 } />
 

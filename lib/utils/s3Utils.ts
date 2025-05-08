@@ -4,6 +4,8 @@ import {
   HeadObjectCommand,
   GetObjectAclCommand,
   CopyObjectCommand,
+  ListObjectsV2Command,
+  DeleteObjectCommand,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
@@ -11,6 +13,7 @@ import { s3Client } from '../s3Client';
 import { config } from '../config';
 import { logger } from './logger';
 import { Readable } from 'stream';
+import { Buffer } from 'buffer';
 
 export interface S3ObjectMetadata {
   lastModified?: Date;
@@ -208,4 +211,81 @@ export async function generatePresignedGetUrl(key: string, expiresIn: number = 3
     // Note: getSignedUrl might throw errors if the command is invalid or credentials are bad
     throw new Error(`S3 Error generating pre-signed URL for ${key}: ${error instanceof Error ? error.message : String(error)}`);
   }
+}
+
+/**
+ * Lists objects in an S3 bucket with a specific prefix and delimiter.
+ *
+ * @param prefix - The prefix to filter objects by.
+ * @param delimiter - The delimiter to use (typically '/' for directory-like behavior).
+ * @returns Array of prefixes (directory names) matching the criteria.
+ * @throws Error on S3 error.
+ */
+export async function listObjects(prefix: string, delimiter: string = '/'): Promise<string[]> {
+  logger.info(`[S3 Utils] Listing objects with prefix: ${prefix} and delimiter: ${delimiter}`);
+
+  const command = new ListObjectsV2Command({
+    Bucket: config.s3.bucketName,
+    Prefix: prefix,
+    Delimiter: delimiter
+  });
+
+  try {
+    const response = await s3Client.send(command);
+
+    // Extract CommonPrefixes (which are like directories)
+    const prefixes: string[] = [];
+
+    if (response.CommonPrefixes && response.CommonPrefixes.length > 0) {
+      response.CommonPrefixes.forEach(prefix => {
+        if (prefix.Prefix) {
+          prefixes.push(prefix.Prefix);
+        }
+      });
+    }
+
+    logger.info(`[S3 Utils] Found ${prefixes.length} prefixes for ${prefix}`);
+    return prefixes;
+  } catch (error) {
+    logger.error(`[S3 Utils] Error listing objects with prefix ${prefix}`, error);
+    throw new Error(`S3 Error listing objects with prefix ${prefix}: ${error instanceof Error ? error.message : String(error)}`);
+  }
+}
+
+/**
+ * Deletes an object from S3.
+ *
+ * @param key - The S3 object key to delete.
+ * @throws Error on S3 error.
+ */
+export async function deleteObject(key: string): Promise<void> {
+  logger.info(`[S3 Utils] Attempting to delete object: ${key}`);
+
+  const command = new DeleteObjectCommand({
+    Bucket: config.s3.bucketName,
+    Key: key
+  });
+
+  try {
+    await s3Client.send(command);
+    logger.info(`[S3 Utils] Successfully deleted object: ${key}`);
+  } catch (error) {
+    logger.error(`[S3 Utils] Error deleting object ${key}`, error);
+    throw new Error(`S3 Error deleting object ${key}: ${error instanceof Error ? error.message : String(error)}`);
+  }
+}
+
+/**
+ * Converts a Readable stream to a string.
+ *
+ * @param stream - The Readable stream to convert.
+ * @returns A promise that resolves with the string content of the stream.
+ */
+export async function streamToString(stream: Readable): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const chunks: Uint8Array[] = [];
+    stream.on('data', (chunk) => chunks.push(chunk));
+    stream.on('error', reject);
+    stream.on('end', () => resolve(Buffer.concat(chunks).toString('utf-8')));
+  });
 }

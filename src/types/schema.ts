@@ -12,13 +12,34 @@ export type FieldType =
   | 'array'
   | 'coordinates';
 
-export interface FieldDefinition {
-  id: string;
+export interface SelectOption {
+  label: string;
+  value: string;
+}
+
+export type FieldOptions = string[] | SelectOption[];
+
+export interface ArrayField {
   name: string;
   type: FieldType;
   required: boolean;
-  options?: string[];
+  label?: string;
+  placeholder?: string;
+  description?: string;
+  options?: FieldOptions;
+}
+
+export interface FieldDefinition {
+  id?: string;
+  name: string;
+  type: FieldType;
+  required: boolean;
+  label?: string;
+  placeholder?: string;
+  description?: string;
+  options?: FieldOptions;
   timezoneAware?: boolean;
+  arrayFields?: ArrayField[];
 }
 
 export interface CollectionSchema {
@@ -28,4 +49,6 @@ export interface CollectionSchema {
   fields: FieldDefinition[];
   createdAt: string;
   updatedAt: string;
+  icon?: string;
+  isPublic?: boolean;
 }
