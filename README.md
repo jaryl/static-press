@@ -34,6 +34,8 @@ Static Press is designed for teams who need a lightweight CMS solution for mostl
 
 This approach gives you the flexibility to use your preferred static site generator while providing a simple, cost-effective way for non-technical users to manage content without the overhead of traditional server infrastructure.
 
+Static Press now supports **Multi-Site Management**, allowing you to create and maintain multiple websites from a single installation. This is perfect for agencies, organizations with multiple brands, or anyone who needs to manage content across different websites.
+
 ## ✨ Features
 
 - 🖥️ **Modern Admin Interface** - Built with React, Tailwind CSS, and shadcn/ui
@@ -41,6 +43,7 @@ This approach gives you the flexibility to use your preferred static site genera
 - 📦 **S3 Storage** - Persistent data storage with S3 compatibility
 - 📱 **Responsive Design** - Table interface with horizontal scrolling support
 - 🔄 **Hybrid Architecture** - Express for development, Serverless for production
+- 🌐 **Multi-Site Support** - Manage multiple websites from a single dashboard
 
 ## 📋 Table of Contents
 
@@ -103,9 +106,14 @@ static-press/
 │   └── default/         # DigitalOcean Functions structure
 ├── src/                 # Frontend React application
 │   ├── components/      # UI components
+│   │   └── site/        # Site management components
+│   ├── contexts/        # React Context providers
+│   ├── hooks/           # Custom React hooks
 │   ├── lib/             # Utility functions & shared logic
 │   │   └── api-logic/   # Core API handlers (used by dev-api & packages)
-│   └── pages/           # Application pages
+│   ├── pages/           # Application pages
+│   │   └── settings/    # Settings pages including site management
+│   └── services/        # Service layer for API interactions
 ├── public/              # Static assets
 └── .do/                 # DigitalOcean deployment config
 ```
@@ -145,6 +153,27 @@ You can also deploy Static Press manually:
 | `S3_ACCESS_KEY_ID` | S3 access key | Yes |
 | `S3_SECRET_ACCESS_KEY` | S3 secret key | Yes |
 
+## 📂 S3 Bucket Structure
+
+With multi-site support, Static Press uses the following structure in your S3 bucket:
+
+```
+/sites/
+  ├── {site-id}/
+  │   ├── site-metadata.json   # Site metadata
+  │   ├── schema.json          # Site schema
+  │   └── collections/
+  │       └── {collection-slug}.json  # Collection data
+  │
+  ├── {another-site-id}/
+  │   ├── site-metadata.json
+  │   ├── schema.json
+  │   └── collections/
+  │       └── ...
+```
+
+This structure allows you to manage multiple sites from a single Static Press installation, while keeping all site data properly separated.
+
 ## 👥 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
@@ -160,7 +189,8 @@ Static Press generates JSON content that is stored in your S3 bucket and can be 
 ```javascript
 // Example: Fetching Static Press content in a Next.js page
 export async function getStaticProps() {
-  const res = await fetch('https://your-space-name.sgp.digitaloceanspaces.com/collections/blog.json')
+  // Note the updated path structure for multi-site support
+  const res = await fetch('https://your-space-name.sgp.digitaloceanspaces.com/sites/my-site-id/collections/blog.json')
   const posts = await res.json()
 
   return {
@@ -174,7 +204,8 @@ export async function getStaticProps() {
 // Example: Using Static Press content in a Gatsby site
 exports.createPages = async ({ actions }) => {
   const { createPage } = actions
-  const response = await fetch('https://your-space-name.sgp.digitaloceanspaces.com/collections/products.json')
+  // Note the updated path structure for multi-site support
+  const response = await fetch('https://your-space-name.sgp.digitaloceanspaces.com/sites/my-site-id/collections/products.json')
   const products = await response.json()
 
   products.forEach(product => {

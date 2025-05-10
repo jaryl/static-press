@@ -40,6 +40,7 @@ export const authService = {
 
         if (!response.ok) {
           console.error('[AuthService Remote] Login failed:', response.status, await response.text());
+          localStorage.removeItem(TOKEN_KEY);
           return null;
         }
 

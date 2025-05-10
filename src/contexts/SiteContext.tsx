@@ -4,6 +4,7 @@ import { schemaService } from '@/services/schemaService';
 import { siteService } from '@/services/siteService';
 import { useToast } from '@/hooks/use-toast';
 import { handleApiError, withLoading } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
 
 // Interface for site data
 export interface Site {
@@ -49,6 +50,7 @@ export const SiteProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
+  const { user } = useAuth(); // Get authentication state
 
   // Query for fetching all sites
   const { data: sites = [] } = useQuery({
@@ -65,9 +67,12 @@ export const SiteProvider = ({ children }: { children: ReactNode }) => {
         return sitesList;
       } catch (err) {
         console.error('Error fetching sites:', err);
+        handleApiError('fetch sites', err, setError, toast);
         return [DEFAULT_SITE]; // Fallback to default
       }
     },
+    // Only run query if user is authenticated
+    enabled: !!user,
   });
 
   // Query for current site
@@ -84,9 +89,12 @@ export const SiteProvider = ({ children }: { children: ReactNode }) => {
         return site;
       } catch (err) {
         console.error(`Error fetching site ${currentSiteId}:`, err);
+        handleApiError(`fetch site ${currentSiteId}`, err, setError, toast);
         return DEFAULT_SITE; // Fallback to default
       }
     },
+    // Only run query if we have a site ID AND user is authenticated
+    enabled: Boolean(currentSiteId) && !!user,
   });
 
   // Effect to set schema service site ID when current site changes

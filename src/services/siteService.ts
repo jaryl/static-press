@@ -1,6 +1,7 @@
 import { Site } from '@/contexts/SiteContext';
 import { schemaService } from '@/services/schemaService';
 import { getSiteTemplate } from '@/data/siteTemplates';
+import { apiClient } from '@/utils/apiClient';
 
 /**
  * Service for handling site-related API operations
@@ -10,7 +11,7 @@ export const siteService = {
    * Fetch all available sites
    */
   async fetchSites(): Promise<Site[]> {
-    const response = await fetch('/api/sites');
+    const response = await apiClient.get('/api/sites');
 
     if (!response.ok) {
       throw new Error(`Failed to fetch sites: ${response.status}`);
@@ -24,7 +25,7 @@ export const siteService = {
    * Fetch a single site by ID
    */
   async getSite(siteId: string): Promise<Site> {
-    const response = await fetch(`/api/sites/${siteId}`);
+    const response = await apiClient.get(`/api/sites/${siteId}`);
 
     if (!response.ok) {
       throw new Error(`Failed to fetch site ${siteId}: ${response.status}`);
@@ -50,13 +51,7 @@ export const siteService = {
     };
 
     // Make the API call to create the site
-    const response = await fetch('/api/sites', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    });
+    const response = await apiClient.post('/api/sites', payload);
 
     if (!response.ok) {
       throw new Error(`Failed to create site: ${response.status}`);
@@ -84,18 +79,8 @@ export const siteService = {
    * Update an existing site
    */
   async updateSite(siteId: string, updates: Partial<Site>): Promise<Site> {
-    // Prevent updating the default site's ID
-    if (siteId === 'default' && updates.id && updates.id !== 'default') {
-      throw new Error('Cannot change the ID of the default site');
-    }
 
-    const response = await fetch(`/api/sites/${siteId}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(updates),
-    });
+    const response = await apiClient.put(`/api/sites/${siteId}`, updates);
 
     if (!response.ok) {
       throw new Error(`Failed to update site: ${response.status}`);
@@ -108,14 +93,8 @@ export const siteService = {
    * Delete a site
    */
   async deleteSite(siteId: string): Promise<boolean> {
-    // Prevent deleting the default site
-    if (siteId === 'default') {
-      throw new Error('Cannot delete the default site');
-    }
 
-    const response = await fetch(`/api/sites/${siteId}`, {
-      method: 'DELETE',
-    });
+    const response = await apiClient.delete(`/api/sites/${siteId}`);
 
     if (!response.ok) {
       throw new Error(`Failed to delete site: ${response.status}`);

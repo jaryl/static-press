@@ -28,8 +28,8 @@ export class ApiStorageAdapter implements StorageAdapter {
     // Ensure endpoint doesn't have trailing slash
     const cleanEndpoint = s3Endpoint.endsWith('/') ? s3Endpoint.slice(0, -1) : s3Endpoint;
 
-    // Construct the base URL for data files with site path
-    this.baseUrl = `${cleanEndpoint}/${s3Bucket}/sites/${this.currentSiteId}/data`;
+    // Construct the base URL for collection files with site path
+    this.baseUrl = `${cleanEndpoint}/${s3Bucket}/sites/${this.currentSiteId}/collections`;
 
     console.log(`[ApiStorageAdapter] Initialized with data URL: ${this.baseUrl}`);
   }
@@ -78,7 +78,7 @@ export class ApiStorageAdapter implements StorageAdapter {
     const s3Endpoint = import.meta.env.VITE_S3_ENDPOINT_URL;
     const s3Bucket = import.meta.env.VITE_S3_BUCKET_NAME;
     const cleanEndpoint = s3Endpoint.endsWith('/') ? s3Endpoint.slice(0, -1) : s3Endpoint;
-    this.baseUrl = `${cleanEndpoint}/${s3Bucket}/sites/${this.currentSiteId}/data`;
+    this.baseUrl = `${cleanEndpoint}/${s3Bucket}/sites/${this.currentSiteId}/collections`;
     console.log(`[ApiStorageAdapter] Switched to site: ${this.currentSiteId}, new data URL: ${this.baseUrl}`);
   }
 
@@ -288,11 +288,11 @@ export class ApiStorageAdapter implements StorageAdapter {
     // Remove leading slash if present for consistency
     const normalizedPath = imagePath.startsWith('/') ? imagePath.substring(1) : imagePath;
 
-    // Extract the base URL without the 'data' part to get to the site root
-    const baseUrlWithoutData = this.baseUrl.replace(/\/data$/, '');
+    // Extract the base URL without the 'collections' part to get to the site root
+    const baseUrlWithoutCollections = this.baseUrl.replace(/\/collections$/, '');
 
     // Images are always in the images directory
-    return `${baseUrlWithoutData}/images/${normalizedPath}`;
+    return `${baseUrlWithoutCollections}/images/${normalizedPath}`;
   }
 
   /**

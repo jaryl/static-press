@@ -11,6 +11,7 @@ import { collectionService } from '@/services/collectionService';
 import { useToast } from '@/hooks/use-toast';
 import { validateRecord } from '@/lib/validation';
 import { handleApiError, withLoading } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface CollectionContextType {
   collections: CollectionSchema[];
@@ -40,6 +41,7 @@ export const CollectionProvider = ({ children }: { children: ReactNode }) => {
   const [error, setError] = useState<string | null>(null);
   const [errorType, setErrorType] = useState<string | null>(null);
   const { toast } = useToast();
+  const { user } = useAuth(); // Get authentication state
 
   const { data: collections = [] } = useQuery({
     queryKey: ['collections'],
@@ -48,9 +50,12 @@ export const CollectionProvider = ({ children }: { children: ReactNode }) => {
         return await schemaService.getCollections();
       } catch (err) {
         console.error('Error fetching collections:', err);
-        throw err;
+        handleApiError('fetch collections', err, setError, toast, setErrorType);
+        return [];
       }
     },
+    // Only run query if user is authenticated
+    enabled: !!user,
   });
 
   // Fetch current collection if slug is set
@@ -62,10 +67,12 @@ export const CollectionProvider = ({ children }: { children: ReactNode }) => {
         return await schemaService.getCollection(currentCollectionSlug);
       } catch (err) {
         console.error(`Error fetching collection ${currentCollectionSlug}:`, err);
-        throw err;
+        handleApiError(`fetch collection ${currentCollectionSlug}`, err, setError, toast, setErrorType);
+        return null;
       }
     },
-    enabled: !!currentCollectionSlug, // Only run query if slug is available
+    // Only run query if slug is available AND user is authenticated
+    enabled: !!currentCollectionSlug && !!user,
   });
 
   // Fetch records for current collection
@@ -82,10 +89,12 @@ export const CollectionProvider = ({ children }: { children: ReactNode }) => {
           return [];
         }
         console.error(`Error fetching records for ${currentCollectionSlug}:`, err);
-        throw err;
+        handleApiError(`fetch records for ${currentCollectionSlug}`, err, setError, toast, setErrorType);
+        return [];
       }
     },
-    enabled: !!currentCollectionSlug, // Only run query if slug is available
+    // Only run query if slug is available AND user is authenticated
+    enabled: !!currentCollectionSlug && !!user,
   });
 
   const createCollection = useCallback(async (collectionData: Omit<CollectionSchema, 'createdAt' | 'updatedAt'>): Promise<CollectionSchema> => {

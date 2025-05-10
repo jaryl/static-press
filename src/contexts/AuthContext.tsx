@@ -37,6 +37,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         });
         return true;
       } else {
+        setUser(null);
         toast({
           title: "Login failed",
           description: "Invalid username or password",
