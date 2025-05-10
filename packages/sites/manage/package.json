@@ -1,7 +1,7 @@
 {
-  "name": "@static-press/sites-show",
+  "name": "@static-press/sites-manage",
   "version": "1.0.0",
-  "description": "Endpoint to get a specific site",
+  "description": "API endpoint for all site operations",
   "private": true,
   "main": "index.js",
   "type": "module",
