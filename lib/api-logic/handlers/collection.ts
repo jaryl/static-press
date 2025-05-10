@@ -3,8 +3,8 @@ import { config } from '../../config';
 import { logger } from '../../utils/logger';
 import { putObjectJson, setObjectAcl } from '../../utils/s3Utils';
 
-// Collections are always in the data directory
-const getCollectionKey = (slug: string) => `data/${slug}.json`;
+// Collections are stored in the collections directory
+const getCollectionKey = (slug: string) => `collections/${slug}.json`;
 
 /**
  * Core handler for updating collection data in S3.

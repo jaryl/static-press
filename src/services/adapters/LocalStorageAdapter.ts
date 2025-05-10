@@ -56,7 +56,7 @@ export class LocalStorageAdapter implements StorageAdapter {
     }
 
     try {
-      const dataModule = await import(`@sample/data/${slug}.json`);
+      const dataModule = await import(`@sample/collections/${slug}.json`);
       const data = dataModule.default;
 
       if (!Array.isArray(data)) {
@@ -124,5 +124,15 @@ export class LocalStorageAdapter implements StorageAdapter {
    */
   isRemoteStorage(): boolean {
     return false;
+  }
+
+  /**
+   * Makes a collection public - no-op for local storage
+   * @param slug The slug of the collection to make public
+   */
+  async makeCollectionPublic(slug: string): Promise<void> {
+    console.log(`[LocalStorageAdapter] makeCollectionPublic called for ${slug} - this is a no-op in local storage mode`);
+    // No-op for local storage as there's no concept of public/private permissions
+    return Promise.resolve();
   }
 }
